@@ -1,26 +1,28 @@
-using System;
-using System.Net;
+п»їusing System.Net;
 using System.Text;
-using System.Threading;
+using GeminiServer;
+using DotNetEnv;
 
-
-namespace Servachok;
+namespace Server;
 class SimpleServer
 {
     private readonly HttpListener _listener;
     private readonly string _url;
+    private readonly GeminiApi _geminiApi;
 
     public SimpleServer(string url)
     {
+        Env.Load();
         _url = url;
         _listener = new HttpListener();
         _listener.Prefixes.Add(url);
+        _geminiApi = new GeminiApi(Env.GetString("KEY"));
     }
 
     public void Start()
     {
         _listener.Start();
-        Console.WriteLine($"Сервер запущен и слушает {_url}");
+        Console.WriteLine($"Server started and listens to: {_url}");
 
         Thread listenerThread = new Thread(Listen);
         listenerThread.Start();
@@ -29,7 +31,7 @@ class SimpleServer
     public void Stop()
     {
         _listener.Stop();
-        Console.WriteLine("Сервер остановлен");
+        Console.WriteLine("Server stopped");
     }
 
     private void Listen()
@@ -47,16 +49,16 @@ class SimpleServer
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine($"Ошибка при обработке запроса: {ex.Message}");
+                        Console.WriteLine($"Error proccesing task: {ex.Message}");
                     }
                 });
             }
             catch (HttpListenerException ex)
             {
                 if (ex.ErrorCode == 995) 
-                    Console.WriteLine("Сервер завершает работу...");
+                    Console.WriteLine("Server shutdown...");
                 else
-                    Console.WriteLine($"Ошибка: {ex.Message}");
+                    Console.WriteLine($"Error: {ex.Message}");
             }
         }
     }
@@ -66,27 +68,66 @@ class SimpleServer
         HttpListenerRequest request = context.Request;
         HttpListenerResponse response = context.Response;
 
-        Console.WriteLine($"Получен запрос: {request.Url}");
-
-        if (request.HttpMethod == "GET")
+        try
         {
-            string responseString = "да";
-            byte[] buffer = Encoding.UTF8.GetBytes(responseString);
+            switch (request.HttpMethod.ToUpper())
+            {
+                case "GET":
+                    ProcessGet(request, response);
+                    break;
+                
+                case "POST":
+                    ProcessPost(request, response);
+                    break;
 
-            response.ContentType = "text/plain";
-            response.ContentLength64 = buffer.Length;
-
-            response.OutputStream.Write(buffer, 0, buffer.Length);
+                default:
+                    SendResponse(response, "Only GET and POST are supported", HttpStatusCode.MethodNotAllowed);
+                    break;
+            }
         }
-        else
+        catch (Exception ex)
         {
-            response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
-            string errorResponse = "Поддерживаются только GET-запросы";
-            byte[] buffer = Encoding.UTF8.GetBytes(errorResponse);
-            response.OutputStream.Write(buffer, 0, buffer.Length);
+            Console.WriteLine($"Error processing request: {ex.Message}");
+            SendResponse(response, "Internal Server Error", HttpStatusCode.InternalServerError);
         }
+        finally
+        {
+            response.OutputStream.Close();
+        }
+    }
 
-        response.Close();
+    private void ProcessGet(HttpListenerRequest request, HttpListenerResponse response)
+    {
+        var path = Uri.UnescapeDataString(request.Url.AbsolutePath);
+        string staticPart = "/api/data=";
+
+        switch (path.StartsWith(staticPart) ? staticPart : null)
+        {
+            case "/api/data":
+                var promt = request.QueryString["promt"];
+                Console.WriteLine(promt);
+                var apiCall = _geminiApi.ProcessGeminiRequest(promt, response);
+                SendResponse(apiCall.Item1, apiCall.Item2, apiCall.Item3);
+                break;
+        }
+    }
+
+    private void ProcessPost(HttpListenerRequest request, HttpListenerResponse response)
+    {
+        SendResponse(response, "Task received", HttpStatusCode.OK);
+    }
+    
+    
+
+    private void SendResponse(HttpListenerResponse response, string message, HttpStatusCode statusCode)
+    {
+        var buffer = Encoding.UTF8.GetBytes(message);
+
+        response.StatusCode = (int)statusCode;
+        response.ContentType = "text/plain";
+        response.ContentLength64 = buffer.Length;
+
+        response.OutputStream.Write(buffer, 0, buffer.Length);
     }
 }
 
@@ -94,12 +135,12 @@ class Program
 {
     static void Main(string[] args)
     {
-        string url = "http://localhost:8080/"; 
+        var url = "http://localhost:8080/"; 
 
         var server = new SimpleServer(url);
         server.Start();
 
-        Console.WriteLine("Нажмите любую клавишу для остановки сервера...");
+        Console.WriteLine("Press any key to stop the server...");
         Console.ReadKey();
 
         server.Stop();
