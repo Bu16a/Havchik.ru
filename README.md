@@ -8,7 +8,7 @@ http://localhost:8080/api/data
 Эндпоинт пока один(можно добавлять) - api/data
 
 Параметры:
-    - GET: curl http://localhost:8080/api/data?prompt=smth?iname=smth
+    - GET: curl http://localhost:8080/api/data?prompt=smth&iname=smth
 
     - POST: {
         "prompt": "Напиши код на C#, который парсит JSON с экранированными \"кавычками\"",
