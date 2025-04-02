@@ -145,6 +145,10 @@ class SimpleServer
 
         var prompt = parameters["prompt"];
         Console.WriteLine($"Received prompt: {prompt}");
+        
+        if (parameters.ContainsKey("iname"))
+            _geminiApi.ChangeModel(parameters["iname"]);
+        
         var apiCall = _geminiApi.ProcessGeminiRequest(prompt, response).Result;
         SendResponse(apiCall.Item1, apiCall.Item2, apiCall.Item3);
     }
@@ -187,11 +191,14 @@ class SimpleServer
             return;
         }
 
-        if (!TryGetPrompt(jsonData, out string prompt, out errorMessage))
+        if (!TryGetParam(jsonData, "prompt", out string prompt, out errorMessage))
         {
             SendResponse(response, errorMessage, HttpStatusCode.BadRequest);
             return;
         }
+        
+        if (TryGetParam(jsonData, "iname", out string iname, out errorMessage))
+            _geminiApi.ChangeModel(iname);
 
         var apiResult = _geminiApi.ProcessGeminiRequest(prompt, response).Result;
         SendResponse(apiResult.Item1, apiResult.Item2, apiResult.Item3);
@@ -224,18 +231,27 @@ class SimpleServer
         }
     }
 
-    private bool TryGetPrompt(JObject jsonData, out string prompt, out string errorMessage)
+    private bool TryGetParam<T>(JObject jsonData, string param, out T value, out string errorMessage)
     {
-        prompt = jsonData["prompt"]?.ToString();
+        value = default;
+        errorMessage = null;
 
-        if (string.IsNullOrWhiteSpace(prompt))
+        if (jsonData[param] == null)
         {
-            errorMessage = "No prompt sent";
+            errorMessage = $"Parameter '{param}' is required";
             return false;
         }
 
-        errorMessage = null;
-        return true;
+        try
+        {
+            value = jsonData[param].ToObject<T>();
+            return true;
+        }
+        catch
+        {
+            errorMessage = $"Invalid format for parameter '{param}'";
+            return false;
+        }
     }
 
 

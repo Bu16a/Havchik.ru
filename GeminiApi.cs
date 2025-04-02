@@ -11,13 +11,46 @@ namespace GeminiServer;
 public class GeminiApi
 {
     private readonly string _geminiApiKey;
+    private string _model;
+    private readonly string[] _models =
+    {
+        "models/chat-bison-001",
+        "models/text-bison-001",
+        "models/gemini-1.5-pro-latest",
+        "models/gemini-1.5-pro-001",
+        "models/gemini-1.5-pro-002",
+        "models/gemini-1.5-pro",
+        "models/gemini-1.5-flash-latest",
+        "models/gemini-1.5-flash-001",
+        "models/gemini-1.5-flash",
+        "models/gemini-1.5-flash-002",
+        "models/gemini-1.5-flash-8b",
+        "models/gemini-1.5-flash-8b-001",
+        "models/gemini-1.5-flash-8b-latest",
+        "models/gemini-2.5-pro-exp-03-25",
+        "models/gemini-2.0-flash",
+        "models/gemini-2.0-flash-001",
+        "models/gemini-2.0-flash-lite-001",
+        "models/gemini-2.0-flash-lite",
+        "models/gemma-3-4b-it",
+        "models/gemma-3-12b-it",
+        "models/gemma-3-27b-it"
+    };
 
-    public GeminiApi(string geminiApiKey)
+    public GeminiApi(string geminiApiKey, string model = "gemini-2.0-flash-thinking-exp")
     {
         if (string.IsNullOrWhiteSpace(geminiApiKey))
             throw new ArgumentException("Gemini API key cannot be null or empty", nameof(geminiApiKey));
 
         _geminiApiKey = geminiApiKey;
+        _model = model;
+    }
+
+    public void ChangeModel(string name)
+    {
+        if (_models.Contains(name))
+            _model = name;
+        Console.WriteLine($"Model changed to {name}");
     }
 
     public async Task<(HttpListenerResponse response, string responseBody, HttpStatusCode statusCode)>
@@ -51,7 +84,7 @@ public class GeminiApi
         using var httpClient = new HttpClient();
 
         string apiUrl =
-            $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-thinking-exp:generateContent?key={_geminiApiKey}";
+            $"https://generativelanguage.googleapis.com/v1beta/{_model}:generateContent?key={_geminiApiKey}";
 
         var requestBody = new
         {
