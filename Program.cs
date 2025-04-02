@@ -2,25 +2,29 @@
 using System.Text;
 using GeminiServer;
 using DotNetEnv;
+using HavalNeGovno;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Server;
+
 class SimpleServer
 {
     private readonly HttpListener _listener;
     private readonly string _url;
     private readonly GeminiApi _geminiApi;
+    private readonly UrlParser _parser;
 
     public SimpleServer(string url)
     {
-        Env.Load();
+        Env.TraversePath().Load();
         _url = url;
+        _parser = new UrlParser(url);
         _listener = new HttpListener();
         _listener.Prefixes.Add(url);
         _geminiApi = new GeminiApi(Env.GetString("KEY"));
     }
-    
+
     public void Start()
     {
         _listener.Start();
@@ -57,7 +61,7 @@ class SimpleServer
             }
             catch (HttpListenerException ex)
             {
-                if (ex.ErrorCode == 995) 
+                if (ex.ErrorCode == 995)
                     Console.WriteLine("Server shutdown...");
                 else
                     Console.WriteLine($"Error: {ex.Message}");
@@ -70,16 +74,20 @@ class SimpleServer
         HttpListenerRequest request = context.Request;
         HttpListenerResponse response = context.Response;
 
+        if (request.Url is null)
+            return;
+
         try
         {
+            var endPoint = _parser.GetCheckpoint(request.Url.AbsolutePath);
             switch (request.HttpMethod.ToUpper())
             {
                 case "GET":
-                    ProcessGet(request, response);
+                    ProcessGet(endPoint, request, response);
                     break;
-                
+
                 case "POST":
-                    ProcessPost(request, response);
+                    ProcessPost(endPoint, request, response);
                     break;
 
                 default:
@@ -98,81 +106,137 @@ class SimpleServer
         }
     }
 
-    private void ProcessGet(HttpListenerRequest request, HttpListenerResponse response)
+    private void ProcessGet(string endPoint, HttpListenerRequest request, HttpListenerResponse response) // Done
     {
-        var path = Uri.UnescapeDataString(request.Url.AbsolutePath);
-        string staticPart = "/api/data=";
-
-        switch (path.StartsWith(staticPart) ? staticPart : null)
+        if (request.Url is null)
         {
-            case "/api/data":
-                var promt = request.QueryString["promt"];
-                Console.WriteLine(promt);
-                var apiCall = _geminiApi.ProcessGeminiRequest(promt, response);
-                SendResponse(apiCall.Item1, apiCall.Item2, apiCall.Item3);
-                break;
+            SendResponse(response, "URL is invalid", HttpStatusCode.BadRequest);
+            return;
         }
-    }
 
-    private void ProcessPost(HttpListenerRequest request, HttpListenerResponse response)
-    {
         try
         {
-            // Проверяем Content-Type
-            if (!request.ContentType?.StartsWith("application/json", StringComparison.OrdinalIgnoreCase) ?? true)
+            switch (endPoint)
             {
-                SendResponse(response, "Требуется Content-Type: application/json", HttpStatusCode.UnsupportedMediaType);
-                return;
+                case "/api/data":
+                    ProcessGetApiData(request, response);
+                    break;
+
+                default:
+                    SendResponse(response, "Endpoint not found", HttpStatusCode.NotFound);
+                    break;
             }
-
-            // Читаем тело запроса
-            string requestBody;
-            using (var reader = new StreamReader(request.InputStream, Encoding.UTF8))
-            {
-                requestBody = reader.ReadToEnd();
-            }
-
-            // Логируем для отладки
-            Console.WriteLine($"Raw JSON: {requestBody}");
-
-            // Парсим JSON как JObject
-            JObject jsonData;
-            try
-            {
-                jsonData = JObject.Parse(requestBody);
-            }
-            catch (JsonReaderException ex)
-            {
-                Console.WriteLine($"JSON Parsing Error: {ex.Message}");
-                SendResponse(response, "Неверный формат JSON", HttpStatusCode.BadRequest);
-                return;
-            }
-
-            // Вытаскиваем значение по ключу "prompt"
-            var prompt = jsonData["prompt"]?.ToString();
-            if (string.IsNullOrWhiteSpace(prompt))
-            {
-                SendResponse(response, "Свойство 'prompt' обязательно", HttpStatusCode.BadRequest);
-                return;
-            }
-
-            // Логируем успешное чтение данных
-            Console.WriteLine($"Прочёл: Prompt = {prompt}");
-
-            // Отправляем данные в Gemini API
-            var apiCall = _geminiApi.ProcessGeminiRequest(prompt, response);
-
-            // Отправляем ответ клиенту
-            SendResponse(apiCall.Item1, apiCall.Item2, apiCall.Item3);
         }
         catch (Exception ex)
         {
-            // Общая обработка ошибок
-            Console.WriteLine($"Unexpected Error: {ex.Message}");
-            SendResponse(response, $"Произошла ошибка: {ex.Message}", HttpStatusCode.InternalServerError);
+            Console.WriteLine($"Error processing GET request: {ex.Message}");
+            SendResponse(response, "Internal Server Error", HttpStatusCode.InternalServerError);
         }
     }
 
+    private void ProcessGetApiData(HttpListenerRequest request, HttpListenerResponse response)
+    {
+        var parameters = _parser.GetParams(request);
+        if (!parameters.ContainsKey("prompt") || string.IsNullOrWhiteSpace(parameters["prompt"]))
+        {
+            SendResponse(response, "Parameter 'prompt' is required", HttpStatusCode.BadRequest);
+            return;
+        }
+
+        var prompt = parameters["prompt"];
+        Console.WriteLine($"Received prompt: {prompt}");
+        var apiCall = _geminiApi.ProcessGeminiRequest(prompt, response).Result;
+        SendResponse(apiCall.Item1, apiCall.Item2, apiCall.Item3);
+    }
+
+    private void ProcessPost(string endPoint, HttpListenerRequest request, HttpListenerResponse response)
+    {
+        try
+        {
+            switch (endPoint)
+            {
+                case "/api/data":
+                    ProcessPostApiData(request, response);
+                    break;
+            }
+        }
+
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Unexpected Error: {ex.Message}");
+            SendResponse(response, $"Unexpected Error: {ex.Message}", HttpStatusCode.InternalServerError);
+        }
+    }
+
+
+    private void ProcessPostApiData(HttpListenerRequest request, HttpListenerResponse response)
+    {
+        if (!IsValidJsonContentType(request))
+        {
+            SendResponse(response, "Content-Type: application/json needed",
+                HttpStatusCode.UnsupportedMediaType);
+            return;
+        }
+
+        string requestBody = ReadRequestBody(request);
+
+        if (!TryParseJson(requestBody, out JObject jsonData, out string errorMessage))
+        {
+            Console.WriteLine($"JSON Parsing Error: {errorMessage}");
+            SendResponse(response, "Wrong JSON format", HttpStatusCode.BadRequest);
+            return;
+        }
+
+        if (!TryGetPrompt(jsonData, out string prompt, out errorMessage))
+        {
+            SendResponse(response, errorMessage, HttpStatusCode.BadRequest);
+            return;
+        }
+
+        var apiResult = _geminiApi.ProcessGeminiRequest(prompt, response).Result;
+        SendResponse(apiResult.Item1, apiResult.Item2, apiResult.Item3);
+    }
+
+    private bool IsValidJsonContentType(HttpListenerRequest request)
+    {
+        return request.ContentType?.StartsWith("application/json", StringComparison.OrdinalIgnoreCase) ?? false;
+    }
+
+    private string ReadRequestBody(HttpListenerRequest request)
+    {
+        using var reader = new StreamReader(request.InputStream, Encoding.UTF8);
+        return reader.ReadToEnd();
+    }
+
+    private bool TryParseJson(string json, out JObject jsonData, out string errorMessage)
+    {
+        try
+        {
+            jsonData = JObject.Parse(json);
+            errorMessage = null;
+            return true;
+        }
+        catch (JsonReaderException ex)
+        {
+            jsonData = null;
+            errorMessage = ex.Message;
+            return false;
+        }
+    }
+
+    private bool TryGetPrompt(JObject jsonData, out string prompt, out string errorMessage)
+    {
+        prompt = jsonData["prompt"]?.ToString();
+
+        if (string.IsNullOrWhiteSpace(prompt))
+        {
+            errorMessage = "No prompt sent";
+            return false;
+        }
+
+        errorMessage = null;
+        return true;
+    }
 
 
     private void SendResponse(HttpListenerResponse response, string message, HttpStatusCode statusCode)
@@ -191,7 +255,7 @@ class Program
 {
     static void Main(string[] args)
     {
-        var url = "http://localhost:8080/"; 
+        var url = "http://localhost:8080/";
 
         var server = new SimpleServer(url);
         server.Start();

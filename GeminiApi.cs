@@ -1,91 +1,88 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Net;
-using System.Text;
-using System.IO;
 using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 
 namespace GeminiServer;
 
-class GeminiApi
+public class GeminiApi
 {
     private readonly string _geminiApiKey;
 
     public GeminiApi(string geminiApiKey)
     {
+        if (string.IsNullOrWhiteSpace(geminiApiKey))
+            throw new ArgumentException("Gemini API key cannot be null or empty", nameof(geminiApiKey));
+
         _geminiApiKey = geminiApiKey;
     }
 
-    public (HttpListenerResponse, string, HttpStatusCode) ProcessGeminiRequest(string request, HttpListenerResponse response)
+    public async Task<(HttpListenerResponse response, string responseBody, HttpStatusCode statusCode)>
+        ProcessGeminiRequest(
+            string prompt,
+            HttpListenerResponse response)
     {
-        if (string.IsNullOrWhiteSpace(request))
+        if (string.IsNullOrWhiteSpace(prompt))
+            return (response, "Prompt is required", HttpStatusCode.BadRequest);
+
+        try
         {
-            return (response, "Prompt should exist", HttpStatusCode.BadRequest);
+            string geminiResponse = await CallGeminiApi(prompt);
+
+            var responseData = new
+            {
+                generated_text = geminiResponse,
+                timestamp = DateTime.UtcNow.ToString("o")
+            };
+
+            return (response, JsonConvert.SerializeObject(responseData), HttpStatusCode.OK);
         }
-
-        string geminiResponse = CallGeminiApi(request);
-
-        var responseData = new
+        catch (Exception ex)
         {
-            generated_text = geminiResponse,
-            timestamp = DateTime.UtcNow
-        };
-
-        return (response, JsonConvert.SerializeObject(responseData), HttpStatusCode.OK);
+            return (response, $"Internal Server Error: {ex.Message}", HttpStatusCode.InternalServerError);
+        }
     }
 
-    private string CallGeminiApi(string prompt)
+    private async Task<string> CallGeminiApi(string prompt)
     {
-        Console.WriteLine($"Executing request to Gemini API with prompt: {prompt}");
-
         using var httpClient = new HttpClient();
 
-        // Verify the API key is not null or empty
-        if (string.IsNullOrWhiteSpace(_geminiApiKey))
-        {
-            throw new Exception("Gemini API key is not configured");
-        }
-
-        // Correct URL format for Gemini API
-        string apiUrl = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={_geminiApiKey}";
+        string apiUrl =
+            $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-thinking-exp:generateContent?key={_geminiApiKey}";
 
         var requestBody = new
         {
             contents = new[]
             {
-            new
-            {
-                parts = new[]
+                new
                 {
-                    new { text = prompt }
+                    parts = new[]
+                    {
+                        new { text = prompt }
+                    }
                 }
             }
-        }
         };
 
-        var jsonContent = new StringContent(
-            JsonConvert.SerializeObject(requestBody),
-            Encoding.UTF8,
-            "application/json");
+        string jsonRequestBody = JsonConvert.SerializeObject(requestBody);
 
-        try
-        {
-            var httpResponse = httpClient.PostAsync(apiUrl, jsonContent).Result;
-            var responseBody = httpResponse.Content.ReadAsStringAsync().Result;
+        var jsonContent = new StringContent(jsonRequestBody, Encoding.UTF8, "application/json");
+        HttpResponseMessage httpResponse = await httpClient.PostAsync(apiUrl, jsonContent);
 
-            if (!httpResponse.IsSuccessStatusCode)
-            {
-                Console.WriteLine($"API Error: {httpResponse.StatusCode} - {responseBody}");
-                return $"API Error: {httpResponse.StatusCode} - {responseBody}";
-            }
+        string responseBody = await httpResponse.Content.ReadAsStringAsync();
 
-            dynamic geminiResponse = JsonConvert.DeserializeObject(responseBody);
-            return geminiResponse?.candidates?[0]?.content?.parts?[0]?.text ?? "No response from Gemini API";
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error calling Gemini API: {ex.Message}");
-            return $"Error: {ex.Message}";
-        }
+        if (!httpResponse.IsSuccessStatusCode)
+            throw new Exception($"API Error: {httpResponse.StatusCode} - {responseBody}");
+
+        dynamic geminiResponse = JsonConvert.DeserializeObject(responseBody);
+        string generatedText = geminiResponse?.candidates?[0]?.content?.parts?[0]?.text;
+
+        if (string.IsNullOrEmpty(generatedText))
+            throw new Exception("No valid response from Gemini API");
+
+        return generatedText;
     }
 }
