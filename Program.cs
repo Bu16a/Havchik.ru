@@ -118,24 +118,19 @@ class SimpleServer
     {
         try
         {
-            // Проверяем Content-Type
             if (!request.ContentType?.StartsWith("application/json", StringComparison.OrdinalIgnoreCase) ?? true)
             {
                 SendResponse(response, "Требуется Content-Type: application/json", HttpStatusCode.UnsupportedMediaType);
                 return;
             }
-
-            // Читаем тело запроса
             string requestBody;
             using (var reader = new StreamReader(request.InputStream, Encoding.UTF8))
             {
                 requestBody = reader.ReadToEnd();
             }
 
-            // Логируем для отладки
             Console.WriteLine($"Raw JSON: {requestBody}");
 
-            // Парсим JSON как JObject
             JObject jsonData;
             try
             {
@@ -148,7 +143,6 @@ class SimpleServer
                 return;
             }
 
-            // Вытаскиваем значение по ключу "prompt"
             var prompt = jsonData["prompt"]?.ToString();
             if (string.IsNullOrWhiteSpace(prompt))
             {
@@ -156,18 +150,14 @@ class SimpleServer
                 return;
             }
 
-            // Логируем успешное чтение данных
             Console.WriteLine($"Прочёл: Prompt = {prompt}");
 
-            // Отправляем данные в Gemini API
             var apiCall = _geminiApi.ProcessGeminiRequest(prompt, response);
 
-            // Отправляем ответ клиенту
             SendResponse(apiCall.Item1, apiCall.Item2, apiCall.Item3);
         }
         catch (Exception ex)
         {
-            // Общая обработка ошибок
             Console.WriteLine($"Unexpected Error: {ex.Message}");
             SendResponse(response, $"Произошла ошибка: {ex.Message}", HttpStatusCode.InternalServerError);
         }
