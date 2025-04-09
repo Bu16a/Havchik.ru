@@ -4,7 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Что есть — то есть</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/style/styles.css">
+    <link rel="stylesheet" href="assets/style/main.css">
 </head>
 <body>
 <header>
@@ -14,5 +18,69 @@
     <div class="products"></div>
     <div class="profile"></div>
 </header>
+<main>
+    <div class="generation-properties">
+        <div class="sorting-list">
+            <input type="checkbox" id="sort" checked>
+            <label for="sort">Сортировка</label>
+        </div>
+        <div class="add-products-checkbox">
+            <input type="checkbox" id="add-products">
+            <label for="add-products">Докуп продуктов</label>
+        </div>
+        <div class="52-Kurgan-checkbox">
+            <input type="checkbox" id="kurgan" checked>
+            <label for="kurgan">52 Курган</label>
+        </div>
+    </div>
+
+    <div class="recipes">
+        <div class="container-title">
+            <h1>Что будем готовить сегодня?</h1>
+        </div>
+
+        <div class="recipe-card" style="background: linear-gradient(90deg, #D9D9D9 0%, rgba(217, 217, 217, 0.4) 50%, #D9D9D9 100%), url('https://cdn.food.ru/unsigned/fit/640/480/ce/0/czM6Ly9tZWRpYS9waWN0dXJlcy8yMDI1MDIxMi8zbVd5UmUuanBlZw.webp');">
+            <div class="recipe-text">
+                <h2>Лагман</h2>
+                <p>3 ч 20 мин</p>
+                <p>149 кКал<br>Б: 7.26 г<br>Ж: 7.46 г<br>У: 13.28 г</p>
+            </div>
+        </div>
+
+        <div class="recipe-card" style="background: linear-gradient(90deg, #D9D9D9 0%, rgba(217, 217, 217, 0.4) 50%, #D9D9D9 100%), url('https://cdn.food.ru/unsigned/fit/640/480/ce/0/czM6Ly9tZWRpYS9waWN0dXJlcy8yMDI1MDIxMi8zbVd5UmUuanBlZw.webp');">
+            <div class="recipe-text">
+                <h2>Овощное буррито</h2>
+                <p>6 ч 20 мин</p>
+                <p>296 кКал<br>Б: 14.34 г<br>Ж: 16.86 г<br>У: 21.01 г</p>
+            </div>
+        </div>
+
+        <div class="recipe-card" style="background: linear-gradient(90deg, #D9D9D9 0%, rgba(217, 217, 217, 0.4) 50%, #D9D9D9 100%), url('https://cdn.food.ru/unsigned/fit/640/480/ce/0/czM6Ly9tZWRpYS9waWN0dXJlcy8yMDI1MDIxMi8zbVd5UmUuanBlZw.webp');">
+            <div class="recipe-text">
+                <h2>Диетический яблочно-морковный рулет</h2>
+                <p>2 ч 55 мин</p>
+                <p>81 кКал<br>Б: 6.29 г<br>Ж: 3.62 г<br>У: 5.63 г</p>
+            </div>
+        </div>
+
+        <div class="recipe-card" style="background: linear-gradient(90deg, #D9D9D9 0%, rgba(217, 217, 217, 0.4) 50%, #D9D9D9 100%), url('https://cdn.food.ru/unsigned/fit/640/480/ce/0/czM6Ly9tZWRpYS9waWN0dXJlcy8yMDI1MDIxMi8zbVd5UmUuanBlZw.webp');">
+            <div class="recipe-text">
+                <h2>Брускетта с паштетом и ягодами</h2>
+                <p>3 ч 20 мин</p>
+                <p>296 кКал<br>Б: 7.73 г<br>Ж: 16.38 г<br>У: 28.93 г</p>
+            </div>
+        </div>
+
+        <div class="recipe-card" style="background: linear-gradient(90deg, #D9D9D9 0%, rgba(217, 217, 217, 0.4) 50%, #D9D9D9 100%), url('https://cdn.food.ru/unsigned/fit/640/480/ce/0/czM6Ly9tZWRpYS9waWN0dXJlcy8yMDI1MDIxMi8zbVd5UmUuanBlZw.webp');">
+            <div class="recipe-text">
+                <h2>Рулет «Светофор» с крабовыми палочками</h2>
+                <p>35 мин</p>
+                <p>293 кКал<br>Б: 8.88 г<br>Ж: 18.87 г<br>У: 21.96 г</p>
+            </div>
+        </div>
+    </div>
+</main>
+
+
 </body>
 </html>
