@@ -7,14 +7,32 @@ body {
 
 main {
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
     align-items: center;
     min-height: calc(100vh - 5.625rem);
     padding: 1.25rem; 
 }
 
-.auth-container {
+.buttons .submit-btn{
+    display: inline-block;
+}
+
+.sign-up-container {
     display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2.5rem 1.875rem; 
+    gap: 1.875rem; 
+    width: 90%;
+    max-width: 34.375rem; 
+    background: #F5F5F5;
+    border-radius: 1.25rem; 
+    box-sizing: border-box;
+}
+
+.sign-in-container {
+    display: none;
     flex-direction: column;
     align-items: center;
     padding: 2.5rem 1.875rem; 

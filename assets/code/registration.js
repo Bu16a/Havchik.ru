@@ -1,37 +1,104 @@
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js';
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyArIiiX0vU-_Kr_CJRLdtIs5qTHIUTvUc8",
+  authDomain: "che-te.firebaseapp.com",
+  projectId: "che-te",
+  storageBucket: "che-te.appspot.com",
+  messagingSenderId: "902131293726",
+  appId: "1:902131293726:web:4a8a3aff1cf0c9d4e1180f",
+  measurementId: "G-BXT01SDXW2"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
 document.addEventListener('DOMContentLoaded', function() {
-    const registrationForm = document.querySelector('.auth-form form');
+    const signUpForm = document.querySelector('.sign-up-container .auth-form form');
+    const signInForm = document.querySelector('.sign-in-container .auth-form form');
+
+    document.getElementById("signUpBtt").addEventListener('click', function(e) {
+        const signUp = document.querySelector(".sign-up-container");
+        const signIn = document.querySelector(".sign-in-container");
+        signUp.style.display = "flex";
+        signIn.style.display = "none";
+    })
     
-    registrationForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        
-        const userData = {
-            email: email,
-            password: password
-        };
-        
-        fetch('https://your-server-url.com/api/register', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(userData)
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Ошибка сети');
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log('Успешная регистрация:', data);
-            alert('Регистрация прошла успешно!');
-        })
-        .catch(error => {
-            console.error('Ошибка:', error);
-            alert('Произошла ошибка при регистрации: ' + error.message);
+    document.getElementById("signInBtt").addEventListener('click', function(e) {
+        const signUp = document.querySelector(".sign-up-container");
+        const signIn = document.querySelector(".sign-in-container");
+        signIn.style.display = "flex";
+        signUp.style.display = "none";
+    })
+    
+    if (signUpForm) {
+        signUpForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const email = document.getElementById('email1').value;
+            const password = document.getElementById('password1').value;
+
+            createUserWithEmailAndPassword(auth, email, password)
+            .then((userCredential) => {
+                alert("Регистрация успешна!");
+                console.log("User created:", userCredential.user);
+            })
+            .catch((error) => {
+                console.error("Ошибка регистрации:", error.code, error.message);
+                let errorMessage = "Ошибка регистрации: ";
+                switch(error.code) {
+                    case 'auth/email-already-in-use':
+                        errorMessage += "Этот email уже зарегистрирован";
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage += "Некорректный email";
+                        break;
+                    case 'auth/weak-password':
+                        errorMessage += "Пароль должен содержать минимум 6 символов";
+                        break;
+                    default:
+                        errorMessage += error.message;
+                }
+                alert(errorMessage);
+            });
         });
-    });
+    }
+
+    if (signInForm) {
+        signInForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const email = document.getElementById('email2').value;
+            const password = document.getElementById('password2').value;
+
+            signInWithEmailAndPassword(auth, email, password)
+            .then((userCredential) => {
+                alert("Успешный вход");
+                console.log("User зашел:", userCredential.user);
+            })
+            .catch((error) => {
+                console.error("Ошибка входа:", error.code, error.message);
+                let errorMessage = "Ошибка входа: ";
+                switch(error.code) {
+                    case 'auth/user-not-found':
+                        errorMessage += "Пользователь не найден";
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage += "Некорректный email";
+                        break;
+                    case 'auth/wrong-password':
+                        errorMessage += "Пароль неверный";
+                        break;
+                    case 'auth/invalid-login-credentials':
+                        errorMessage += "Неверный пароль или почта";
+                        break
+                    default:
+                        errorMessage += error.message;
+                }
+                alert(errorMessage);
+            });
+        });
+    }
+
 });
