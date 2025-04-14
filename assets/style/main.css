@@ -1,18 +1,167 @@
 .generation-properties {
-    margin: 0 auto;
     display: flex;
     flex-direction: row;
+    align-items: center;
     justify-content: space-between;
-    align-items: flex-start;
+    margin: 0 auto;
     padding: 0;
-    gap: 1em;
-
     width: 46em;
     height: 52px;
     border-radius: 20px;
-    flex: none;
-    order: 0;
-    flex-grow: 0;
+}
+
+.generation-properties div {
+    margin: 0;
+}
+
+/* Докуп продуктов */
+.add-products-checkbox label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    position: relative; /* Добавлено */
+    font-family: "Montserrat", semiBold, sans-serif;
+    font-style: normal;
+    font-size: 20px;
+    margin: 0 auto;
+    width: auto;
+    padding: 16px;
+    height: 52px;
+    background: #F5F5F5;
+    border-radius: 10px;
+}
+
+#add-products {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 32px;
+    height: 32px;
+    background: #D9D9D9;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    margin: 0;
+}
+
+/* Галочка */
+.add-products-checkmark {
+    position: absolute;
+    left: 16px; /* Позиционируем относительно label */
+    width: 32px;
+    height: 32px;
+    pointer-events: none; /* Чтобы не перекрывать клики по чекбоксу */
+}
+
+#add-products:checked + .add-products-checkmark:before {
+    content: '';
+    position: absolute;
+    width: 10px;
+    height: 5px;
+    border-left: 3px solid rgb(51, 51, 51);
+    border-bottom: 3px solid rgb(51, 51, 51);
+    transform: rotate(-45deg);
+    left: 10px;
+    top: 12px;
+}
+
+/* Сортировка */
+.sort-wrapper {
+    position: relative;
+    width: fit-content;
+    margin: 0 auto;
+}
+
+.sort-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    font-family: "Montserrat", semiBold, sans-serif;
+    font-style: normal;
+    font-size: 20px;
+
+    margin: 0 auto;
+    width: auto;
+    padding: 16px;
+    height: 52px;
+    background: #F5F5F5;
+    border-radius: 10px;
+    border: none;
+}
+
+.sort-icon {
+    width: 32px;
+    height: 32px;
+    background: #E0E0E0;
+    border-radius: 8px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sort-icon img {
+    width: 20px;
+    height: 20px;
+    fill: #333;
+}
+
+#sortIcon {
+    transition: transform 0.3s ease-in-out;
+}
+
+#sortIcon.rotated {
+    transform: rotate(180deg);
+}
+
+.sort-menu {
+    position: absolute;
+    top: 60px;
+    width: 192px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    z-index: 100;
+    max-height: 0;
+    opacity: 0;
+    visibility: hidden;
+    transition: max-height 0.4s ease, opacity 0.4s ease, visibility 0s 0.4s;
+}
+
+.sort-menu.open {
+    max-height: 500px;
+    opacity: 1;
+    visibility: visible;
+    transition: max-height 0.4s ease, opacity 0.4s ease;
+}
+
+
+.sort-option {
+    padding: 12px 14px;
+    text-align: left;
+    cursor: pointer;
+    border: none;
+    background: none;
+    width: 100%;
+    font-size: 15px;
+}
+
+.sort-option:hover {
+    background-color: #f0f0f0;
+}
+
+.sort-option.active {
+    background-color: #DCE775;
+    font-weight: bold;
+
+}
+
+#sortLabel {
+    font-family: "Montserrat", semiBold, sans-serif;
+    font-style: normal;
     font-size: 20px;
 }
 
@@ -38,17 +187,10 @@
 
 .recipe-card {
     display: flex;
-    align-items: center;
     border-radius: 10px;
-    padding: 0.5em;
-    gap: 1em;
+    padding: 0.5em 1em;
     width: 100%;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    flex: none;
-    order: 0;
-    align-self: center;
-    flex-grow: 0;
-    background-size: cover;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .recipe-card h2 {
@@ -73,8 +215,10 @@
 
 .recipe-text {
     display: flex;
-    flex-direction: column;
-    justify-content: center;
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
     font-family: "Montserrat", sans-serif;
 }
 

@@ -6,7 +6,8 @@
     <title>Что есть — то есть</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+          rel="stylesheet">
     <link rel="stylesheet" href="assets/style/styles.css">
     <link rel="stylesheet" href="assets/style/main.css">
 </head>
@@ -14,24 +15,34 @@
 <header>
     <div class="logo"></div>
     <div class="pages">
-        <div class="search"></div>
         <div class="products"></div>
         <div class="profile"></div>
     </div>
 </header>
 <main>
+
     <div class="generation-properties">
-        <div class="sorting-list">
-            <input type="checkbox" id="sort" checked>
-            <label for="sort">Сортировка</label>
+        <div class="sort-wrapper">
+            <button class="sort-button" id="sortButton" onclick="">
+                <div class="sort-icon">
+                    <img id="sortIcon" src="assets/svg/expand.svg" alt="">
+                </div>
+                <span id="sortLabel"></span>
+            </button>
+
+            <div class="sort-menu" id="sortMenu">
+                <button class="sort-option active" data-sort="relevance">По релевантности</button>
+                <button class="sort-option" data-sort="time">По времени готовки</button>
+                <button class="sort-option" data-sort="ingredients">По количеству продуктов</button>
+            </div>
         </div>
+
         <div class="add-products-checkbox">
-            <input type="checkbox" id="add-products">
-            <label for="add-products">Докуп продуктов</label>
-        </div>
-        <div class="52-Kurgan-checkbox">
-            <input type="checkbox" id="kurgan" checked>
-            <label for="kurgan">52 Курган</label>
+            <label for="add-products">
+                <input type="checkbox" id="add-products">
+                <span class="add-products-checkmark"></span>
+                Докуп продуктов
+            </label>
         </div>
     </div>
 
@@ -40,42 +51,57 @@
             <h1>Что будем готовить сегодня?</h1>
         </div>
 
-        <div class="recipe-card" style="background: linear-gradient(90deg, #D9D9D9 0%, rgba(217, 217, 217, 0.4) 50%, #D9D9D9 100%), url('https://cdn.food.ru/unsigned/fit/640/480/ce/0/czM6Ly9tZWRpYS9waWN0dXJlcy8yMDI1MDIxMi8zbVd5UmUuanBlZw.webp');">
+        <div class="recipe-card"
+             data-image-url="https://cdn.food.ru/unsigned/fit/640/480/ce/0/czM6Ly9tZWRpYS9waWN0dXJlcy8yMDI1MDIxMi8zbVd5UmUuanBlZw.webp">
             <div class="recipe-text">
-                <h2>Лагман</h2>
-                <p>3 ч 20 мин</p>
+                <div>
+                    <h2>Лагман</h2>
+                    <p>3 ч 20 мин</p>
+                </div>
                 <p>149 кКал<br>Б: 7.26 г<br>Ж: 7.46 г<br>У: 13.28 г</p>
             </div>
         </div>
 
-        <div class="recipe-card" style="background: linear-gradient(90deg, #D9D9D9 0%, rgba(217, 217, 217, 0.4) 50%, #D9D9D9 100%), url('https://cdn.food.ru/unsigned/fit/640/480/ce/0/czM6Ly9tZWRpYS9waWN0dXJlcy8yMDI1MDIxMi8zbVd5UmUuanBlZw.webp');">
+        <div class="recipe-card"
+             data-image-url="https://cdn.food.ru/unsigned/fit/640/480/ce/0/czM6Ly9tZWRpYS9waWN0dXJlcy8yMDI1MDIxMi8zbVd5UmUuanBlZw.webp">
             <div class="recipe-text">
-                <h2>Овощное буррито</h2>
-                <p>6 ч 20 мин</p>
+                <div>
+                    <h2>Овощное буррито</h2>
+                    <p>6 ч 20 мин</p>
+                </div>
                 <p>296 кКал<br>Б: 14.34 г<br>Ж: 16.86 г<br>У: 21.01 г</p>
             </div>
         </div>
 
-        <div class="recipe-card" style="background: linear-gradient(90deg, #D9D9D9 0%, rgba(217, 217, 217, 0.4) 50%, #D9D9D9 100%), url('https://cdn.food.ru/unsigned/fit/640/480/ce/0/czM6Ly9tZWRpYS9waWN0dXJlcy8yMDI1MDIxMi8zbVd5UmUuanBlZw.webp');">
+        <div class="recipe-card"
+             data-image-url="https://cdn.food.ru/unsigned/fit/640/480/ce/0/czM6Ly9tZWRpYS9waWN0dXJlcy8yMDI1MDIxMi8zbVd5UmUuanBlZw.webp">
             <div class="recipe-text">
-                <h2>Диетический яблочно-морковный рулет</h2>
-                <p>2 ч 55 мин</p>
+                <div>
+                    <h2>Диетический яблочно-морковный рулет</h2>
+                    <p>2 ч 55 мин</p>
+                </div>
                 <p>81 кКал<br>Б: 6.29 г<br>Ж: 3.62 г<br>У: 5.63 г</p>
             </div>
         </div>
 
-        <div class="recipe-card" style="background: linear-gradient(90deg, #D9D9D9 0%, rgba(217, 217, 217, 0.4) 50%, #D9D9D9 100%), url('https://cdn.food.ru/unsigned/fit/640/480/ce/0/czM6Ly9tZWRpYS9waWN0dXJlcy8yMDI1MDIxMi8zbVd5UmUuanBlZw.webp');">
+        <div class="recipe-card"
+             data-image-url="https://cdn.food.ru/unsigned/fit/640/480/ce/0/czM6Ly9tZWRpYS9waWN0dXJlcy8yMDI1MDIxMi8zbVd5UmUuanBlZw.webp">
             <div class="recipe-text">
-                <h2>Брускетта с паштетом и ягодами</h2>
-                <p>3 ч 20 мин</p>
+                <div>
+                    <h2>Брускетта с паштетом и ягодами</h2>
+                    <p>3 ч 20 мин</p>
+                </div>
                 <p>296 кКал<br>Б: 7.73 г<br>Ж: 16.38 г<br>У: 28.93 г</p>
             </div>
         </div>
 
-        <div class="recipe-card" style="background: linear-gradient(90deg, #D9D9D9 0%, rgba(217, 217, 217, 0.4) 50%, #D9D9D9 100%), url('https://cdn.food.ru/unsigned/fit/640/480/ce/0/czM6Ly9tZWRpYS9waWN0dXJlcy8yMDI1MDIxMi8zbVd5UmUuanBlZw.webp');">
+        <div class="recipe-card"
+             data-image-url="https://cdn.food.ru/unsigned/fit/640/480/ce/0/czM6Ly9tZWRpYS9waWN0dXJlcy8yMDI1MDIxMi8zbVd5UmUuanBlZw.webp">
             <div class="recipe-text">
-                <h2>Рулет «Светофор» с крабовыми палочками</h2>
-                <p>35 мин</p>
+                <div>
+                    <h2>Рулет «Светофор» с крабовыми палочками</h2>
+                    <p>35 мин</p>
+                </div>
                 <p>293 кКал<br>Б: 8.88 г<br>Ж: 18.87 г<br>У: 21.96 г</p>
             </div>
         </div>
@@ -84,4 +110,5 @@
 
 
 </body>
+<script src="assets/code/main.js"></script>
 </html>
