@@ -14,5 +14,7 @@
       <PackageReference Include="Google.Apis.Auth" Version="1.69.0" />
       <PackageReference Include="Google_GenerativeAI" Version="2.4.6" />
       <PackageReference Include="Microsoft.AspNetCore.App" Version="2.2.8" />
+      <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+      <PackageReference Include="Npgsql" Version="9.0.3" />
     </ItemGroup>
 </Project>

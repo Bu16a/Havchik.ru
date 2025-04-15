@@ -145,10 +145,10 @@ class SimpleServer
 
         var prompt = parameters["prompt"];
         Console.WriteLine($"Received prompt: {prompt}");
-        
+
         if (parameters.ContainsKey("iname"))
             _geminiApi.ChangeModel(parameters["iname"]);
-        
+
         var apiCall = _geminiApi.ProcessGeminiRequest(prompt, response).Result;
         SendResponse(apiCall.Item1, apiCall.Item2, apiCall.Item3);
     }
@@ -158,11 +158,14 @@ class SimpleServer
         try
         {
             switch (endPoint)
-            if (!request.ContentType?.StartsWith("application/json", StringComparison.OrdinalIgnoreCase) ?? true)
-            if (!request.ContentType?.StartsWith("application/json", StringComparison.OrdinalIgnoreCase) ?? true)
-            if (!request.ContentType?.StartsWith("application/json", StringComparison.OrdinalIgnoreCase) ?? true)
-            if (!request.ContentType?.StartsWith("application/json", StringComparison.OrdinalIgnoreCase) ?? true)
-            if (!request.ContentType?.StartsWith("application/json", StringComparison.OrdinalIgnoreCase) ?? true)
+            {
+                case "/api/data":
+                    ProcessPostApiData(request, response);
+                    break;
+                case "/searchRecipe/data":
+                    ProcessPostSearchRecipe(request, response);
+                    break;
+            }
         }
 
         catch (Exception ex)
@@ -171,8 +174,27 @@ class SimpleServer
             SendResponse(response, $"Unexpected Error: {ex.Message}", HttpStatusCode.InternalServerError);
         }
     }
-            if (!request.ContentType?.StartsWith("application/json", StringComparison.OrdinalIgnoreCase) ?? true)
-            if (!request.ContentType?.StartsWith("application/json", StringComparison.OrdinalIgnoreCase) ?? true)
+    private void ProcessPostSearchRecipe(HttpListenerRequest request, HttpListenerResponse response)
+    {
+        if (!IsValidJsonContentType(request))
+        {
+            SendResponse(response, "Content-Type: application/json needed",
+                HttpStatusCode.UnsupportedMediaType);
+            return;
+        }
+
+        string requestBody = ReadRequestBody(request);
+
+        if (!TryParseJson(requestBody, out JObject jsonData, out string errorMessage))
+        {
+            Console.WriteLine($"JSON Parsing Error: {errorMessage}");
+            SendResponse(response, "Wrong JSON format", HttpStatusCode.BadRequest);
+            return;
+        }
+
+
+    }
+
     private void ProcessPostApiData(HttpListenerRequest request, HttpListenerResponse response)
     {
         if (!IsValidJsonContentType(request))
@@ -190,13 +212,13 @@ class SimpleServer
             SendResponse(response, "Wrong JSON format", HttpStatusCode.BadRequest);
             return;
         }
-                requestBody = reader.ReadToEnd();
+
         if (!TryGetParam(jsonData, "prompt", out string prompt, out errorMessage))
         {
             SendResponse(response, errorMessage, HttpStatusCode.BadRequest);
             return;
         }
-        
+
         if (TryGetParam(jsonData, "iname", out string iname, out errorMessage))
             _geminiApi.ChangeModel(iname);
 
@@ -208,13 +230,13 @@ class SimpleServer
     {
         return request.ContentType?.StartsWith("application/json", StringComparison.OrdinalIgnoreCase) ?? false;
     }
-            }
+
     private string ReadRequestBody(HttpListenerRequest request)
     {
         using var reader = new StreamReader(request.InputStream, Encoding.UTF8);
         return reader.ReadToEnd();
     }
-                Console.WriteLine($"JSON Parsing Error: {ex.Message}");
+
     private bool TryParseJson(string json, out JObject jsonData, out string errorMessage)
     {
         try
@@ -222,9 +244,9 @@ class SimpleServer
             jsonData = JObject.Parse(json);
             errorMessage = null;
             return true;
-            }
-
-            // Вытаскиваем значение по ключу "prompt"
+        }
+        catch (JsonReaderException ex)
+        {
             jsonData = null;
             errorMessage = ex.Message;
             return false;
@@ -241,24 +263,6 @@ class SimpleServer
             errorMessage = $"Parameter '{param}' is required";
             return false;
         }
-            }
-
-            // Логируем успешное чтение данных
-            Console.WriteLine($"Прочёл: Prompt = {prompt}");
-
-            // Отправляем данные в Gemini API
-            var apiCall = _geminiApi.ProcessGeminiRequest(prompt, response);
-
-            // Отправляем ответ клиенту
-            SendResponse(apiCall.Item1, apiCall.Item2, apiCall.Item3);
-        }
-        catch (JsonReaderException ex)
-        {
-            // Общая обработка ошибок
-            Console.WriteLine($"Unexpected Error: {ex.Message}");
-            SendResponse(response, $"Произошла ошибка: {ex.Message}", HttpStatusCode.InternalServerError);
-        }
-    }
 
         try
         {

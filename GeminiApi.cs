@@ -4,7 +4,9 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using GenerativeAI.Types;
 using Newtonsoft.Json;
+using static GenerativeAI.VertexAIModels;
 
 namespace GeminiServer;
 
@@ -48,9 +50,11 @@ public class GeminiApi
 
     public void ChangeModel(string name)
     {
-        if (_models.Contains(name))
+        if (!_models.Contains(name))
+            _model = "models/gemini-2.0-flash";
+        else
             _model = name;
-        Console.WriteLine($"Model changed to {name}");
+        Console.WriteLine($"Model changed to {_model}");
     }
 
     public async Task<(HttpListenerResponse response, string responseBody, HttpStatusCode statusCode)>
