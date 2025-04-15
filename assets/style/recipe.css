@@ -32,7 +32,7 @@ main {
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.7) 100%);
+    background: linear-gradient(180deg, rgba(217, 217, 217, 0.1) 5.89%, #F5F5F5 100%);
 }
 
 .recipe-header img {
@@ -44,7 +44,6 @@ main {
 .recipe-title {
     position: relative;
     z-index: 2;
-    color: white;
     padding: 30px;
     width: 100%;
 }
@@ -65,7 +64,7 @@ main {
 }
 
 .section-title {
-    font-size: 22px;
+    font-size: 30px;
     margin-bottom: 20px;
     color: #333;
 }
@@ -119,9 +118,9 @@ main {
     border-radius: 0.625rem;
     cursor: pointer;
     margin: 0 0 0 1.875rem;
-    background-color: rgb(38, 204, 38);
+    background: #4CAF50;
 }
 
 .ready-btn:hover {
-    background-color: rgb(9, 153, 9);
+    background-color: #59d85d;
 }
