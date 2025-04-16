@@ -12,20 +12,14 @@
     <link rel="stylesheet" href="assets/style/main.css">
 </head>
 <body>
-<header>
-    <div class="logo"></div>
-    <div class="pages">
-        <div class="products"></div>
-        <div class="profile"></div>
-    </div>
-</header>
+<script src="assets/code/header.js" type="module"></script>
+<site-header></site-header>
 <main>
-
     <div class="generation-properties">
         <div class="sort-wrapper">
-            <button class="sort-button" id="sortButton" onclick="">
+            <button class="sort-button" id="sortButton">
                 <div class="sort-icon">
-                    <img id="sortIcon" src="assets/svg/expand.svg" alt="">
+                    <img id="sortIcon" src="assets/svg/expand.svg" alt="Иконка сортировки">
                 </div>
                 <span id="sortLabel"></span>
             </button>
@@ -40,8 +34,10 @@
         <div class="add-products-checkbox">
             <label for="add-products">
                 <input type="checkbox" id="add-products">
-                <svg class="add-products-checkmark" width="17" height="12" viewBox="0 0 17 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M16 1.00018L6 11.0002L1 6.00018" stroke="#757575" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                <svg class="add-products-checkmark" width="17" height="12" viewBox="0 0 17 12" fill="none"
+                     xmlns="http://www.w3.org/2000/svg">
+                    <path d="M16 1.00018L6 11.0002L1 6.00018" stroke="#757575" stroke-width="3" stroke-linecap="round"
+                          stroke-linejoin="round"/>
                 </svg>
                 Докуп продуктов
             </label>
@@ -52,59 +48,60 @@
         <div class="container-title">
             <h1>Что будем готовить сегодня?</h1>
         </div>
-
-        <div class="recipe-card"
-             data-image-url="https://cdn.food.ru/unsigned/fit/640/480/ce/0/czM6Ly9tZWRpYS9waWN0dXJlcy8yMDI1MDIxMi8zbVd5UmUuanBlZw.webp">
-            <div class="recipe-text">
-                <div>
-                    <h2>Лагман</h2>
-                    <p>3 ч 20 мин</p>
+        <div class="recipe-cards">
+            <div class="recipe-card"
+                 data-image-url="https://cdn.food.ru/unsigned/fit/640/480/ce/0/czM6Ly9tZWRpYS9waWN0dXJlcy8yMDI1MDIxMi8zbVd5UmUuanBlZw.webp">
+                <div class="recipe-text">
+                    <div>
+                        <h2>Лагман</h2>
+                        <p>3 ч 20 мин</p>
+                    </div>
+                    <p>149 кКал<br>Б: 7.26 г<br>Ж: 7.46 г<br>У: 13.28 г</p>
                 </div>
-                <p>149 кКал<br>Б: 7.26 г<br>Ж: 7.46 г<br>У: 13.28 г</p>
             </div>
-        </div>
 
-        <div class="recipe-card"
-             data-image-url="https://cdn.food.ru/unsigned/fit/640/480/ce/0/czM6Ly9tZWRpYS9waWN0dXJlcy8yMDI1MDIxMi8zbVd5UmUuanBlZw.webp">
-            <div class="recipe-text">
-                <div>
-                    <h2>Овощное буррито</h2>
-                    <p>6 ч 20 мин</p>
+            <div class="recipe-card"
+                 data-image-url="https://cdn.food.ru/unsigned/fit/640/480/ce/0/czM6Ly9tZWRpYS9waWN0dXJlcy8yMDI1MDIxMi8zbVd5UmUuanBlZw.webp">
+                <div class="recipe-text">
+                    <div>
+                        <h2>Овощное буррито</h2>
+                        <p>6 ч 20 мин</p>
+                    </div>
+                    <p>296 кКал<br>Б: 14.34 г<br>Ж: 16.86 г<br>У: 21.01 г</p>
                 </div>
-                <p>296 кКал<br>Б: 14.34 г<br>Ж: 16.86 г<br>У: 21.01 г</p>
             </div>
-        </div>
 
-        <div class="recipe-card"
-             data-image-url="https://cdn.food.ru/unsigned/fit/640/480/ce/0/czM6Ly9tZWRpYS9waWN0dXJlcy8yMDI1MDIxMi8zbVd5UmUuanBlZw.webp">
-            <div class="recipe-text">
-                <div>
-                    <h2>Диетический яблочно-морковный рулет</h2>
-                    <p>2 ч 55 мин</p>
+            <div class="recipe-card"
+                 data-image-url="https://cdn.food.ru/unsigned/fit/640/480/ce/0/czM6Ly9tZWRpYS9waWN0dXJlcy8yMDI1MDIxMi8zbVd5UmUuanBlZw.webp">
+                <div class="recipe-text">
+                    <div>
+                        <h2>Диетический яблочно-морковный рулет</h2>
+                        <p>2 ч 55 мин</p>
+                    </div>
+                    <p>81 кКал<br>Б: 6.29 г<br>Ж: 3.62 г<br>У: 5.63 г</p>
                 </div>
-                <p>81 кКал<br>Б: 6.29 г<br>Ж: 3.62 г<br>У: 5.63 г</p>
             </div>
-        </div>
 
-        <div class="recipe-card"
-             data-image-url="https://cdn.food.ru/unsigned/fit/640/480/ce/0/czM6Ly9tZWRpYS9waWN0dXJlcy8yMDI1MDIxMi8zbVd5UmUuanBlZw.webp">
-            <div class="recipe-text">
-                <div>
-                    <h2>Брускетта с паштетом и ягодами</h2>
-                    <p>3 ч 20 мин</p>
+            <div class="recipe-card"
+                 data-image-url="https://cdn.food.ru/unsigned/fit/640/480/ce/0/czM6Ly9tZWRpYS9waWN0dXJlcy8yMDI1MDIxMi8zbVd5UmUuanBlZw.webp">
+                <div class="recipe-text">
+                    <div>
+                        <h2>Брускетта с паштетом и ягодами</h2>
+                        <p>3 ч 20 мин</p>
+                    </div>
+                    <p>296 кКал<br>Б: 7.73 г<br>Ж: 16.38 г<br>У: 28.93 г</p>
                 </div>
-                <p>296 кКал<br>Б: 7.73 г<br>Ж: 16.38 г<br>У: 28.93 г</p>
             </div>
-        </div>
 
-        <div class="recipe-card"
-             data-image-url="https://cdn.food.ru/unsigned/fit/640/480/ce/0/czM6Ly9tZWRpYS9waWN0dXJlcy8yMDI1MDIxMi8zbVd5UmUuanBlZw.webp">
-            <div class="recipe-text">
-                <div>
-                    <h2>Рулет «Светофор» с крабовыми палочками</h2>
-                    <p>35 мин</p>
+            <div class="recipe-card"
+                 data-image-url="https://cdn.food.ru/unsigned/fit/640/480/ce/0/czM6Ly9tZWRpYS9waWN0dXJlcy8yMDI1MDIxMi8zbVd5UmUuanBlZw.webp">
+                <div class="recipe-text">
+                    <div>
+                        <h2>Рулет «Светофор» с крабовыми палочками</h2>
+                        <p>35 мин</p>
+                    </div>
+                    <p>293 кКал<br>Б: 8.88 г<br>Ж: 18.87 г<br>У: 21.96 г</p>
                 </div>
-                <p>293 кКал<br>Б: 8.88 г<br>Ж: 18.87 г<br>У: 21.96 г</p>
             </div>
         </div>
     </div>

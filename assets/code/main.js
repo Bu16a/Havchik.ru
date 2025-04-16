@@ -30,8 +30,8 @@ options.forEach(option => {
         option.classList.add('active');
         sortLabel.textContent = option.textContent;
         sortMenu.classList.remove('open'); 
-        sortIcon.classList.remove('rotated'); 
-        console.log("Сортировка:", option.dataset.sort);
+        sortIcon.classList.remove('rotated');
+        // TODO: обработать сортировку
     });
 });
 
@@ -41,3 +41,12 @@ document.addEventListener('click', (e) => {
         sortIcon.classList.remove('rotated');
     }
 });
+
+document.getElementById('add-products').addEventListener('change', (e) => {
+    const isChecked = e.target.checked;
+    // TODO: обработать докуп продуктов
+});
+
+
+
+
