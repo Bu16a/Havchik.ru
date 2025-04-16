@@ -5,6 +5,9 @@ using DotNetEnv;
 using HavalNeGovno;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Npgsql;
+using static Google.Cloud.AIPlatform.V1.NearestNeighborQuery.Types;
+using static Google.Rpc.Context.AttributeContext.Types;
 
 namespace Server;
 
@@ -14,6 +17,7 @@ class SimpleServer
     private readonly string _url;
     private readonly GeminiApi _geminiApi;
     private readonly UrlParser _parser;
+    private readonly string _connectionString;
 
     public SimpleServer(string url)
     {
@@ -23,6 +27,11 @@ class SimpleServer
         _listener = new HttpListener();
         _listener.Prefixes.Add(url);
         _geminiApi = new GeminiApi(Env.GetString("KEY"));
+        _connectionString = $"Host={Env.GetString("DB_HOST")};" +
+                        $"Port={Env.GetString("DB_PORT", "5432")};" +
+                        $"Username={Env.GetString("DB_USER")};" +
+                        $"Password={Env.GetString("DB_PASS")};" +
+                        $"Database={Env.GetString("DB_NAME")}";
     }
 
     public void Start()
@@ -291,9 +300,11 @@ class SimpleServer
 
 class Program
 {
-    static void Main(string[] args)
+    static async Task Main(string[] args)
     {
-        var url = "http://localhost:8080/";
+        /*string translatedText = await MyMemoryTranslator.TranslateWithMyMemoryAsync("Макан хуесос");
+        Console.WriteLine($"Перевод: {translatedText}");*/
+        /*var url = "http://localhost:8080/";
 
         var server = new SimpleServer(url);
         server.Start();
@@ -301,6 +312,64 @@ class Program
         Console.WriteLine("Press any key to stop the server...");
         Console.ReadKey();
 
-        server.Stop();
+        server.Stop();*/
+        var product = new string[] { "лимоны", "соль" }; // тут как бы массив продуктов от пользователя с маленькой буквы ну и без приколов желательно
+        for (var i = 0; i < product.Length; i++)
+            product[i] = await MyMemoryTranslator.TranslateWithMyMemoryAsync(product[i]); 
+        
+        Env.TraversePath().Load(); // это в инициализации один раз сделать надо
+        var _connectionString = $"Host={Env.GetString("DB_HOST")};" +
+                        $"Port={Env.GetString("DB_PORT", "5432")};" +
+                        $"Username={Env.GetString("DB_USER")};" +
+                        $"Password={Env.GetString("DB_PASS")};" +
+                        $"Database={Env.GetString("DB_NAME")}";
+        await using var connection = new NpgsqlConnection(_connectionString);
+        try
+        {
+            await connection.OpenAsync();
+            var query = "SELECT * FROM recipes WHERE ner_ingredients @> @ingredients LIMIT 10"; // тут от SQL инъекции надо защиту сделать
+
+            await using var command = new NpgsqlCommand(query, connection);
+
+            // Add the ingredients array as a parameter
+            command.Parameters.AddWithValue("ingredients", NpgsqlTypes.NpgsqlDbType.Array | NpgsqlTypes.NpgsqlDbType.Text, product);
+
+            await using var reader = await command.ExecuteReaderAsync();
+
+            int rowCount = 0;
+            while (await reader.ReadAsync())
+            {
+                for (int i = 0; i < reader.FieldCount; i++)
+                {
+                    var columnName = reader.GetName(i);
+                    var columnValue = reader.GetValue(i);
+
+                    if (columnValue is string[] textArray)
+                    {
+                        Console.WriteLine($"{columnName}:");
+                        foreach (var textElement in textArray)
+                        {
+                            Console.WriteLine($"  - {textElement}");
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine($"{columnName}: {columnValue}");
+                    }
+                }
+            }
+
+            if (rowCount == 0)
+            {
+                Console.WriteLine($"No rows found in table recipes.");
+            }
+        }
+        catch (NpgsqlException ex)
+        {
+            Console.WriteLine($"Error connecting to or querying the database: {ex.Message}");
+        }
+        finally
+        {
+        }
     }
 }
