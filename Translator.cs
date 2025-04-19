@@ -5,31 +5,35 @@ using Newtonsoft.Json.Linq;
 
 public class MyMemoryTranslator
 {
-    private static readonly HttpClient _httpClient = new HttpClient();
-
+    public class MyMemoryTranslator
+{
     public static async Task<string> TranslateWithMyMemoryAsync(
         string text,
         string sourceLang = "ru",
         string targetLang = "en")
     {
-        string url = "https://api.mymemory.translated.net/get";
-        string query = $"?q={Uri.EscapeDataString(text)}&langpair={sourceLang}|{targetLang}";
+        var httpClient = new HttpClient();
 
         try
         {
-            HttpResponseMessage response = await _httpClient.GetAsync(url + query);
-            response.EnsureSuccessStatusCode(); 
+            var response = await httpClient.GetAsync(
+            $"https://api.mymemory.translated.net/get?q={Uri.EscapeDataString(text)}&langpair={sourceLang}|{targetLang}"
+            );
 
-            string responseBody = await response.Content.ReadAsStringAsync();
-            JObject json = JObject.Parse(responseBody);
+            var json = await response.Content.ReadAsStringAsync();
 
-            string translatedText = json["responseData"]?["translatedText"]?.ToString() ?? text;
-            return translatedText;
+            var jsonDoc = JsonDocument.Parse(json);
+            return jsonDoc
+                .RootElement
+                .GetProperty("responseData")
+                .GetProperty("translatedText")
+                .GetString();
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Ошибка перевода: {ex.Message}");
-            return text; 
+            Console.WriteLine($"Error translate.");
+            return text;
         }
     }
+}
 }
