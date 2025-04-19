@@ -1,0 +1,213 @@
+/* Продукты */
+main {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 50px 20px; /* Увеличим отступ сверху */
+    margin: 0;
+    min-height: calc(100vh - 100px); /* Примерная высота, чтобы main занимал место минус хедер/футер */
+    box-sizing: border-box;
+}
+.fridge-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 35px 40px;
+    gap: 25px;
+    width: 100%;
+    max-width: 500px;
+    background: #FFFFFF;
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+}
+
+.fridge-header {
+    text-align: center;
+    margin-bottom: 5px;
+    width: 100%;
+}
+
+.fridge-header h1 {
+    font-size: 28px;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+}
+
+.actions {
+    display: flex;
+    justify-content: stretch;
+    gap: 15px;
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.action-btn {
+    flex-grow: 1;
+    padding: 12px 15px;
+    background-color: #F0F0F0;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 500;
+    color: #444;
+    text-align: center;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.action-btn:hover {
+    background-color: #E5E5E5;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* --- Стили списка продуктов --- */
+.product-list {
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.product-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background-color: #F7F7F7;
+    border-radius: 10px;
+    width: 100%;
+    box-sizing: border-box;
+    transition: background-color 0.3s ease; /* Плавность для режима редактирования */
+}
+
+.product-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex-grow: 1; /* Занимает доступное место слева */
+    margin-right: 15px; /* Отступ от кнопок */
+}
+
+.product-name, .product-quantity {
+    display: block; /* Чтобы занимали всю ширину блока */
+    transition: opacity 0.3s ease;
+}
+.product-name-input, .product-quantity-input {
+    display: block; /* Чтобы занимали всю ширину блока */
+    font-family: 'Montserrat', sans-serif; /* Наследуем шрифт */
+    border: 1px solid #cccccc;
+    border-radius: 5px;
+    padding: 4px 8px;
+    font-size: 14px; /* Размер шрифта инпута */
+    box-sizing: border-box; /* Учитываем padding и border в размере */
+    width: 100%; /* Занимаем всю ширину .product-info */
+    transition: opacity 0.3s ease;
+}
+.product-name-input {
+     font-size: 16px; /* Крупнее для имени */
+     font-weight: 600;
+}
+
+
+.product-name {
+    font-size: 17px;
+    font-weight: 600;
+    color: #333;
+}
+
+.product-quantity {
+    font-size: 13px;
+    color: #777777;
+}
+
+.product-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-shrink: 0; /* Чтобы кнопки не сжимались */
+}
+
+.edit-btn, .delete-btn, .save-btn {
+    padding: 0;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    line-height: 0;
+    transition: opacity 0.3s ease;
+}
+
+.edit-btn img, .delete-btn img, .save-btn img {
+    width: 18px;
+    height: 18px;
+    opacity: 0.7;
+    display: block; /* Убирает лишние отступы */
+}
+
+.edit-btn:hover img, .delete-btn:hover img, .save-btn:hover img {
+    opacity: 1;
+}
+
+/* --- Стили для режима редактирования --- */
+.product-item.edit-mode {
+    background-color: #FFFACD; /* Подсветка фона в режиме редактирования */
+}
+
+/* Скрываем обычный текст, показываем инпуты */
+.product-item.edit-mode .product-name,
+.product-item.edit-mode .product-quantity {
+    opacity: 0;
+    height: 0;
+    overflow: hidden;
+    pointer-events: none; /* Чтобы нельзя было кликнуть */
+}
+.product-item:not(.edit-mode) .product-name-input,
+.product-item:not(.edit-mode) .product-quantity-input {
+     opacity: 0;
+     height: 0;
+     overflow: hidden;
+     pointer-events: none;
+     border: none; /* Убираем рамку, когда скрыто */
+     padding: 0; /* Убираем паддинг, когда скрыто */
+
+}
+
+
+/* Скрываем кнопку Edit, показываем Save */
+.product-item.edit-mode .edit-btn {
+    opacity: 0;
+    pointer-events: none;
+    width: 0; /* Схлопываем кнопку */
+    margin-right: -15px; /* Компенсируем gap */
+}
+.product-item:not(.edit-mode) .save-btn {
+     opacity: 0;
+     pointer-events: none;
+     width: 0;
+     margin-right: -15px;
+}
+
+
+/* --- Кнопка "Удалить все" --- */
+.clear-btn {
+    display: block;
+    margin: 15px auto 0;
+    padding: 8px 15px;
+    background-color: transparent;
+    border: none;
+    color: #FF4D4D;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.clear-btn:hover {
+    color: #CC0000;
+}
+
+

@@ -1,0 +1,16 @@
+<svg width="50" height="50" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Корпус холодильника -->
+  <rect x="12" y="3" width="26" height="44" rx="3" ry="3" stroke="#000" stroke-width="2" fill="#fff"/>
+  
+  <!-- Верхняя дверца -->
+  <rect x="14" y="6" width="22" height="18" fill="#f0f0f0" stroke="#000" stroke-width="1.5" rx="1.5" ry="1.5"/>
+  
+  <!-- Нижняя дверца -->
+  <rect x="14" y="26" width="22" height="18" fill="#e6e6e6" stroke="#000" stroke-width="1.5" rx="1.5" ry="1.5"/>
+  
+  <!-- Ручка верхней дверцы -->
+  <rect x="34" y="10" width="2" height="6" fill="#000" rx="1" ry="1"/>
+  
+  <!-- Ручка нижней дверцы -->
+  <rect x="34" y="30" width="2" height="6" fill="#000" rx="1" ry="1"/>
+</svg>
