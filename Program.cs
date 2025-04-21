@@ -1,13 +1,19 @@
-﻿using System.Net;
+﻿using System; // Добавлено для Task, List, Dictionary, Exception
+using System.Collections.Generic; // Добавлено для List, Dictionary
+using System.IO; // Добавлено для StreamReader
+using System.Net;
 using System.Text;
+using System.Threading; // Убрано, т.к. ThreadPool не используется напрямую в Listen
+using System.Threading.Tasks; // Добавлено для Task, async/await
 using GeminiServer;
 using DotNetEnv;
-using HavalNeGovno;
+using HavalNeGovno; // Предполагается, что здесь MyMemoryTranslator
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Npgsql;
-using static Google.Cloud.AIPlatform.V1.NearestNeighborQuery.Types;
-using static Google.Rpc.Context.AttributeContext.Types;
+using NpgsqlTypes; // Добавлено для указания типа параметра БД
+                   // using static Google.Cloud.AIPlatform.V1.NearestNeighborQuery.Types; // Не используется в показанном коде
+                   // using static Google.Rpc.Context.AttributeContext.Types; // Не используется в показанном коде
 
 namespace Server;
 
@@ -18,6 +24,9 @@ class SimpleServer
     private readonly GeminiApi _geminiApi;
     private readonly UrlParser _parser;
     private readonly string _connectionString;
+    private Task? _listenerTask;
+    private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+
 
     public SimpleServer(string url)
     {
@@ -28,94 +37,133 @@ class SimpleServer
         _listener.Prefixes.Add(url);
         _geminiApi = new GeminiApi(Env.GetString("KEY"));
         _connectionString = $"Host={Env.GetString("DB_HOST")};" +
-                        $"Port={Env.GetString("DB_PORT", "5432")};" +
-                        $"Username={Env.GetString("DB_USER")};" +
-                        $"Password={Env.GetString("DB_PASS")};" +
-                        $"Database={Env.GetString("DB_NAME")}";
+                            $"Port={Env.GetString("DB_PORT", "5432")};" +
+                            $"Username={Env.GetString("DB_USER")};" +
+                            $"Password={Env.GetString("DB_PASS")};" +
+                            $"Database={Env.GetString("DB_NAME")}";
     }
 
     public void Start()
     {
         _listener.Start();
         Console.WriteLine($"Server started and listens to: {_url}");
-
-        Thread listenerThread = new Thread(Listen);
-        listenerThread.Start();
+        _listenerTask = Listen(_cancellationTokenSource.Token);
+        _listenerTask.ContinueWith(t => {
+            Console.WriteLine($"Listener task terminated with exception: {t.Exception}");
+        }, TaskContinuationOptions.OnlyOnFaulted);
     }
 
     public void Stop()
     {
-        _listener.Stop();
+        Console.WriteLine("Stopping server...");
+        _cancellationTokenSource.Cancel(); 
+        _listener.Stop(); 
+
+        try
+        {
+            _listenerTask?.Wait(TimeSpan.FromSeconds(5));
+        }
+        catch (OperationCanceledException)
+        {
+            Console.WriteLine("Listener task cancelled successfully.");
+        }
+        catch (AggregateException ae) when (ae.InnerExceptions.Count == 1 && ae.InnerExceptions[0] is OperationCanceledException)
+        {
+            Console.WriteLine("Listener task cancelled successfully via aggregate exception.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Exception during listener task wait: {ex.Message}");
+        }
+        finally
+        {
+            _cancellationTokenSource.Dispose();
+        }
         Console.WriteLine("Server stopped");
     }
 
-    private void Listen()
+    private async Task Listen(CancellationToken cancellationToken)
     {
-        while (_listener.IsListening)
+        while (_listener.IsListening && !cancellationToken.IsCancellationRequested)
         {
             try
             {
-                HttpListenerContext context = _listener.GetContext();
-                ThreadPool.QueueUserWorkItem((state) =>
+                HttpListenerContext context = await _listener.GetContextAsync();
+                _ = Task.Run(async () =>
                 {
                     try
                     {
-                        ProcessRequest(context);
+                        await ProcessRequestAsync(context);
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine($"Error proccesing task: {ex.Message}");
+                        Console.WriteLine($"Error processing request task: {ex.Message}{Environment.NewLine}{ex.StackTrace}");
+                        if (context.Response.OutputStream.CanWrite)
+                        {
+                            try
+                            {
+                                SendResponse(context.Response, "Internal Server Error during request processing.", HttpStatusCode.InternalServerError);
+                            }
+                            catch 
+                            {
+                            }
+                        }
                     }
-                });
+                    finally
+                    {
+                        context.Response.OutputStream.Close();
+                    }
+                }, cancellationToken);
+
             }
-            catch (HttpListenerException ex)
+            catch (HttpListenerException ex) when (ex.ErrorCode == 995 && cancellationToken.IsCancellationRequested)
             {
-                if (ex.ErrorCode == 995)
-                    Console.WriteLine("Server shutdown...");
-                else
-                    Console.WriteLine($"Error: {ex.Message}");
+                Console.WriteLine("Listener stopped receiving requests due to cancellation.");
+                break; 
+            }
+            catch (ObjectDisposedException)
+            {
+                Console.WriteLine("Listener has been disposed, likely during shutdown.");
+                break; 
+            }
+            catch (Exception ex) 
+            {
+                Console.WriteLine($"Unexpected error in listener loop: {ex.Message}");
+                await Task.Delay(1000, cancellationToken);
             }
         }
+        Console.WriteLine("Listen loop finished.");
     }
 
-    private void ProcessRequest(HttpListenerContext context)
+    private async Task ProcessRequestAsync(HttpListenerContext context)
     {
         HttpListenerRequest request = context.Request;
         HttpListenerResponse response = context.Response;
 
         if (request.Url is null)
-            return;
-
-        try
         {
-            var endPoint = _parser.GetCheckpoint(request.Url.AbsolutePath);
-            switch (request.HttpMethod.ToUpper())
-            {
-                case "GET":
-                    ProcessGet(endPoint, request, response);
-                    break;
-
-                case "POST":
-                    ProcessPost(endPoint, request, response);
-                    break;
-
-                default:
-                    SendResponse(response, "Only GET and POST are supported", HttpStatusCode.MethodNotAllowed);
-                    break;
-            }
+            SendResponse(response, "URL is invalid", HttpStatusCode.BadRequest);
+            return; 
         }
-        catch (Exception ex)
+
+        var endPoint = _parser.GetCheckpoint(request.Url.AbsolutePath);
+        switch (request.HttpMethod.ToUpper())
         {
-            Console.WriteLine($"Error processing request: {ex.Message}");
-            SendResponse(response, "Internal Server Error", HttpStatusCode.InternalServerError);
-        }
-        finally
-        {
-            response.OutputStream.Close();
+            case "GET":
+                ProcessGet(endPoint, request, response);
+                break;
+
+            case "POST":
+                await ProcessPostAsync(endPoint, request, response);
+                break;
+
+            default:
+                SendResponse(response, "Only GET and POST are supported", HttpStatusCode.MethodNotAllowed);
+                break;
         }
     }
 
-    private void ProcessGet(string endPoint, HttpListenerRequest request, HttpListenerResponse response) // Done
+    private void ProcessGet(string endPoint, HttpListenerRequest request, HttpListenerResponse response) 
     {
         if (request.Url is null)
         {
@@ -123,7 +171,7 @@ class SimpleServer
             return;
         }
 
-        try
+        try 
         {
             switch (endPoint)
             {
@@ -143,6 +191,9 @@ class SimpleServer
         }
     }
 
+    // ProcessGetApiData остается синхронным в этом примере, но вызывает async метод GeminiApi
+    // Это не лучший подход, лучше сделать всю цепочку асинхронной.
+    // Но для минимальных изменений пока оставим так.
     private void ProcessGetApiData(HttpListenerRequest request, HttpListenerResponse response)
     {
         var parameters = _parser.GetParams(request);
@@ -158,62 +209,179 @@ class SimpleServer
         if (parameters.ContainsKey("iname"))
             _geminiApi.ChangeModel(parameters["iname"]);
 
+        // ВАЖНО: .Result блокирует поток! Это анти-паттерн в асинхронном коде.
+        // В идеале ProcessGetApiData, ProcessGet, ProcessRequestAsync должны быть async Task.
+        // Для демонстрации ProcessPostSearchRecipe оставим так, но это нужно исправить.
         var apiCall = _geminiApi.ProcessGeminiRequest(prompt, response).Result;
-        SendResponse(apiCall.Item1, apiCall.Item2, apiCall.Item3);
+        SendResponse(response, apiCall.Item2, apiCall.Item3, apiCall.Item1.ContentType); // Передаем ContentType
     }
 
-    private void ProcessPost(string endPoint, HttpListenerRequest request, HttpListenerResponse response)
+    private async Task ProcessPostAsync(string endPoint, HttpListenerRequest request, HttpListenerResponse response)
     {
-        try
+        try 
         {
             switch (endPoint)
             {
                 case "/api/data":
-                    ProcessPostApiData(request, response);
+                    await ProcessPostApiDataAsync(request, response);
                     break;
                 case "/searchRecipe/data":
-                    ProcessPostSearchRecipe(request, response);
+                    await ProcessPostSearchRecipeAsync(request, response);
+                    break;
+                default:
+                    SendResponse(response, "Endpoint not found", HttpStatusCode.NotFound);
                     break;
             }
         }
-
         catch (Exception ex)
         {
-            Console.WriteLine($"Unexpected Error: {ex.Message}");
+            Console.WriteLine($"Unexpected Error during POST processing: {ex.Message}{Environment.NewLine}{ex.StackTrace}");
             SendResponse(response, $"Unexpected Error: {ex.Message}", HttpStatusCode.InternalServerError);
         }
     }
-    private void ProcessPostSearchRecipe(HttpListenerRequest request, HttpListenerResponse response)
+
+    // Реализация асинхронного метода поиска рецептов
+    private async Task ProcessPostSearchRecipeAsync(HttpListenerRequest request, HttpListenerResponse response)
     {
+        // 1. Проверка Content-Type
         if (!IsValidJsonContentType(request))
         {
-            SendResponse(response, "Content-Type: application/json needed",
-                HttpStatusCode.UnsupportedMediaType);
+            SendResponse(response, "Content-Type: application/json needed", HttpStatusCode.UnsupportedMediaType);
             return;
         }
 
-        string requestBody = ReadRequestBody(request);
+        // 2. Чтение тела запроса
+        string requestBody = await ReadRequestBodyAsync(request); // Используем асинхронное чтение
 
-        if (!TryParseJson(requestBody, out JObject jsonData, out string errorMessage))
+        // 3. Парсинг JSON
+        if (!TryParseJson(requestBody, out JObject jsonData, out string jsonErrorMessage))
         {
-            Console.WriteLine($"JSON Parsing Error: {errorMessage}");
-            SendResponse(response, "Wrong JSON format", HttpStatusCode.BadRequest);
+            Console.WriteLine($"JSON Parsing Error: {jsonErrorMessage}");
+            SendResponse(response, $"Wrong JSON format: {jsonErrorMessage}", HttpStatusCode.BadRequest);
+            return;
+        }
+
+        // 4. Извлечение параметров: списка продуктов (ingredients) и кол-ва рецептов (count)
+        if (!TryGetParam<List<string>>(jsonData, "ingredients", out var russianIngredients, out string ingredientsError) || russianIngredients == null || russianIngredients.Count == 0)
+        {
+            SendResponse(response, ingredientsError ?? "Parameter 'ingredients' (list of strings) is required and cannot be empty.", HttpStatusCode.BadRequest);
+            return;
+        }
+
+        if (!TryGetParam<int>(jsonData, "count", out int recipeCount, out string countError) || recipeCount <= 0)
+        {
+            SendResponse(response, countError ?? "Parameter 'count' (positive integer) is required.", HttpStatusCode.BadRequest);
+            return;
+        }
+
+        // 5. Перевод ингредиентов на английский
+        var translatedIngredients = new List<string>(russianIngredients.Count);
+        try
+        {
+            Console.WriteLine($"Translating ingredients: {string.Join(", ", russianIngredients)}");
+            foreach (var ingredient in russianIngredients)
+            {
+                // Предполагаем, что MyMemoryTranslator.TranslateWithMyMemoryAsync существует и работает
+                string translated = await MyMemoryTranslator.TranslateWithMyMemoryAsync(ingredient);
+                if (!string.IsNullOrWhiteSpace(translated))
+                {
+                    translatedIngredients.Add(translated.ToLowerInvariant()); 
+                }
+                else
+                {
+                    Console.WriteLine($"Warning: Translation failed or returned empty for '{ingredient}'");
+                }
+            }
+            Console.WriteLine($"Translated ingredients: {string.Join(", ", translatedIngredients)}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error during translation: {ex.Message}");
+            SendResponse(response, "Error during ingredient translation.", HttpStatusCode.InternalServerError);
+            return;
+        }
+
+        if (translatedIngredients.Count == 0)
+        {
+            SendResponse(response, "No valid ingredients found after translation.", HttpStatusCode.BadRequest);
             return;
         }
 
 
+        var recipesResult = new Dictionary<string, Dictionary<string, object>>(); // Словарь для JSON ответа
+        try
+        {
+            await using var connection = new NpgsqlConnection(_connectionString);
+            await connection.OpenAsync(); // Асинхронное открытие соединения
+
+            // Запрос ищет рецепты, где поле ner_ingredients (предположительно массив TEXT[])
+            // содержит ВСЕ переданные ингредиенты (@> оператор для массивов)
+            // И ограничивает количество записей
+            // Используем параметры @ingredients и @limit для безопасности
+            var query = @"
+                SELECT *
+                FROM recipes
+                WHERE ner_ingredients @> @ingredients::TEXT[]
+                ORDER BY id -- Добавляем сортировку для стабильности LIMIT (замените id на релевантное поле)
+                LIMIT @limit";
+
+            await using var command = new NpgsqlCommand(query, connection);
+
+            // Добавляем параметры
+            // NpgsqlDbType.Array | NpgsqlDbType.Text указывает, что это массив строк
+            command.Parameters.AddWithValue("ingredients", NpgsqlDbType.Array | NpgsqlDbType.Text, translatedIngredients);
+            command.Parameters.AddWithValue("limit", NpgsqlDbType.Integer, recipeCount);
+
+            Console.WriteLine($"Executing SQL: {command.CommandText} with ingredients: [{string.Join(", ", translatedIngredients)}], limit: {recipeCount}");
+
+            await using var reader = await command.ExecuteReaderAsync(); // Асинхронное выполнение запроса
+
+            int recipeIndex = 1;
+            while (await reader.ReadAsync()) // Асинхронное чтение строк
+            {
+                var recipeData = new Dictionary<string, object>();
+                for (int i = 0; i < reader.FieldCount; i++)
+                {
+                    var columnName = reader.GetName(i);
+                    var columnValue = reader.GetValue(i);
+                    // Обработка null значений или специальных типов при необходимости
+                    recipeData[columnName] = columnValue == DBNull.Value ? null : columnValue;
+                }
+                // Добавляем данные рецепта в общий результат с ключом "recipe_1", "recipe_2", ...
+                recipesResult[$"recipe_{recipeIndex++}"] = recipeData;
+            }
+
+            Console.WriteLine($"Found {recipesResult.Count} recipes.");
+
+            // 7. Сериализация результата в JSON и отправка ответа
+            string jsonResponse = JsonConvert.SerializeObject(recipesResult, Formatting.Indented);
+            SendResponse(response, jsonResponse, HttpStatusCode.OK, "application/json");
+
+        }
+        catch (NpgsqlException ex)
+        {
+            Console.WriteLine($"Database query error: {ex.Message}{Environment.NewLine}{ex.StackTrace}");
+            SendResponse(response, "Error querying recipes database.", HttpStatusCode.InternalServerError);
+        }
+        catch (Exception ex) // Ловим другие возможные ошибки (сериализация и т.д.)
+        {
+            Console.WriteLine($"Unexpected error in ProcessPostSearchRecipe: {ex.Message}{Environment.NewLine}{ex.StackTrace}");
+            // Проверяем, не был ли ответ уже отправлен
+            SendResponse(response, "Unexpected server error.", HttpStatusCode.InternalServerError);
+        }
     }
 
-    private void ProcessPostApiData(HttpListenerRequest request, HttpListenerResponse response)
+
+    // Метод стал async Task
+    private async Task ProcessPostApiDataAsync(HttpListenerRequest request, HttpListenerResponse response)
     {
         if (!IsValidJsonContentType(request))
         {
-            SendResponse(response, "Content-Type: application/json needed",
-                HttpStatusCode.UnsupportedMediaType);
+            SendResponse(response, "Content-Type: application/json needed", HttpStatusCode.UnsupportedMediaType);
             return;
         }
 
-        string requestBody = ReadRequestBody(request);
+        string requestBody = await ReadRequestBodyAsync(request); // Асинхронное чтение
 
         if (!TryParseJson(requestBody, out JObject jsonData, out string errorMessage))
         {
@@ -222,154 +390,179 @@ class SimpleServer
             return;
         }
 
-        if (!TryGetParam(jsonData, "prompt", out string prompt, out errorMessage))
+        if (!TryGetParam<string>(jsonData, "prompt", out string prompt, out errorMessage))
         {
             SendResponse(response, errorMessage, HttpStatusCode.BadRequest);
             return;
         }
 
-        if (TryGetParam(jsonData, "iname", out string iname, out errorMessage))
+        if (TryGetParam<string>(jsonData, "iname", out string iname, out _)) // Игнорируем ошибку, если iname не найден
             _geminiApi.ChangeModel(iname);
 
-        var apiResult = _geminiApi.ProcessGeminiRequest(prompt, response).Result;
-        SendResponse(apiResult.Item1, apiResult.Item2, apiResult.Item3);
+        // Вызываем асинхронный метод GeminiApi и ждем результат
+        // ProcessGeminiRequest тоже должен быть async Task
+        var apiResult = await _geminiApi.ProcessGeminiRequest(prompt, response);
+        SendResponse(apiResult.Item1, apiResult.Item2, apiResult.Item3, apiResult.Item1.ContentType); // Используем ContentType из ответа API
     }
+
+    // Вспомогательные методы
 
     private bool IsValidJsonContentType(HttpListenerRequest request)
     {
         return request.ContentType?.StartsWith("application/json", StringComparison.OrdinalIgnoreCase) ?? false;
     }
 
-    private string ReadRequestBody(HttpListenerRequest request)
+    // Асинхронная версия чтения тела запроса
+    private async Task<string> ReadRequestBodyAsync(HttpListenerRequest request)
     {
         using var reader = new StreamReader(request.InputStream, Encoding.UTF8);
-        return reader.ReadToEnd();
+        return await reader.ReadToEndAsync();
     }
 
     private bool TryParseJson(string json, out JObject jsonData, out string errorMessage)
     {
+        jsonData = null;
+        errorMessage = null;
         try
         {
             jsonData = JObject.Parse(json);
-            errorMessage = null;
             return true;
         }
         catch (JsonReaderException ex)
         {
-            jsonData = null;
             errorMessage = ex.Message;
+            return false;
+        }
+        catch (Exception ex) // Ловим и другие возможные ошибки парсинга
+        {
+            errorMessage = $"An unexpected error occurred during JSON parsing: {ex.Message}";
             return false;
         }
     }
 
-    private bool TryGetParam<T>(JObject jsonData, string param, out T value, out string errorMessage)
+    private bool TryGetParam<T>(JObject jsonData, string paramName, out T value, out string errorMessage)
     {
         value = default;
         errorMessage = null;
 
-        if (jsonData[param] == null)
+        if (!jsonData.TryGetValue(paramName, StringComparison.OrdinalIgnoreCase, out JToken token))
         {
-            errorMessage = $"Parameter '{param}' is required";
+            errorMessage = $"Parameter '{paramName}' is required.";
             return false;
         }
 
+        if (token.Type == JTokenType.Null && default(T) != null) // Проверка на null, если T - не nullable тип значения
+        {
+            errorMessage = $"Parameter '{paramName}' cannot be null.";
+            return false;
+        }
+
+        if (token.Type == JTokenType.String && string.IsNullOrWhiteSpace(token.ToString()) && typeof(T) == typeof(string))
+        {
+            // Специальная проверка для строк, если пустая строка невалидна (можно убрать, если пустая строка допустима)
+            // errorMessage = $"Parameter '{paramName}' cannot be empty or whitespace.";
+            // return false;
+        }
+
+
         try
         {
-            value = jsonData[param].ToObject<T>();
+            // Пытаемся десериализовать токен в нужный тип T
+            // Для простых типов (string, int, bool) ToObject<T>() сработает
+            // Для List<string> это тоже должно работать
+            value = token.ToObject<T>();
+            if (value == null && default(T) != null) // Дополнительная проверка после ToObject
+            {
+                errorMessage = $"Parameter '{paramName}' could not be converted to the required type or is null.";
+                return false;
+            }
             return true;
         }
-        catch
+        catch (JsonException ex) // Ловим ошибки конвертации типов Newtonsoft.Json
         {
-            errorMessage = $"Invalid format for parameter '{param}'";
+            errorMessage = $"Invalid format for parameter '{paramName}'. Expected type: {typeof(T).Name}. Error: {ex.Message}";
+            return false;
+        }
+        catch (Exception ex) // Ловим другие неожиданные ошибки
+        {
+            errorMessage = $"An unexpected error occurred while retrieving parameter '{paramName}': {ex.Message}";
             return false;
         }
     }
 
 
-    private void SendResponse(HttpListenerResponse response, string message, HttpStatusCode statusCode)
+    // Модифицирован для приема ContentType
+    private void SendResponse(HttpListenerResponse response, string message, HttpStatusCode statusCode, string contentType = "text/plain; charset=utf-8")
     {
-        var buffer = Encoding.UTF8.GetBytes(message);
+        // Проверяем, не был ли ответ уже отправлен или поток закрыт
+        if (!response.OutputStream.CanWrite)
+        {
+            Console.WriteLine($"Warning: Attempted to write response after headers were sent or stream was closed. Status: {statusCode}, Message: {message.Substring(0, Math.Min(message.Length, 100))}");
+            return;
+        }
+        try
+        {
+            var buffer = Encoding.UTF8.GetBytes(message);
+            response.StatusCode = (int)statusCode;
+            response.ContentType = contentType;
+            response.ContentLength64 = buffer.Length;
+            response.ContentEncoding = Encoding.UTF8; // Указываем кодировку
 
-        response.StatusCode = (int)statusCode;
-        response.ContentType = "text/plain";
-        response.ContentLength64 = buffer.Length;
-
-        response.OutputStream.Write(buffer, 0, buffer.Length);
+            response.OutputStream.Write(buffer, 0, buffer.Length);
+            // response.OutputStream.Close(); // Закрывать здесь НЕ НУЖНО, закрытие происходит в Listen после завершения ProcessRequestAsync
+        }
+        catch (ObjectDisposedException)
+        {
+            // Поток мог быть закрыт в другом месте, игнорируем.
+            Console.WriteLine("Warning: Response stream was disposed before SendResponse could complete.");
+        }
+        catch (Exception ex)
+        {
+            // Логгируем другие ошибки при отправке ответа
+            Console.WriteLine($"Error sending response: {ex.Message}");
+        }
     }
 }
 
 class Program
 {
+    // Main теперь тоже async Task, т.к. вызывает асинхронные методы
     static async Task Main(string[] args)
     {
-        /*string translatedText = await MyMemoryTranslator.TranslateWithMyMemoryAsync("Макан хуесос");
-        Console.WriteLine($"Перевод: {translatedText}");*/
-        /*var url = "http://localhost:8080/";
+        // Убираем или комментируем тестовый код из Main, он теперь внутри ProcessPostSearchRecipeAsync
+        /*
+        var product = new string[] {"докторская колбаса", "рыба", "огурец"};
+        // ... остальной тестовый код ...
+        */
+
+        // Раскомментируем запуск сервера
+        var url = "http://localhost:8080/"; // Или другой адрес/порт
 
         var server = new SimpleServer(url);
-        server.Start();
+        server.Start(); // Start остается синхронным, он запускает Listen в фоне
 
-        Console.WriteLine("Press any key to stop the server...");
-        Console.ReadKey();
+        Console.WriteLine("Press Ctrl+C to stop the server...");
 
-        server.Stop();*/
-        var product = new string[] { "лимоны", "соль" }; // тут как бы массив продуктов от пользователя с маленькой буквы ну и без приколов желательно
-        for (var i = 0; i < product.Length; i++)
-            product[i] = await MyMemoryTranslator.TranslateWithMyMemoryAsync(product[i]); 
-        
-        Env.TraversePath().Load(); // это в инициализации один раз сделать надо
-        var _connectionString = $"Host={Env.GetString("DB_HOST")};" +
-                        $"Port={Env.GetString("DB_PORT", "5432")};" +
-                        $"Username={Env.GetString("DB_USER")};" +
-                        $"Password={Env.GetString("DB_PASS")};" +
-                        $"Database={Env.GetString("DB_NAME")}";
-        await using var connection = new NpgsqlConnection(_connectionString);
+        // Настраиваем ожидание завершения по Ctrl+C
+        var cts = new CancellationTokenSource();
+        Console.CancelKeyPress += (sender, e) => {
+            e.Cancel = true; // Предотвращаем завершение приложения по умолчанию
+            Console.WriteLine("Ctrl+C detected. Stopping server...");
+            cts.Cancel(); // Сигнализируем об отмене
+            server.Stop(); // Вызываем метод остановки сервера
+        };
+
+        // Ожидаем сигнала отмены (можно заменить на другую логику ожидания)
         try
         {
-            await connection.OpenAsync();
-            var query = "SELECT * FROM recipes WHERE ner_ingredients @> @ingredients LIMIT 10"; // тут от SQL инъекции надо защиту сделать
-
-            await using var command = new NpgsqlCommand(query, connection);
-
-            // Add the ingredients array as a parameter
-            command.Parameters.AddWithValue("ingredients", NpgsqlTypes.NpgsqlDbType.Array | NpgsqlTypes.NpgsqlDbType.Text, product);
-
-            await using var reader = await command.ExecuteReaderAsync();
-
-            int rowCount = 0;
-            while (await reader.ReadAsync())
-            {
-                for (int i = 0; i < reader.FieldCount; i++)
-                {
-                    var columnName = reader.GetName(i);
-                    var columnValue = reader.GetValue(i);
-
-                    if (columnValue is string[] textArray)
-                    {
-                        Console.WriteLine($"{columnName}:");
-                        foreach (var textElement in textArray)
-                        {
-                            Console.WriteLine($"  - {textElement}");
-                        }
-                    }
-                    else
-                    {
-                        Console.WriteLine($"{columnName}: {columnValue}");
-                    }
-                }
-            }
-
-            if (rowCount == 0)
-            {
-                Console.WriteLine($"No rows found in table recipes.");
-            }
+            await Task.Delay(Timeout.Infinite, cts.Token);
         }
-        catch (NpgsqlException ex)
+        catch (TaskCanceledException)
         {
-            Console.WriteLine($"Error connecting to or querying the database: {ex.Message}");
+            // Ожидаемое исключение при отмене через cts.Cancel()
+            Console.WriteLine("Server shutdown initiated by cancellation.");
         }
-        finally
-        {
-        }
+
+        Console.WriteLine("Main method exiting.");
     }
 }
