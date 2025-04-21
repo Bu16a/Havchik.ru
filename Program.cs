@@ -325,27 +325,69 @@ class SimpleServer
             // NpgsqlDbType.Array | NpgsqlDbType.Text указывает, что это массив строк
             command.Parameters.AddWithValue("ingredients", NpgsqlDbType.Array | NpgsqlDbType.Text, translatedIngredients);
             command.Parameters.AddWithValue("limit", NpgsqlDbType.Integer, recipeCount);
-
+            //Тут потом можно убрать чтобы логами не убить сервак, т.к. оно выводит полностю рецепты
             Console.WriteLine($"Executing SQL: {command.CommandText} with ingredients: [{string.Join(", ", translatedIngredients)}], limit: {recipeCount}");
 
             await using var reader = await command.ExecuteReaderAsync(); 
 
             int recipeIndex = 1;
-            while (await reader.ReadAsync()) 
+            var keysToTranslate = new HashSet<string> { "title", "ingredients", "directions", "source", "ner_ingredients" };
+
+            while (await reader.ReadAsync())
             {
                 var recipeData = new Dictionary<string, object>();
+                // 1. Считываем все поля текущего рецепта из БД
                 for (int i = 0; i < reader.FieldCount; i++)
                 {
                     var columnName = reader.GetName(i);
                     var columnValue = reader.GetValue(i);
-                    // Обработка null значений или специальных типов при необходимости
                     recipeData[columnName] = columnValue == DBNull.Value ? null : columnValue;
                 }
-                // Добавляем данные рецепта в общий результат с ключом "recipe_1", "recipe_2", ...
-                recipesResult[$"recipe_{recipeIndex++}"] = recipeData;
-            }
 
-            Console.WriteLine($"Found {recipesResult.Count} recipes.");
+                // 2. Переводим текстовые поля НА РУССКИЙ ЯЗЫК
+                // Создаем копию ключей, чтобы итерировать по ним, пока изменяем словарь
+                var keys = recipeData.Keys.ToList();
+                foreach (string key in keys)
+                {
+                    // Проверяем, нужно ли переводить это поле и не равно ли оно null
+                    if (keysToTranslate.Contains(key) && recipeData[key] != null)
+                    {
+                        object originalValue = recipeData[key];
+
+                        if (originalValue is string originalString)
+                        {
+                            // Переводим одиночную строку
+                            recipeData[key] = await MyMemoryTranslator.TranslateWithMyMemoryAsync(originalString, "en", "ru");
+                        }
+                        // Npgsql обычно возвращает массивы БД как string[]
+                        else if (originalValue is string[] originalArray)
+                        {
+                            // Переводим каждую строку в массиве
+                            var translatedList = new List<string>(originalArray.Length);
+                            foreach (string item in originalArray)
+                            {
+                                translatedList.Add(await MyMemoryTranslator.TranslateWithMyMemoryAsync(item, "en", "ru"));
+                            }
+                            recipeData[key] = translatedList.ToArray(); // Обновляем значение переведенным массивом
+                        }
+                        // На всякий случай обработаем и List<string>, если он вдруг появится
+                        else if (originalValue is List<string> originalList)
+                        {
+                            var translatedList = new List<string>(originalList.Count);
+                            foreach (string item in originalList)
+                            {
+                                translatedList.Add(await MyMemoryTranslator.TranslateWithMyMemoryAsync(item, "en", "ru"));
+                            }
+                            recipeData[key] = translatedList; // Обновляем значение переведенным списком
+                        }
+                    }
+                } // Конец цикла перевода полей
+
+                // 3. Добавляем обработанный (переведенный) рецепт в результат
+                recipesResult[$"recipe_{recipeIndex++}"] = recipeData;
+            } // Конец цикла чтения рецептов (while reader.ReadAsync)
+
+            Console.WriteLine($"Found and translated {recipesResult.Count} recipes.");
 
             // Сериализация результата в JSON и отправка ответа
             string jsonResponse = JsonConvert.SerializeObject(recipesResult, Formatting.Indented);
