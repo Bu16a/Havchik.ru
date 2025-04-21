@@ -20,3 +20,17 @@ http://localhost:8080/api/data
 
 Для перевода: dotnet add package Newtonsoft.Json
 Для бд: dotnet add package Npgsql
+
+
+
+Запрос для получения рецептов:
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"ingredients":["сахар"], "count" :\
+   10 }' \
+
+  http://localhost:8080/searchRecipe/data
+
+
+Где count: кол-во рецептов которое тербуется
+    ingredients: массив продуктов на русском языке 
