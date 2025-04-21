@@ -1,8 +1,8 @@
 ﻿using System.Net;
 
-namespace HavalNeGovno;
+namespace Server;
 
-public class UrlParser
+public class UrlParser : IUrlParser
 {
     private readonly string _baseUrl;
 

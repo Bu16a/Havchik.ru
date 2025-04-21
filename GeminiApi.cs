@@ -8,9 +8,9 @@ using GenerativeAI.Types;
 using Newtonsoft.Json;
 using static GenerativeAI.VertexAIModels;
 
-namespace GeminiServer;
+namespace Server;
 
-public class GeminiApi
+public class GeminiApi : IGeminiApi
 {
     private readonly string _geminiApiKey;
     private string _model;

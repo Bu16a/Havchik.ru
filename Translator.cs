@@ -3,11 +3,12 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 
-public class MyMemoryTranslator
+namespace Server;
+public class MyMemoryTranslator : ITranslator
 {
     private static readonly HttpClient _httpClient = new HttpClient();
 
-    public static async Task<string> TranslateWithMyMemoryAsync(
+    public async Task<string> TranslateWithMyMemoryAsync(
         string text,
         string sourceLang = "ru",
         string targetLang = "en")
@@ -18,18 +19,48 @@ public class MyMemoryTranslator
         try
         {
             HttpResponseMessage response = await _httpClient.GetAsync(url + query);
-            response.EnsureSuccessStatusCode(); 
+            response.EnsureSuccessStatusCode();
 
             string responseBody = await response.Content.ReadAsStringAsync();
             JObject json = JObject.Parse(responseBody);
 
-            string translatedText = json["responseData"]?["translatedText"]?.ToString() ?? text;
-            return translatedText;
+            return json["responseData"]?["translatedText"]?.ToString() ?? text;
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Ошибка перевода: {ex.Message}");
-            return text; 
+            Console.WriteLine($"пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ: {ex.Message}");
+            return text;
         }
+    }
+
+    public async Task<List<string>> TranslateIngredientsAsync(List<string> russianIngredients,
+        Action onError = null)
+    {
+        var translatedIngredients = new List<string>(russianIngredients.Count);
+        try
+        {
+            Console.WriteLine($"Translating ingredients: {string.Join(", ", russianIngredients)}");
+            foreach (var ingredient in russianIngredients)
+            {
+                var translated = await TranslateWithMyMemoryAsync(ingredient);
+                if (!string.IsNullOrWhiteSpace(translated))
+                {
+                    translatedIngredients.Add(translated.ToLowerInvariant());
+                }
+                else
+                {
+                    Console.WriteLine($"Warning: Translation failed or returned empty for '{ingredient}'");
+                }
+            }
+
+            Console.WriteLine($"Translated ingredients: {string.Join(", ", translatedIngredients)}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error during translation: {ex.Message}");
+            onError?.Invoke();
+        }
+
+        return translatedIngredients;
     }
 }
