@@ -39,7 +39,7 @@ public class GeminiApi : IGeminiApi
         "models/gemma-3-27b-it"
     };
 
-    public GeminiApi(string geminiApiKey, string model = "models/gemini-1.5-flash")
+    public GeminiApi(string geminiApiKey, string model = "models/gemini-2.0-flash")
     {
         if (string.IsNullOrWhiteSpace(geminiApiKey))
             throw new ArgumentException("Gemini API key cannot be null or empty", nameof(geminiApiKey));
