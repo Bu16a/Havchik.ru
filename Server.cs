@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using DotNetEnv;
@@ -11,6 +13,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Npgsql;
 using NpgsqlTypes;
+using static Google.Rpc.Context.AttributeContext.Types;
 
 namespace Server;
 
@@ -250,7 +253,8 @@ class SimpleServer
 
             var recipesData = await QueryRecipesFromDatabaseAsync(translatedIngredients, recipeCount);
 
-            var recipesResult = await ProcessRecipesAsync(recipesData);
+            // var recipesResult = await ProcessRecipesAsync(recipesData);
+            var recipesResult = await ProcessTranslateGemeniRecipesAsync(recipesData, response);
 
             SendResponse(response, JsonConvert.SerializeObject(recipesResult, Formatting.Indented), HttpStatusCode.OK,
                 "application/json");
@@ -379,7 +383,8 @@ class SimpleServer
         List<Dictionary<string, object>> recipesData)
     {
         var recipesResult = new Dictionary<string, Dictionary<string, object>>();
-        var keysToTranslate = new HashSet<string> { "title", "ingredients", "directions", "source", "ner_ingredients" };
+        var keysToTranslate = new HashSet<string>();
+        // var keysToTranslate = new HashSet<string> { "title", "ingredients", "directions", "source", "ner_ingredients" };
 
         int recipeIndex = 1;
         foreach (var recipeData in recipesData)
@@ -395,6 +400,134 @@ class SimpleServer
 
         _logger.Log($"Найдено и переведено {recipesResult.Count} рецептов.");
         return recipesResult;
+    }
+
+    private async Task<Dictionary<string, Dictionary<string, object>>> ProcessTranslateGemeniRecipesAsync(
+        List<Dictionary<string, object>> recipesData, HttpListenerResponse response)
+    {
+        var recipesResult = new Dictionary<string, Dictionary<string, object>>();
+        // var keysToTranslate = new HashSet<string>();
+        var keysToTranslate = new HashSet<string> { "title", "ingredients", "directions", "source", "ner_ingredients" };
+        // var apiResult = await _geminiApi.ProcessGeminiRequest($"Переведи данный текст в том же формате в котором он тебе поступил {recipesResult}", response);
+
+        var dataForGemini = new Dictionary<string, Dictionary<string, object>>();
+        for (int i = 0; i < recipesData.Count; i++)
+        {
+            var recipe = recipesData[i];
+            var translatableFields = new Dictionary<string, object>();
+            foreach (var key in keysToTranslate)
+            {
+                if (recipe.TryGetValue(key, out var value) && value != null)
+                {
+                    if (value is string strValue && !string.IsNullOrWhiteSpace(strValue))
+                        translatableFields[key] = strValue;
+                    else if (value is IEnumerable<string> listValue)
+                    {
+                        var nonEmptyList = listValue.Where(s => !string.IsNullOrWhiteSpace(s)).ToList();
+                        if (nonEmptyList.Any())
+                            translatableFields[key] = nonEmptyList;
+                    }
+                    else if (value is JsonElement jsonElement) 
+                    {
+                        if (jsonElement.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(jsonElement.GetString()))
+                            translatableFields[key] = jsonElement.GetString();
+                        else if (jsonElement.ValueKind == JsonValueKind.Array)
+                        {
+                            var list = jsonElement.EnumerateArray()
+                                                .Select(e => e.GetString())
+                                                .Where(s => !string.IsNullOrWhiteSpace(s))
+                                                .ToList();
+                            if (list.Any())
+                                translatableFields[key] = list;
+                        }
+                    }
+                }
+            }
+            if (translatableFields.Any())
+                dataForGemini[$"recipe_{i + 1}"] = translatableFields;
+        }
+
+        string jsonPayload = System.Text.Json.JsonSerializer.Serialize(dataForGemini, new JsonSerializerOptions { WriteIndented = true });
+
+        string prompt = $"""
+        Translate the text values for the keys {string.Join(", ", keysToTranslate.Select(k => $"'{k}'"))} within the following JSON structure from English to Russian.
+        Return the response as a JSON object with the exact same structure (including the top-level keys like "recipe_1", "recipe_2", etc.), containing the translations.
+        Do not translate the keys themselves. Ensure lists of strings remain lists of strings in the output. Also, if you see extra service characters in the text, remove them.
+
+        Input JSON:
+        ```json
+        {jsonPayload}
+        ```
+
+        Translated JSON Output:
+        """;
+
+        string? rawGeminiResponseString = null; 
+        string geminiResponseJson; 
+        try
+        {
+            var apiResultTuple = await _geminiApi.ProcessGeminiRequest(prompt, response);
+            rawGeminiResponseString = apiResultTuple.Item2;
+            using JsonDocument document = JsonDocument.Parse(rawGeminiResponseString);
+            document.RootElement.TryGetProperty("generated_text", out var generatedTextElement);
+            geminiResponseJson = generatedTextElement.GetString().Trim();
+            if (geminiResponseJson.StartsWith("```json", StringComparison.OrdinalIgnoreCase))
+                geminiResponseJson = geminiResponseJson.Substring(7);
+            if (geminiResponseJson.EndsWith("```"))
+                geminiResponseJson = geminiResponseJson.Substring(0, geminiResponseJson.Length - 3);
+            geminiResponseJson = geminiResponseJson.Trim();
+        }
+        catch (Exception ex)
+        {
+            return GenerateErrorResult(recipesData, ex);
+        }
+
+        Dictionary<string, Dictionary<string, JsonElement>>? translatedData = null;
+        try
+        {
+            translatedData = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, Dictionary<string, JsonElement>>>(geminiResponseJson);
+            if (translatedData == null) 
+                throw new System.Text.Json.JsonException("Deserialization of translated data resulted in null.");
+        }
+        catch (System.Text.Json.JsonException jsonEx)
+        {
+            return GenerateErrorResult(recipesData, jsonEx);
+        }
+
+        var finalRecipesResult = new Dictionary<string, Dictionary<string, object>>();
+        for (int i = 0; i < recipesData.Count; i++)
+        {
+            string recipeKey = $"recipe_{i + 1}";
+            var originalRecipe = recipesData[i];
+            var processedRecipe = new Dictionary<string, object>(originalRecipe);
+
+            if (translatedData.TryGetValue(recipeKey, out var translations))
+                foreach (var key in keysToTranslate)
+                    if (translations.TryGetValue(key, out var translatedValueElement) && originalRecipe.ContainsKey(key))
+                    {
+                        if (translatedValueElement.ValueKind == JsonValueKind.String)
+                            processedRecipe[key] = translatedValueElement.GetString();
+                        else if (translatedValueElement.ValueKind == JsonValueKind.Array)
+                        {
+                            processedRecipe[key] = translatedValueElement.EnumerateArray()
+                                .Select(e => e.GetString())
+                                .ToList();
+                        }
+                    }
+
+            finalRecipesResult[recipeKey] = processedRecipe;
+        }
+        _logger.Log($"Найдено и переведено {finalRecipesResult.Count} рецептов.");
+        return finalRecipesResult;
+    }
+
+    private Dictionary<string, Dictionary<string, object>> GenerateErrorResult(List<Dictionary<string, object>> recipesData, Exception ex)
+    {
+        _logger.Log($"Ошибка при обработке ответа Gemini: {ex.Message}");
+        var errorResult = new Dictionary<string, Dictionary<string, object>>();
+        for (int i = 0; i < recipesData.Count; i++)
+            errorResult[$"recipe_{i + 1}"] = recipesData[i];
+        return errorResult;
     }
 
     private async Task ProcessPostApiDataAsync(HttpListenerRequest request, HttpListenerResponse response)
@@ -488,7 +621,7 @@ class SimpleServer
 
             return true;
         }
-        catch (JsonException ex)
+        catch (System.Text.Json.JsonException ex)
         {
             errorMessage =
                 $"Invalid format for parameter '{paramName}'. Expected type: {typeof(T).Name}. Error: {ex.Message}";
