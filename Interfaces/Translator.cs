@@ -63,4 +63,35 @@ public class MyMemoryTranslator : ITranslator
 
         return translatedIngredients;
     }
+
+
+    public async Task<object> TranslateValueAsync(object value, string sourceLang, string targetLang)
+    {
+        if (value is string originalString)
+        {
+            return await TranslateWithMyMemoryAsync(originalString, sourceLang, targetLang);
+        }
+        else if (value is string[] originalArray)
+        {
+            var translatedList = new List<string>(originalArray.Length);
+            foreach (var item in originalArray)
+            {
+                translatedList.Add(await TranslateWithMyMemoryAsync(item, sourceLang, targetLang));
+            }
+
+            return translatedList.ToArray();
+        }
+        else if (value is List<string> originalList)
+        {
+            var translatedList = new List<string>(originalList.Count);
+            foreach (var item in originalList)
+            {
+                translatedList.Add(await TranslateWithMyMemoryAsync(item, sourceLang, targetLang));
+            }
+
+            return translatedList;
+        }
+
+        return value;
+    }
 }

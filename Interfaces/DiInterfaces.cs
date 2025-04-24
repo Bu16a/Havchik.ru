@@ -27,6 +27,7 @@ public interface ITranslator
 {
     Task<string> TranslateWithMyMemoryAsync(string text, string sourceLang, string targetLang);
     Task<List<string>> TranslateIngredientsAsync(List<string> ingredients, Action onError);
+    Task<object> TranslateValueAsync(object value, string sourceLang, string targetLang);
 }
 
 public interface ILogger

@@ -43,7 +43,7 @@ public class Startup
 
         services.AddSingleton<SimpleServer>(provider =>
             new SimpleServer(
-                Configuration["SERVER_URL"] ?? "http://localhost:8080/",
+                "http://localhost:8080/",
                 provider.GetRequiredService<IUrlParser>(),
                 provider.GetRequiredService<IGeminiApi>(),
                 provider.GetRequiredService<IDbService>(),
