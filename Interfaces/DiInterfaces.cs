@@ -38,6 +38,11 @@ public interface IJsonServing
     bool TryGetParam<T>(JObject jsonData, string paramName, out T value, out string errorMessage);
 }
 
+public interface IGoogleImageSearchHelper
+{
+    Task<string?> GetFirstImageUrlAsync(string query);
+}
+
 public interface ILogger
 {
     void Log(string message);

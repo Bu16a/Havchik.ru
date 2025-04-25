@@ -32,8 +32,10 @@ class SimpleServer
     private readonly ILogger _logger;
     private readonly DBPrompts _dbPrompts;
     private readonly IJsonServing _jsonServing;
+    private readonly IGoogleImageSearchHelper _googleImageSearchHelper;
 
-    public SimpleServer(string url, IUrlParser parser, IGeminiApi geminiApi, IDbService dbService, ITranslator translator, ILogger logger, IJsonServing jsonServing)
+    public SimpleServer(string url, IUrlParser parser, IGeminiApi geminiApi, IDbService dbService, ITranslator translator,
+        ILogger logger, IJsonServing jsonServing, IGoogleImageSearchHelper googleImageSearchHelper)
     {
         Env.TraversePath().Load();
         _url = url;
@@ -47,6 +49,7 @@ class SimpleServer
         _logger = logger;
         _dbPrompts = new DBPrompts(_dbService);
         _jsonServing = jsonServing;
+        _googleImageSearchHelper = googleImageSearchHelper;
     }
 
     public void Start()
@@ -282,6 +285,12 @@ class SimpleServer
                 recipesData = await _dbPrompts.QueryRecipesFromDatabaseAsync(translatedIngredients, recipeCount);
             else
                 recipesData = await _dbPrompts.QueryRecipesOnlyTheseProductsFromDatabaseAsync(translatedIngredients, recipeCount);
+
+            if (recipesData.Count == 0)
+            {
+                var random = new Random();
+                recipesData = await _dbPrompts.QueryRecipesByIdFromDatabaseAsync(random.Next(1, 2000000));
+            }
 
             // var recipesResult = await ProcessRecipesAsync(recipesData);
             var recipesResult = await ProcessTranslateGemeniRecipesAsync(recipesData, response);
@@ -629,6 +638,17 @@ class SimpleServer
             string recipeKey = $"recipe_{i + 1}";
             var originalRecipe = recipesData[i];
             var processedRecipe = new Dictionary<string, object>(originalRecipe);
+
+            if (processedRecipe.TryGetValue("title", out var dishNameObj) && dishNameObj is string dishName && !string.IsNullOrWhiteSpace(dishName))
+            {
+                string searchQuery = dishName + " recipe";
+                string? imageUrl = await _googleImageSearchHelper.GetFirstImageUrlAsync(searchQuery);
+
+                if (!string.IsNullOrEmpty(imageUrl))
+                    processedRecipe["image"] = imageUrl;
+                else
+                    processedRecipe["image"] = null;
+            }
 
             if (translatedData.TryGetValue(recipeKey, out var translations))
                 foreach (var key in keysToTranslate)

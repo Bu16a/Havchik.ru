@@ -1,4 +1,5 @@
-﻿using HavalNeGovno.Utils;
+﻿using HavalNeGovno.Services;
+using HavalNeGovno.Utils;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -44,6 +45,12 @@ public class Startup
 
         services.AddSingleton<IJsonServing, JsonServing>();
 
+        services.AddSingleton<IGoogleImageSearchHelper>(provider =>
+            new GoogleImageSearchHelper(
+                Configuration["MY_SEARCH_API_KEY"] ?? throw new InvalidOperationException("MY_SEARCH_API_KEY is not set"),
+                Configuration["MY_CX"] ?? throw new InvalidOperationException("MY_CX is not set"))
+            );
+
         services.AddSingleton<SimpleServer>(provider =>
             new SimpleServer(
                 "http://localhost:8080/",
@@ -52,8 +59,8 @@ public class Startup
                 provider.GetRequiredService<IDbService>(),
                 provider.GetRequiredService<ITranslator>(),
                 provider.GetRequiredService<ILogger>(),
-                provider.GetRequiredService<IJsonServing>()
-
+                provider.GetRequiredService<IJsonServing>(),
+                provider.GetRequiredService<IGoogleImageSearchHelper>()
             )
         );
 
