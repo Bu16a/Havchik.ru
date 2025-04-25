@@ -1,22 +1,22 @@
-/* Продукты */
 main {
     flex: 1;
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 50px 20px; /* Увеличим отступ сверху */
+    padding: 20px 20px 20px 20px;
     margin: 0;
-    min-height: calc(100vh - 100px); /* Примерная высота, чтобы main занимал место минус хедер/футер */
+    min-height: calc(100vh - 140px);
     box-sizing: border-box;
 }
+
 .fridge-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 35px 40px;
-    gap: 25px;
+    padding: 30px 35px;
+    gap: 10px;
     width: 100%;
-    max-width: 500px;
+    max-width: 650px;
     background: #FFFFFF;
     border-radius: 15px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
@@ -25,23 +25,140 @@ main {
 
 .fridge-header {
     text-align: center;
-    margin-bottom: 5px;
+    margin-bottom: 0;
     width: 100%;
 }
 
 .fridge-header h1 {
-    font-size: 28px;
+    font-size: 26px;
     font-weight: 600;
     color: #333;
-    margin: 0;
+    margin-bottom: 10px;
 }
 
+/* --- Стили формы добавления продукта --- */
+.add-product-form {
+    background-color: #f9f9f9;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    padding: 20px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.add-product-form h2 {
+    text-align: center;
+    font-size: 20px;
+    font-weight: 500;
+    color: #444;
+    margin: 0 0 15px 0;
+}
+
+.add-product-form .form-field {
+    margin: 0 0 10px 0;
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column; /* Метка над полем */
+    gap: 5px;
+}
+
+.form-field label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #555;
+}
+
+.form-field input[type="text"],
+.form-field input[type="number"],
+.form-field select {
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 15px;
+    font-family: 'Montserrat', sans-serif;
+    box-sizing: border-box;
+    width: 100%; /* Занимают всю ширину */
+}
+
+.form-field input:focus,
+.form-field select:focus {
+    border-color: #88b;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(100, 100, 200, 0.2);
+}
+
+
+.quantity-field {
+    flex-direction: row; /* Поля количества и единиц в строку */
+    align-items: center; /* Выравниваем по центру */
+    gap: 10px;
+}
+
+.quantity-field label {
+    flex-shrink: 0; /* Чтобы метка не сжималась */
+    margin-bottom: 0; /* Убираем нижний отступ у метки */
+}
+
+
+.quantity-field input[type="number"] {
+    width: 60%; /* Задаем ширину полю числа */
+    flex-grow: 1; /* Позволяем расти */
+}
+
+.quantity-field select {
+    width: auto; /* Автоширина для селекта */
+    flex-grow: 0; /* Не растягиваем селект */
+    min-width: 70px; /* Минимальная ширина */
+}
+
+.form-actions {
+    display: flex;
+    justify-content: space-around; /* Кнопки по краям */
+    gap: 15px;
+    margin-top: 10px; /* Отступ сверху */
+}
+
+.form-btn {
+    flex-grow: 1; /* Кнопки растягиваются */
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 500;
+    text-align: center;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.save-new-btn {
+    background-color: #4CAF50; /* Зеленый */
+    color: white;
+}
+
+.save-new-btn:hover {
+    background-color: #45a049;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+
+.cancel-new-btn {
+    background-color: #f0f0f0;
+    color: #444;
+}
+
+.cancel-new-btn:hover {
+    background-color: #e5e5e5;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* --- Стили кнопок действий (как были, но чуть меньше отступ) --- */
 .actions {
     display: flex;
     justify-content: stretch;
     gap: 15px;
     width: 100%;
-    margin-bottom: 15px;
+    margin-bottom: 10px; /* Уменьшили отступ */
 }
 
 .action-btn {
@@ -63,7 +180,15 @@ main {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-/* --- Стили списка продуктов --- */
+.action-btn:disabled {
+    background-color: #e0e0e0;
+    color: #999;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+
+/* --- Стили списка продуктов (адаптированы) --- */
 .product-list {
     width: 100%;
     padding: 0;
@@ -82,37 +207,26 @@ main {
     border-radius: 10px;
     width: 100%;
     box-sizing: border-box;
-    transition: background-color 0.3s ease; /* Плавность для режима редактирования */
+    transition: background-color 0.3s ease;
+    min-height: 70px; /* Минимальная высота для выравнивания */
 }
 
 .product-info {
     display: flex;
     flex-direction: column;
     gap: 4px;
-    flex-grow: 1; /* Занимает доступное место слева */
-    margin-right: 15px; /* Отступ от кнопок */
+    flex-grow: 1;
+    margin-right: 15px;
 }
 
-.product-name, .product-quantity {
-    display: block; /* Чтобы занимали всю ширину блока */
-    transition: opacity 0.3s ease;
+/* Отображение информации */
+.product-name, .product-quantity-display {
+    display: block;
+    transition: opacity 0.3s ease, height 0.3s ease;
+    opacity: 1;
+    height: auto;
+    overflow: visible;
 }
-.product-name-input, .product-quantity-input {
-    display: block; /* Чтобы занимали всю ширину блока */
-    font-family: 'Montserrat', sans-serif; /* Наследуем шрифт */
-    border: 1px solid #cccccc;
-    border-radius: 5px;
-    padding: 4px 8px;
-    font-size: 14px; /* Размер шрифта инпута */
-    box-sizing: border-box; /* Учитываем padding и border в размере */
-    width: 100%; /* Занимаем всю ширину .product-info */
-    transition: opacity 0.3s ease;
-}
-.product-name-input {
-     font-size: 16px; /* Крупнее для имени */
-     font-weight: 600;
-}
-
 
 .product-name {
     font-size: 17px;
@@ -120,82 +234,159 @@ main {
     color: #333;
 }
 
-.product-quantity {
+.product-quantity-display {
     font-size: 13px;
     color: #777777;
 }
+
+/* Поля для редактирования */
+.product-name-input {
+    display: block;
+    font-family: 'Montserrat', sans-serif;
+    border: 1px solid #cccccc;
+    border-radius: 5px;
+    padding: 4px 8px;
+    font-size: 16px; /* Крупнее для имени */
+    font-weight: 600;
+    box-sizing: border-box;
+    width: 100%;
+    transition: opacity 0.3s ease, height 0.3s ease;
+    opacity: 1; /* По умолчанию видимы, будут скрываться */
+    height: auto;
+    overflow: visible;
+    margin-bottom: 5px; /* Отступ снизу */
+}
+
+.edit-quantity-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    width: 100%;
+    transition: opacity 0.3s ease, height 0.3s ease;
+    opacity: 1; /* По умолчанию видимы, будут скрываться */
+    height: auto;
+    overflow: visible;
+}
+
+.product-quantity-input {
+    font-family: 'Montserrat', sans-serif;
+    border: 1px solid #cccccc;
+    border-radius: 5px;
+    padding: 4px 8px;
+    font-size: 14px;
+    box-sizing: border-box;
+    width: 60%; /* Ширина поля числа */
+    flex-grow: 1;
+}
+
+.product-unit-select {
+    font-family: 'Montserrat', sans-serif;
+    border: 1px solid #cccccc;
+    border-radius: 5px;
+    padding: 4px; /* Меньше паддинг для селекта */
+    font-size: 14px;
+    box-sizing: border-box;
+    width: auto;
+    min-width: 65px;
+    flex-grow: 0;
+}
+
 
 .product-actions {
     display: flex;
     align-items: center;
     gap: 15px;
-    flex-shrink: 0; /* Чтобы кнопки не сжимались */
+    flex-shrink: 0;
 }
 
-.edit-btn, .delete-btn, .save-btn {
+.edit-btn, .delete-btn, .save-btn, .cancel-btn {
     padding: 0;
     background-color: transparent;
     border: none;
     cursor: pointer;
     line-height: 0;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.3s ease, width 0.3s ease, margin 0.3s ease; /* Добавляем width и margin */
+    opacity: 1;
+    width: auto;
+    margin: 0;
 }
 
-.edit-btn img, .delete-btn img, .save-btn img {
+.edit-btn img, .delete-btn img, .save-btn img, .cancel-btn img {
     width: 18px;
     height: 18px;
     opacity: 0.7;
-    display: block; /* Убирает лишние отступы */
+    display: block;
 }
 
-.edit-btn:hover img, .delete-btn:hover img, .save-btn:hover img {
+.edit-btn:hover img, .delete-btn:hover img, .save-btn:hover img, .cancel-btn:hover img {
     opacity: 1;
+}
+
+/* --- Стили для режима просмотра (не редактирования) --- */
+/* Используем атрибут hidden в JS вместо opacity/height для надежности */
+/* .product-item:not(.edit-mode) .product-name-input,
+.product-item:not(.edit-mode) .edit-quantity-controls {
+    opacity: 0;
+    height: 0;
+    overflow: hidden;
+    pointer-events: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+} */
+
+.product-item:not(.edit-mode) .save-btn {
+    display: none; /* Проще скрыть кнопку сохранения */
+}
+
+.product-item:not(.edit-mode) .cancel-btn {
+    display: none; /* Проще скрыть кнопку сохранения */
+}
+
+.product-item:not(.edit-mode) .edit-btn {
+    display: inline-block; /* Показываем кнопку редактирования */
 }
 
 /* --- Стили для режима редактирования --- */
 .product-item.edit-mode {
-    background-color: #FFFACD; /* Подсветка фона в режиме редактирования */
+    background-color: #FFFACD; /* Подсветка */
 }
 
-/* Скрываем обычный текст, показываем инпуты */
+/* Скрываем обычные span'ы в режиме редактирования */
 .product-item.edit-mode .product-name,
-.product-item.edit-mode .product-quantity {
-    opacity: 0;
-    height: 0;
-    overflow: hidden;
-    pointer-events: none; /* Чтобы нельзя было кликнуть */
-}
-.product-item:not(.edit-mode) .product-name-input,
-.product-item:not(.edit-mode) .product-quantity-input {
-     opacity: 0;
-     height: 0;
-     overflow: hidden;
-     pointer-events: none;
-     border: none; /* Убираем рамку, когда скрыто */
-     padding: 0; /* Убираем паддинг, когда скрыто */
-
+.product-item.edit-mode .product-quantity-display {
+    display: none;
 }
 
+/* Показываем поля ввода в режиме редактирования */
+.product-item.edit-mode .product-name-input,
+.product-item.edit-mode .edit-quantity-controls {
+    display: flex; /* или block для input имени */
+}
 
-/* Скрываем кнопку Edit, показываем Save */
+.product-item.edit-mode .product-name-input {
+    display: block;
+}
+
 .product-item.edit-mode .edit-btn {
-    opacity: 0;
-    pointer-events: none;
-    width: 0; /* Схлопываем кнопку */
-    margin-right: -15px; /* Компенсируем gap */
-}
-.product-item:not(.edit-mode) .save-btn {
-     opacity: 0;
-     pointer-events: none;
-     width: 0;
-     margin-right: -15px;
+    display: none;
 }
 
+.product-item.edit-mode .delete-btn {
+    display: none;
+}
 
-/* --- Кнопка "Удалить все" --- */
+.product-item.edit-mode .save-btn {
+    display: inline-block;
+}
+
+.product-item.edit-mode .cancel-btn {
+    display: inline-block;
+}
+
 .clear-btn {
     display: block;
-    margin: 15px auto 0;
+    margin: 20px auto 0;
     padding: 8px 15px;
     background-color: transparent;
     border: none;
@@ -210,4 +401,15 @@ main {
     color: #CC0000;
 }
 
+.actions button#showAddFormBtn[hidden] {
+    display: none;
+}
+
+.product-info input.product-name-input[hidden] {
+    display: none;
+}
+
+.edit-quantity-controls[hidden] {
+    display: none;
+}
 
