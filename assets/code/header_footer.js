@@ -16,4 +16,17 @@ class SiteHeader extends HTMLElement {
     }
 }
 
+class SiteFooter extends HTMLElement {
+    connectedCallback() {
+        this.innerHTML = `
+            <footer>
+                <p>
+                    Скучаю, но верстаю <3 от <a href="https://github.com/Bu16a/Havchik.ru" class="github" aria-label="Хавчик.ру">Хавчика</a>
+                </p>
+            </footer>
+        `;
+    }
+}
+
 customElements.define('site-header', SiteHeader);
+customElements.define('site-footer', SiteFooter);

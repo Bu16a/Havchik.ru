@@ -55,6 +55,14 @@ main {
     margin: 0 0 0.625rem 0;
 }
 
+#signInBtt, #signUpBtt {
+    cursor: pointer;
+}
+
+#signInBtt:hover, #signUpBtt:hover {
+    color: #a0a0a0;
+}
+
 .form-group {
     display: flex;
     flex-direction: column;
