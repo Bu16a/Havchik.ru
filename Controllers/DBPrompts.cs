@@ -43,10 +43,27 @@ namespace HavalNeGovno.Controllers
             var query = @"
             SELECT *
             FROM recipes
-            WHERE ner_ingredients @> @ingredients::TEXT[]
+            WHERE ner_ingredients && @ingredients::TEXT[]
+            LIMIT @limit";
+
+            return await ReturnAndQuery(translatedIngredients, recipeCount, query);
+        }
+
+        public async Task<List<Dictionary<string, object>>> QueryRecipesOnlyTheseProductsFromDatabaseAsync(
+            List<string> translatedIngredients, int recipeCount)
+        {
+            var query = @"
+            SELECT *
+            FROM recipes
+            WHERE ner_ingredients <@ @ingredients::TEXT[]
             ORDER BY id
             LIMIT @limit";
 
+            return await ReturnAndQuery(translatedIngredients, recipeCount, query);
+        }
+
+        private async Task<List<Dictionary<string, object>>> ReturnAndQuery(List<string> translatedIngredients, int recipeCount, string query)
+        {
             var parameters = new Dictionary<string, (object value, NpgsqlDbType dbType)>
             {
                 { "ingredients", (translatedIngredients, NpgsqlDbType.Array | NpgsqlDbType.Text) },

@@ -247,9 +247,9 @@ class SimpleServer
                 case "/searchRecipebyid/data":
                     await ProcessPostSearchRecipeByIdAsync(request, response);
                     break;
-               /* case "/getRecipesBuyOrNo/data":
+                case "/getRecipesBuyOrNo/data":
                     await ProcessPostSearchRecipesForByeOrNo(request, response);
-                    break;*/
+                    break;
                 default:
                     SendResponse(response, "Endpoint not found", HttpStatusCode.NotFound);
                     break;
@@ -277,8 +277,11 @@ class SimpleServer
                 SendResponse(response, "Нет корректных ингредиентов после перевода.", HttpStatusCode.BadRequest);
                 return;
             }
-
-            var recipesData = await _dbPrompts.QueryRecipesFromDatabaseAsync(translatedIngredients, recipeCount);
+            List<Dictionary<string, object>>? recipesData;
+            if (purchase)
+                recipesData = await _dbPrompts.QueryRecipesFromDatabaseAsync(translatedIngredients, recipeCount);
+            else
+                recipesData = await _dbPrompts.QueryRecipesOnlyTheseProductsFromDatabaseAsync(translatedIngredients, recipeCount);
 
             // var recipesResult = await ProcessRecipesAsync(recipesData);
             var recipesResult = await ProcessTranslateGemeniRecipesAsync(recipesData, response);
