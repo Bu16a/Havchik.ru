@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using HavalNeGovno.Utils;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Server;
@@ -41,6 +42,8 @@ public class Startup
 
         services.AddSingleton<ILogger, Logger>();
 
+        services.AddSingleton<IJsonServing, JsonServing>();
+
         services.AddSingleton<SimpleServer>(provider =>
             new SimpleServer(
                 "http://localhost:8080/",
@@ -48,7 +51,9 @@ public class Startup
                 provider.GetRequiredService<IGeminiApi>(),
                 provider.GetRequiredService<IDbService>(),
                 provider.GetRequiredService<ITranslator>(),
-                provider.GetRequiredService<ILogger>()
+                provider.GetRequiredService<ILogger>(),
+                provider.GetRequiredService<IJsonServing>()
+
             )
         );
 
