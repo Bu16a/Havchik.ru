@@ -39,68 +39,7 @@
             <button class="action-btn" id="showAddFormBtn">Добавить продукт</button>
         </div>
 
-        <div class="product-list" id="productList">
-            <div class="product-item" data-id="1">
-                <div class="product-info">
-                    <span class="product-name">Помидор</span>
-                    <span class="product-quantity-display">3 шт</span>
-                    <div class="edit-quantity-controls" hidden>
-                        <input type="text" class="product-name-input" value="Помидор">
-                        <input type="number" class="product-quantity-input" value="3" min="1">
-                        <select class="product-unit-select">
-                            <option value="шт" selected>шт</option>
-                            <option value="гр">гр</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="product-actions">
-                    <button class="edit-btn"><img src="assets/svg/edit.svg" alt="Edit"></button>
-                    <button class="save-btn" hidden><img src="assets/svg/save.svg" alt="Save"></button>
-                    <button class="cancel-btn" hidden><img src="assets/svg/cancel.svg" alt="Cancel"></button>
-                    <button class="delete-btn"><img src="assets/svg/trash.svg" alt="Delete"></button>
-                </div>
-            </div>
-            <div class="product-item" data-id="2">
-                <div class="product-info">
-                    <span class="product-name">Молоко</span>
-                    <span class="product-quantity-display">500 гр</span>
-                    <div class="edit-quantity-controls" hidden>
-                        <input type="text" class="product-name-input" value="Молоко">
-                        <input type="number" class="product-quantity-input" value="500" min="1">
-                        <select class="product-unit-select">
-                            <option value="шт">шт</option>
-                            <option value="гр" selected>гр</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="product-actions">
-                    <button class="edit-btn"><img src="assets/svg/edit.svg" alt="Edit"></button>
-                    <button class="save-btn" hidden><img src="assets/svg/save.svg" alt="Save"></button>
-                    <button class="cancel-btn" hidden><img src="assets/svg/cancel.svg" alt="Cancel"></button>
-                    <button class="delete-btn"><img src="assets/svg/trash.svg" alt="Delete"></button>
-                </div>
-            </div>
-            <div class="product-item" data-id="3">
-                <div class="product-info">
-                    <span class="product-name">Лапша</span>
-                    <span class="product-quantity-display">500 гр</span>
-                    <div class="edit-quantity-controls" hidden>
-                        <input type="text" class="product-name-input" value="Лапша">
-                        <input type="number" class="product-quantity-input" value="500" min="1">
-                        <select class="product-unit-select">
-                            <option value="шт">шт</option>
-                            <option value="гр" selected>гр</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="product-actions">
-                    <button class="edit-btn"><img src="assets/svg/edit.svg" alt="Edit"></button>
-                    <button class="save-btn" hidden><img src="assets/svg/save.svg" alt="Save"></button>
-                    <button class="cancel-btn" hidden><img src="assets/svg/cancel.svg" alt="Cancel"></button>
-                    <button class="delete-btn"><img src="assets/svg/trash.svg" alt="Delete"></button>
-                </div>
-            </div>
-        </div>
+        <div class="product-list" id="productList"></div>
 
         <button class="clear-btn" id="clearAllBtn">Удалить все продукты</button>
     </div>
@@ -108,7 +47,7 @@
 
     <footer>
         </footer>
-
-    <script src="assets/code/myproducts.js"></script>
+    <script src="/assets/code/checkAuth.js" type="module"></script>
+    <script src="assets/code/myproducts.js" type="module"></script>
 </body>
 </html>

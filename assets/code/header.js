@@ -7,7 +7,7 @@ class SiteHeader extends HTMLElement {
                     <a href="/myproducts.html" class="profile" aria-label="Продукты">
                          <img src="/assets/svg/fridge.svg">Холодильник
                     </a>
-                    <a href="/auth.html" class="profile" aria-label="Профиль">
+                    <a href="/profile.html" class="profile" aria-label="Профиль">
                         <img src="/assets/svg/profile.svg">Профиль
                     </a>
                 </nav>

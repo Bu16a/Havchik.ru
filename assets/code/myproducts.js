@@ -1,4 +1,21 @@
 // myproducts.js
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js';
+import { getAuth } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js';
+import { getFirestore, doc, deleteField, updateDoc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyArIiiX0vU-_Kr_CJRLdtIs5qTHIUTvUc8",
+  authDomain: "che-te.firebaseapp.com",
+  projectId: "che-te",
+  storageBucket: "che-te.appspot.com",
+  messagingSenderId: "902131293726",
+  appId: "1:902131293726:web:4a8a3aff1cf0c9d4e1180f",
+  measurementId: "G-BXT01SDXW2"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
 document.addEventListener('DOMContentLoaded', () => {
     const showAddFormBtn = document.getElementById('showAddFormBtn');
@@ -52,6 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
     clearAllBtn.addEventListener('click', () => {
         if (productList.children.length === 0) return;
         if (confirm('Вы уверены, что хотите удалить все продукты?')) {
+            clearAllProducts();
             productList.innerHTML = '';
         }
     });
@@ -98,17 +116,19 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
     }
 
-    function addProductToList(name, quantity, unit) {
+    async function addProductToList(name, quantity, unit) {
         const newItem = document.createElement('div');
         newItem.classList.add('product-item');
         const uniqueId = Date.now();
         newItem.dataset.id = uniqueId;
         newItem.innerHTML = createProductItemHTML(uniqueId, name, quantity, unit);
         productList.appendChild(newItem);
+        updateProductDb(name, quantity, unit);
     }
 
-    function toggleEditMode(item, isEditing) {
+    async function toggleEditMode(item, isEditing) {
         const nameSpan = item.querySelector('.product-name');
+        const oldName = nameSpan.textContent;
         const quantityDisplaySpan = item.querySelector('.product-quantity-display');
         const nameInput = item.querySelector('.product-name-input');
         const quantityInput = item.querySelector('.product-quantity-input');
@@ -146,6 +166,8 @@ document.addEventListener('DOMContentLoaded', () => {
             nameSpan.textContent = newName;
             quantityDisplaySpan.textContent = `${String(newQuantity).replace('.', ',')} ${newUnit}`;
             item.classList.remove('edit-mode');
+            deleteProductDb(oldName);
+            updateProductDb(newName, newQuantityStr, newUnit);
             return true;
         }
         return true;
@@ -167,6 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const productName = item.querySelector('.product-name').textContent;
         if (confirm(`Удалить продукт "${productName}"?`)) {
             item.remove();
+            deleteProductDb(productName);
         }
     }
 
@@ -176,7 +199,43 @@ document.addEventListener('DOMContentLoaded', () => {
         item.classList.remove('edit-mode');
     }
 
+    async function updateProductDb(productName, quantity, unit) {
+        const userDocRef = doc(db, "users", auth.currentUser.uid);
+        await updateDoc(userDocRef, {
+            [`products.${productName}`]: `${quantity} ${unit}`
+        });
+    }
 
+    async function deleteProductDb(productName) {
+        const userDocRef = doc(db, "users", auth.currentUser.uid);
+        await updateDoc(userDocRef, {
+            [`products.${productName}`]: deleteField()
+        });
+    }
+
+    async function clearAllProducts(params) {
+        const userDocRef = doc(db, "users", auth.currentUser.uid);
+        await setDoc(userDocRef, {
+            products : {}
+        });
+    }
+
+    async function getAllProducts() {
+        const userDocRef = doc(db, "users", auth.currentUser.uid);
+        const data = await getDoc(userDocRef);
+        return data.data().products;
+        
+    }
+
+    async function showProducts() {
+        const products = await getAllProducts();
+        for (let productName in products) {
+            const value = products[productName].split(' ');
+            addProductToList(productName, value[0], value[1]);
+        }
+    }
+
+    setTimeout(showProducts, 1000);
     addProductFormContainer.hidden = true;
     showAddFormBtn.hidden = false;
 });
