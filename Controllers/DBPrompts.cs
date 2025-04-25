@@ -23,7 +23,7 @@ namespace HavalNeGovno.Controllers
         public async Task<List<Dictionary<string, object>>> QueryRecipesByIdFromDatabaseAsync(int id)
         {
             var query = @"
-            SELECT *
+            SELECT id, title
             FROM recipes
             WHERE id = @id
             LIMIT 1";
@@ -41,7 +41,7 @@ namespace HavalNeGovno.Controllers
             List<string> translatedIngredients, int recipeCount)
         {
             var query = @"
-            SELECT *
+            SELECT id, title
             FROM recipes
             WHERE ner_ingredients && @ingredients::TEXT[]
             LIMIT @limit";

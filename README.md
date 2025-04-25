@@ -22,15 +22,35 @@ http://localhost:8080/api/data
 Для бд: dotnet add package Npgsql
 
 
+Какие методы есть у сервака и примеры обращения:
 
-Запрос для получения рецептов:
-curl -X POST \
-  -H "Content-Type: application/json" \
-  -d '{"ingredients":["сахар"], "count" :\
-   10 }' \
+   Запрос для получения рецептов (он просто выведет когда докупка true):
+    curl -X POST \
+      -H "Content-Type: application/json" \
+      -d '{"ingredients":["сахар"], "count" :\
+       10 }' \
 
-  http://localhost:8080/searchRecipe/data
+      http://localhost:8080/searchRecipe/data
 
 
-Где count: кол-во рецептов которое тербуется
-    ingredients: массив продуктов на русском языке 
+   Где count: кол-во рецептов которое тербуется
+       ingredients: массив продуктов на русском языке 
+
+   Запрос для получения рецептов:
+    curl -X POST \
+      -H "Content-Type: application/json" \
+      -d '{"ingredients":["творожный сыр", "соль"], "count" :\
+       1, "purchase" : true}' \
+
+    http://localhost:8080/getRecipesBuyOrNo/data
+   Тут purchase - это флаг докупка/нет
+
+   Запрос для получения рецепта по его id:
+     curl -X POST \
+      -H "Content-Type: application/json" \
+      -d '{"id" : 23 }' \
+
+    http://localhost:8080/searchRecipebyid/data
+   id - PrimaryKey в таблице
+
+
