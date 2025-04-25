@@ -14,6 +14,13 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
+function setCookie(name, value, minutesToExpire) {
+    const date = new Date();
+    date.setTime(date.getTime() + (minutesToExpire * 60 * 1000));
+    const expires = "expires=" + date.toUTCString();
+    document.cookie = `${name}=${value}; ${expires}; path=/; Secure; SameSite=Lax`;
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const signUpForm = document.querySelector('.sign-up-container .auth-form form');
     const signInForm = document.querySelector('.sign-in-container .auth-form form');
@@ -42,7 +49,16 @@ document.addEventListener('DOMContentLoaded', function() {
             createUserWithEmailAndPassword(auth, email, password)
             .then((userCredential) => {
                 alert("Регистрация успешна!");
-                console.log("User created:", userCredential.user);
+                const user = userCredential.user;
+                user.getIdToken()
+                    .then((idToken) => {
+                        setCookie("firebase_token", idToken, 60);
+                        console.log("User created and token obtained:", user);
+                        window.location.href = '/index.html';
+                    })
+                    .catch((error) => {
+                        console.error("Ошибка получения токена:", error);
+                    });
             })
             .catch((error) => {
                 console.error("Ошибка регистрации:", error.code, error.message);
@@ -74,8 +90,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
             signInWithEmailAndPassword(auth, email, password)
             .then((userCredential) => {
+                const user = userCredential.user;
+                user.getIdToken()
+                    .then((idToken) => {
+                        setCookie("firebase_token", idToken, 60);
+                        window.location.href = '/index.html';
+                    })
+                    .catch((error) => {
+                        console.error("Ошибка получения токена:", error);
+                    });
                 alert("Успешный вход");
-                console.log("User зашел:", userCredential.user);
+                console.log("User зашел:", user);
             })
             .catch((error) => {
                 console.error("Ошибка входа:", error.code, error.message);
@@ -100,5 +125,4 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
-
 });

@@ -3,8 +3,18 @@ const sortMenu = document.getElementById('sortMenu');
 const sortLabel = document.getElementById('sortLabel');
 const options = document.querySelectorAll('.sort-option');
 const sortIcon = document.getElementById('sortIcon');
-
 const recipeCards = document.querySelectorAll('.recipe-card');
+const token = getCookie("firebase_token");
+const apiUrl = ''; // поменять
+
+function getCookie(name) {
+    const cookies = document.cookie.split('; ');
+    for (const cookie of cookies) {
+        const [cookieName, cookieValue] = cookie.split('=');
+        if (cookieName === name) return cookieValue;
+    }
+    return null;
+}
 
 recipeCards.forEach(card => {
     const imageUrl = card.getAttribute('data-image-url');
@@ -12,7 +22,6 @@ recipeCards.forEach(card => {
     card.style.backgroundSize = 'cover';
     card.style.backgroundPosition = 'center';
 });
-
 
 sortButton.addEventListener('click', (e) => {
     e.stopPropagation(); 
@@ -47,6 +56,5 @@ document.getElementById('add-products').addEventListener('change', (e) => {
     // TODO: обработать докуп продуктов
 });
 
-
-
-
+const products = fetch(`${apiUrl}/products?token=${token}`);
+const recipesShort = fetch(`${apiUrl}/getRecipesShort?token=${token}`);

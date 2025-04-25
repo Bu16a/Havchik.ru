@@ -7,31 +7,28 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/style/styles.css">
-    <link rel="stylesheet" href="assets/style/registration.css">
+    <link rel="stylesheet" href="/assets/style/styles.css">
+    <link rel="stylesheet" href="/assets/style/registration.css">
 </head>
 <body>
-<script src="assets/code/header.js" type="module"></script>
+<script src="/assets/code/header.js" type="module"></script>
 <site-header></site-header>
 <main>
-    <div class="buttons">
-        <button class="submit-btn" id="signUpBtt"><strong>Регистрация</strong></button>
-        <button class="submit-btn" id="signInBtt"><strong>Вход</strong></button>
-    </div>
     <div class="sign-up-container">
         <div class="auth-form">
             <h1>Регистрация</h1>
             <form>
                 <div class="form-group">
-                    <label for="email"><strong>Email</strong></label>
+                    <label for="email1"><strong>Email</strong></label>
                     <input type="email" id="email1" required>
                 </div>
                 <div class="form-group">
-                    <label for="password"><strong>Пароль</strong></label>
+                    <label for="password1"><strong>Пароль</strong></label>
                     <input type="password" id="password1" required minlength="8">
                 </div>
                 <button type="submit" class="submit-btn"><strong>Зарегистрироваться</strong></button>
             </form>
+            <p id="signInBtt">Уже есть в системе?</p>
         </div>
     </div>
     <div class="sign-in-container">
@@ -39,18 +36,19 @@
             <h1>Вход</h1>
             <form>
                 <div class="form-group">
-                    <label for="email"><strong>Email</strong></label>
+                    <label for="email2"><strong>Email</strong></label>
                     <input type="email" id="email2" required>
                 </div>
                 <div class="form-group">
-                    <label for="password"><strong>Пароль</strong></label>
+                    <label for="password2"><strong>Пароль</strong></label>
                     <input type="password" id="password2" required minlength="8">
                 </div>
                 <button type="submit" class="submit-btn"><strong>Войти</strong></button>
             </form>
+            <p id="signUpBtt">Ещё не зарегистрированы?</p>
         </div>
     </div>
 </main>
-<script src="assets/code/registration.js" type="module"></script>
+<script src="/assets/code/registration.js" type="module"></script>
 </body>
 </html>
