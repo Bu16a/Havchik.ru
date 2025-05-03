@@ -176,19 +176,13 @@
 
     background: #ffffff;
     border-radius: 20px;
-
-    flex: none;
-    order: 1;
-    align-self: stretch;
-    flex-grow: 0;
 }
 
 .recipe-cards {
     margin: 0;
-    width: 100%;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    width: 100%;
     padding: 1em;
     gap: 1em;
 }
@@ -196,6 +190,8 @@
 .recipe-card {
     display: flex;
     border-radius: 10px;
+    align-self: stretch;
+    box-sizing: border-box;
     padding: 0.5em 1em;
     width: 100%;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
