@@ -1,21 +1,7 @@
 // myproducts.js
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js';
-import { getAuth } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js';
-import { getFirestore, doc, deleteField, updateDoc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyArIiiX0vU-_Kr_CJRLdtIs5qTHIUTvUc8",
-  authDomain: "che-te.firebaseapp.com",
-  projectId: "che-te",
-  storageBucket: "che-te.appspot.com",
-  messagingSenderId: "902131293726",
-  appId: "1:902131293726:web:4a8a3aff1cf0c9d4e1180f",
-  measurementId: "G-BXT01SDXW2"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+import { doc, deleteField, updateDoc, setDoc, getDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+import {db, auth} from "./checkAuth.js";
+import {onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js';
 
 
 function createProductItemHTML(id, name, quantity, unit) {
@@ -240,7 +226,18 @@ document.addEventListener('DOMContentLoaded', () => {
         else if (deleteButton) handleDelete(deleteButton);
     });
 
-    setTimeout(showProducts, 1000);
-    addProductFormContainer.hidden = true;
-    showAddFormBtn.hidden = false;
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            showProducts();
+            addProductFormContainer.hidden = true;
+            showAddFormBtn.hidden = false;
+            
+        } else {
+            console.log('Пользователь не авторизован');
+            const recipeCardsContainer = document.querySelectorAll('.recipe-container')[0];
+            if (recipeCardsContainer) {
+                recipeCardsContainer.innerHTML = '';
+            }
+        }
+    });
 });

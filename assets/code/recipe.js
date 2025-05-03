@@ -1,5 +1,6 @@
-import {auth} from "./checkAuth.js";
+import {auth, db} from "./checkAuth.js";
 import {onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js';
+import { doc, updateDoc, arrayUnion, getDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
 const apiUrl = 'https://5097-94-228-163-230.ngrok-free.app';
 const url = new URL(window.location.href);
@@ -122,7 +123,7 @@ function printRecipe(recipeJson) {
     readyButton.classList.add('ready-btn');
     readyButton.type = 'submit';
     readyButton.innerHTML = '<strong>Готово!</strong>';
-    readyButton.addEventListener('click', (event) => {}) // TODO
+    readyButton.addEventListener('click', (event) => {saveRecipeDB(recipeJson.title)}) // TODO
 
     // Создаём recipe-content
     const recipeContent = document.createElement('div');
@@ -135,6 +136,24 @@ function printRecipe(recipeJson) {
     const container = document.querySelector('.recipe-container');
     container.appendChild(recipeHeader);
     container.appendChild(recipeContent);
+}
+
+async function saveRecipeDB(title) {
+    const userDocRef = doc(db, "users", auth.currentUser.uid);
+    await updateDoc(userDocRef, {
+        cooked : arrayUnion({name : title, id : recipeId})
+    })
+}
+
+async function getCookedRecipes() {
+    const userDocRef = doc(db, "users", auth.currentUser.uid);
+    const data = await getDoc(userDocRef);
+    if (data.exists()){
+        return data.data().cooked; //массив, данные так достаются: cooked[0].id cooked[0].name
+        //console.log(`${data.data().cooked[0].id} ${data.data().cooked[0].name}`);
+    } else {
+        console.log("А ГДЕ")
+    }
 }
 
 onAuthStateChanged(auth, async (user) => {
