@@ -17,7 +17,7 @@ main {
 
 .recipe-header {
     position: relative;
-    height: 250px;
+    height: auto;
     display: flex;
     align-items: flex-end;
     justify-content: center;
@@ -26,6 +26,16 @@ main {
     background-position: center;
     border-radius: 12px;
     flex-shrink: 0;
+}
+
+.header-image {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
 }
 
 .recipe-header::before {

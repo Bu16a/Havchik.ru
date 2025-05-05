@@ -187,6 +187,10 @@
     gap: 1em;
 }
 
+.recipe-cards > p {
+    text-align: center;
+}
+
 .recipe-card {
     display: flex;
     border-radius: 10px;

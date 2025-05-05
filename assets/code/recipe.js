@@ -1,7 +1,7 @@
 import {auth} from "./checkAuth.js";
 import {onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js';
 
-const apiUrl = 'https://5097-94-228-163-230.ngrok-free.app';
+const apiUrl = 'http://localhost:8080';
 const url = new URL(window.location.href);
 const params = new URLSearchParams(url.search);
 const recipeId = Number(params.get('id'));
@@ -37,7 +37,11 @@ function printRecipe(recipeJson) {
     // Создаём recipe-header
     const recipeHeader = document.createElement('div');
     recipeHeader.classList.add('recipe-header');
-    recipeHeader.style.backgroundImage = `url(${recipeJson.image})`;
+
+    const recipeImage = document.createElement('img');
+    recipeImage.classList.add('recipe-image');
+    recipeImage.src = recipeJson.image;
+    recipeHeader.appendChild(recipeImage);
 
     // Создаём recipe-title
     const recipeTitle = document.createElement('div');
@@ -65,9 +69,9 @@ function printRecipe(recipeJson) {
 
     const ingredientList = document.createElement('div');
     ingredientList.classList.add('recipe-list');
-    const ingredientsData = recipeJson.ingredients;
+    const ingredientsData = JSON.parse(recipeJson.ingredients);
     if (ingredientsData)
-        recipeJson.ingredients.forEach(ingredient => {
+        Object.keys(ingredientsData).forEach(ingredient => {
             const ingredientItem = document.createElement('div');
             ingredientItem.classList.add('recipe-item');
 
@@ -76,6 +80,8 @@ function printRecipe(recipeJson) {
             ingredientName.innerHTML = ingredient;
 
             const ingredientAmount = document.createElement('span');
+            if (recipeJson.ingredients[ingredient])
+                ingredientAmount.innerHTML = recipeJson.ingredients[ingredient];
             ingredientName.classList.add('ingredient-amount');
 
             ingredientItem.appendChild(ingredientName);

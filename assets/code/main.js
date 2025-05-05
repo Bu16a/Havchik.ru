@@ -7,8 +7,12 @@ const sortMenu = document.getElementById('sortMenu');
 const sortLabel = document.getElementById('sortLabel');
 const options = document.querySelectorAll('.sort-option');
 const sortIcon = document.getElementById('sortIcon');
+let isLoading = false;
+let page = 1;
+let isChecked = false;
+let sortBy = document.getElementsByClassName('sort-option active')[0].getAttribute('data-sort');
 const token = getCookie("firebase_token");
-export const apiUrl = 'https://5097-94-228-163-230.ngrok-free.app';
+export const apiUrl = 'http://localhost:8080';
 
 function getCookie(name) {
     const cookies = document.cookie.split('; ');
@@ -19,8 +23,10 @@ function getCookie(name) {
     return null;
 }
 
-async function getShortRecipes(isPurchase = false) {
+async function getShortRecipes(isPurchase = false, sortBy = 'relevance', page = 1) {
     try {
+        console.log(isPurchase, sortBy, page);
+        isLoading = true;
         const products = Object.keys(await getAllProducts());
         const ingredientsToSend = Array.isArray(products) && products.length > 0 ? products : [];
 
@@ -30,8 +36,11 @@ async function getShortRecipes(isPurchase = false) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                ingredients: ingredientsToSend, count: 10,
-                purchase: isPurchase
+                ingredients: ingredientsToSend,
+                count: 10,
+                purchase: isPurchase,
+                sortBy: sortBy,
+                page: page
             })
         });
 
@@ -42,6 +51,8 @@ async function getShortRecipes(isPurchase = false) {
 
     } catch (error) {
         return null;
+    } finally {
+        isLoading = false;
     }
 }
 
@@ -71,14 +82,20 @@ function createRecipeCards(recipesJson) {
                 recipeTextDiv.appendChild(recipeTextH2);
 
                 const recipeTextP = document.createElement('p');
-                recipeTextP.innerHTML = recipe.time || 'Время готовки неизвестно';
+                if (recipe.time)
+                    recipeTextP.innerHTML = `Готовится ${recipe.time} мин`;
+                else
+                    recipeTextP.innerHTML = 'Время готовки неизвестно';
                 recipeTextDiv.appendChild(recipeTextP);
 
                 recipeText.appendChild(recipeTextDiv);
 
                 const calories = document.createElement('p');
-                const bgu = (recipe.bgu || '0/0/0').split('/');
-                calories.innerHTML = `${recipe.callories || '0'} кКал<br>Б: ${bgu[0] || '0'} г<br>Ж: ${bgu[1] || '0'} г<br>У: ${bgu[2] || '0'} г`;
+                let bgu = ['-', '-', '-', '-'];
+                if (recipe.energy)
+                    bgu = recipe.energy;
+
+                calories.innerHTML = `${bgu[0] || '0'} кКал<br>Б: ${bgu[1] || '0'} г<br>Ж: ${bgu[2] || '0'} г<br>У: ${bgu[3] || '0'} г`;
                 recipeText.appendChild(calories);
                 recipeCardInner.appendChild(recipeText);
 
@@ -86,10 +103,10 @@ function createRecipeCards(recipesJson) {
                 recipeCardContainer.className = 'recipe-card-container';
                 recipeCardContainer.onclick = function () {
                     location.href = `recipe.html?id=${recipe.id}`;
-                    console.log(`Переход на страницу рецепта для: ${recipe.title}`);
+                    console.log(`Переход на страницу рецепта: ${recipe.title}`);
                 }
 
-                recipeCardInner.style.background = `linear-gradient(90deg, rgba(217, 217, 217, 0.8) 0%, rgba(217, 217, 217, 0.6) 50%, rgba(217, 217, 217, 0.8) 100%), url('${recipe.image || 'placeholder.jpg'}')`;
+                // recipeCardInner.style.background = `linear-gradient(90deg, rgba(217, 217, 217, 0.8) 0%, rgba(217, 217, 217, 0.6) 50%, rgba(217, 217, 217, 0.8) 100%), url('${'placeholder.jpg'}')`;
                 recipeCardInner.style.backgroundSize = 'cover';
                 recipeCardInner.style.backgroundPosition = 'center';
 
@@ -117,12 +134,30 @@ options.forEach(option => {
     if (option.classList.contains('active')) {
         sortLabel.textContent = option.textContent;
     }
-    option.addEventListener('click', () => {
+
+    option.addEventListener('click', async () => {
         options.forEach(o => o.classList.remove('active'));
         option.classList.add('active');
         sortLabel.textContent = option.textContent;
+
+        sortBy = option.getAttribute('data-sort');
+        const recipeCardsContainer = document.querySelectorAll('.recipe-cards')[0];
+        if (recipeCardsContainer) {
+            page = 1;
+            recipeCardsContainer.innerHTML = '';
+        }
+
         sortMenu.classList.remove('open');
         sortIcon.classList.remove('rotated');
+
+        const recipes = await getShortRecipes(isChecked, sortBy);
+        if (recipes) {
+            createRecipeCards(recipes);
+        } else {
+            const recipeCardsContainer = document.querySelectorAll('.recipe-cards')[0];
+            recipeCardsContainer.innerHTML = '<p>Рецептов не найдено :(<br>Добавьте побольше продуктов и попробуйте ещё раз</p>';
+            console.log("Не удалось получить рецепты после изменения сортировки.");
+        }
     });
 });
 
@@ -134,16 +169,19 @@ document.addEventListener('click', (e) => {
 });
 
 document.getElementById('add-products').addEventListener('change', async (e) => {
-    const isChecked = e.target.checked;
+    isChecked = e.target.checked;
     const recipeCardsContainer = document.querySelectorAll('.recipe-cards')[0];
     if (recipeCardsContainer) {
+        page = 1;
         recipeCardsContainer.innerHTML = '';
     }
 
-    const recipes = await getShortRecipes(isChecked);
+    const recipes = await getShortRecipes(isChecked, sortBy);
     if (recipes) {
         createRecipeCards(recipes);
     } else {
+        const recipeCardsContainer = document.querySelectorAll('.recipe-cards')[0];
+        recipeCardsContainer.innerHTML = '<p>Рецептов не найдено :(<br>Добавьте побольше продуктов и попробуйте ещё раз</p>';
         console.log("Не удалось получить рецепты после изменения чекбокса.");
     }
 });
@@ -155,9 +193,12 @@ onAuthStateChanged(auth, async (user) => {
             const recipeCardsContainer = document.querySelectorAll('.recipe-cards')[0];
             if (recipeCardsContainer) {
                 recipeCardsContainer.innerHTML = '';
+                page = 1;
             }
             createRecipeCards(recipes);
         } else {
+            const recipeCardsContainer = document.querySelectorAll('.recipe-cards')[0];
+            recipeCardsContainer.innerHTML = '<p>Рецептов не найдено :(<br>Добавьте побольше продуктов и попробуйте ещё раз</p>';
             console.log("Не удалось получить рецепты после успешной авторизации.");
         }
     } else {
@@ -169,4 +210,17 @@ onAuthStateChanged(auth, async (user) => {
     }
 });
 
+window.addEventListener('scroll', async () => {
+    const {scrollTop, scrollHeight, clientHeight} = document.documentElement;
+    if (scrollTop + clientHeight >= scrollHeight - 100 && !isLoading) {
+        const recipes = await getShortRecipes(isChecked, sortBy, ++page);
+        if (recipes) {
+            createRecipeCards(recipes);
+        } else {
+            const recipeCardsContainer = document.querySelectorAll('.recipe-cards')[0];
+            recipeCardsContainer.innerHTML = '<p>Рецептов не найдено :(<br>Добавьте побольше продуктов и попробуйте ещё раз</p>';
+            console.log("Не удалось получить рецепты после изменения сортировки.");
+        }
+    }
+});
 
