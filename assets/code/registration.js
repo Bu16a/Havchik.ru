@@ -48,7 +48,8 @@ async function createMyProducts(id) {
             Помидор : "3 шт",
             Молоко : "500 гр",
             Лапша : "500 гр"
-        }
+        },
+        cooked: []
     })
     .then(() => console.log("1"));
 }
