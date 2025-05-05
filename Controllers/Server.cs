@@ -28,13 +28,14 @@ class SimpleServer
     private readonly IDbService _dbService;
     private readonly ITranslator _translator;
     private CancellationTokenSource _cancellationTokenSource = new();
-    private readonly SemaphoreSlim _semaphore = new (10);
+    private readonly SemaphoreSlim _semaphore = new(10);
     private readonly ILogger _logger;
     private readonly DBPrompts _dbPrompts;
     private readonly IJsonServing _jsonServing;
     private readonly IGoogleImageSearchHelper _googleImageSearchHelper;
 
-    public SimpleServer(string url, IUrlParser parser, IGeminiApi geminiApi, IDbService dbService, ITranslator translator,
+    public SimpleServer(string url, IUrlParser parser, IGeminiApi geminiApi, IDbService dbService,
+        ITranslator translator,
         ILogger logger, IJsonServing jsonServing, IGoogleImageSearchHelper googleImageSearchHelper)
     {
         Env.TraversePath().Load();
@@ -154,17 +155,18 @@ class SimpleServer
 
         response.Headers.Add("Access-Control-Allow-Origin", "*");
         response.Headers.Add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-        response.Headers.Add("Access-Control-Allow-Headers", "Content-Type, Authorization, Accept"); 
-        response.Headers.Add("Access-Control-Max-Age", "86400"); 
+        response.Headers.Add("Access-Control-Allow-Headers", "Content-Type, Authorization, Accept");
+        response.Headers.Add("Access-Control-Max-Age", "86400");
 
 
         if (request.HttpMethod.ToUpper() == "OPTIONS")
         {
             _logger.Log($"Handling OPTIONS request for {request.Url?.LocalPath}");
-            response.StatusCode = (int)HttpStatusCode.NoContent; 
+            response.StatusCode = (int)HttpStatusCode.NoContent;
             response.Close();
-            return; 
+            return;
         }
+
         if (request.Url is null)
         {
             SendResponse(response, "URL is invalid", HttpStatusCode.BadRequest);
@@ -270,30 +272,26 @@ class SimpleServer
     {
         try
         {
-            var (success, jsonData, russianIngredients, recipeCount, purchase) = await ValidateRequestRecipesOrNOAsync(request, response);
+            var (success, jsonData, ingredients, recipeCount, purchase, sortBy, page) =
+                await ValidateRequestRecipesOrNOAsync(request, response);
             if (!success)
                 return;
 
-            var translatedIngredients = await TranslateIngredientsAsync(response, russianIngredients);
-            if (translatedIngredients.Count == 0)
-            {
-                SendResponse(response, "Нет корректных ингредиентов после перевода.", HttpStatusCode.BadRequest);
-                return;
-            }
             List<Dictionary<string, object>>? recipesData;
             if (purchase)
-                recipesData = await _dbPrompts.QueryRecipesFromDatabaseAsync(translatedIngredients, recipeCount);
+                recipesData = await _dbPrompts.QueryRecipesFromDatabaseAsync(ingredients, recipeCount, sortBy, page);
             else
-                recipesData = await _dbPrompts.QueryRecipesOnlyTheseProductsFromDatabaseAsync(translatedIngredients, recipeCount);
+                recipesData =
+                    await _dbPrompts.QueryRecipesOnlyTheseProductsFromDatabaseAsync(ingredients, recipeCount, sortBy,
+                        page);
 
-            if (recipesData.Count == 0)
-            {
-                var random = new Random();
-                recipesData = await _dbPrompts.QueryRecipesByIdFromDatabaseAsync(random.Next(1, 2000000));
-            }
+            // if (recipesData.Count == 0)
+            // {
+            //     var random = new Random();
+            //     recipesData = await _dbPrompts.QueryRecipesByIdFromDatabaseAsync(random.Next(1, 10000));
+            // }
+            var recipesResult = await ProcessRecipesAsync(recipesData);
 
-            // var recipesResult = await ProcessRecipesAsync(recipesData);
-            var recipesResult = await ProcessTranslateGemeniRecipesAsync(recipesData, response);
 
             SendResponse(response, JsonConvert.SerializeObject(recipesResult, Formatting.Indented), HttpStatusCode.OK,
                 "application/json");
@@ -311,18 +309,22 @@ class SimpleServer
         }
     }
 
-    private async Task<(bool, JObject, List<string>, int, bool)> ValidateRequestRecipesOrNOAsync(HttpListenerRequest request,
+    private async Task<(bool, JObject, List<string>, int, bool, string, int)> ValidateRequestRecipesOrNOAsync(
+        HttpListenerRequest request,
         HttpListenerResponse response)
     {
-        JObject jsonData = null;
-        List<string> russianIngredients = null;
-        int recipeCount = 0;
+        var jsonData = new JObject();
+        var ingredients = new List<string>();
+        var recipeCount = 0;
         var purchase = false;
+        var sortBy = "relevance";
+        var page = 1;
+        
 
         if (!_jsonServing.IsValidJsonContentType(request))
         {
             SendResponse(response, "Требуется Content-Type: application/json", HttpStatusCode.UnsupportedMediaType);
-            return (false, jsonData, russianIngredients, recipeCount, purchase);
+            return (false, jsonData, ingredients, recipeCount, purchase, sortBy, page);
         }
 
         var requestBody = await ReadRequestBodyAsync(request);
@@ -331,54 +333,59 @@ class SimpleServer
         {
             _logger.Log($"Ошибка разбора JSON: {jsonErrorMessage}");
             SendResponse(response, $"Неверный формат JSON: {jsonErrorMessage}", HttpStatusCode.BadRequest);
-            return (false, jsonData, russianIngredients, recipeCount, purchase);
+            return (false, jsonData, ingredients, recipeCount, purchase, sortBy, page);
         }
 
-        if (!_jsonServing.TryGetParam(jsonData, "ingredients", out russianIngredients, out string ingredientsError) ||
-            russianIngredients == null || russianIngredients.Count == 0)
+        if (!_jsonServing.TryGetParam(jsonData, "ingredients", out ingredients, out string ingredientsError) ||
+            ingredients == null || ingredients.Count == 0)
         {
             SendResponse(response,
                 ingredientsError,
                 HttpStatusCode.BadRequest);
-            return (false, jsonData, russianIngredients, recipeCount, purchase);
+            return (false, jsonData, ingredients, recipeCount, purchase, sortBy, page);
         }
 
         if (!_jsonServing.TryGetParam(jsonData, "count", out recipeCount, out string countError) || recipeCount <= 0)
         {
             SendResponse(response, countError,
                 HttpStatusCode.BadRequest);
-            return (false, jsonData, russianIngredients, recipeCount, purchase);
+            return (false, jsonData, ingredients, recipeCount, purchase, sortBy, page);
         }
 
         if (!_jsonServing.TryGetParam(jsonData, "purchase", out purchase, out string purchasetError))
         {
             SendResponse(response, purchasetError,
                 HttpStatusCode.BadRequest);
-            return (false, jsonData, russianIngredients, recipeCount, purchase);
+            return (false, jsonData, ingredients, recipeCount, purchase, sortBy, page);
+        }
+        
+        if (!_jsonServing.TryGetParam(jsonData, "sortBy", out sortBy, out string sortByError))
+        {
+            SendResponse(response, sortByError,
+                HttpStatusCode.BadRequest);
+            return (false, jsonData, ingredients, recipeCount, purchase, sortBy, page);
+        }
+        
+        if (!_jsonServing.TryGetParam(jsonData, "page", out page, out string pageError))
+        {
+            SendResponse(response, pageError,
+                HttpStatusCode.BadRequest);
+            return (false, jsonData, ingredients, recipeCount, purchase, sortBy, page);
         }
 
-        return (true, jsonData, russianIngredients, recipeCount, purchase);
+        return (true, jsonData, ingredients, recipeCount, purchase, sortBy, page);
     }
 
     private async Task ProcessPostSearchRecipeAsync(HttpListenerRequest request, HttpListenerResponse response)
     {
         try
         {
-            var (success, jsonData, russianIngredients, recipeCount) = await ValidateRequestAsync(request, response);
+            var (success, jsonData, ingredients, recipeCount) = await ValidateRequestAsync(request, response);
             if (!success)
                 return;
 
-            var translatedIngredients = await TranslateIngredientsAsync(response, russianIngredients);
-            if (translatedIngredients.Count == 0)
-            {
-                SendResponse(response, "Нет корректных ингредиентов после перевода.", HttpStatusCode.BadRequest);
-                return;
-            }
-
-            var recipesData = await _dbPrompts.QueryRecipesFromDatabaseAsync(translatedIngredients, recipeCount);
-
-            // var recipesResult = await ProcessRecipesAsync(recipesData);
-            var recipesResult = await ProcessTranslateGemeniRecipesAsync(recipesData, response);
+            var recipesData = await _dbPrompts.QueryRecipesFromDatabaseAsync(ingredients, recipeCount);
+            var recipesResult = await ProcessRecipesAsync(recipesData);
 
             SendResponse(response, JsonConvert.SerializeObject(recipesResult, Formatting.Indented), HttpStatusCode.OK,
                 "application/json");
@@ -423,7 +430,8 @@ class SimpleServer
         }
         catch (Exception ex)
         {
-            _logger.Log($"Неожиданная ошибка в ProcessPostSearchRecipe: {ex.Message}{Environment.NewLine}{ex.StackTrace}");
+            _logger.Log(
+                $"Неожиданная ошибка в ProcessPostSearchRecipe: {ex.Message}{Environment.NewLine}{ex.StackTrace}");
             SendResponse(response, "Неожиданная ошибка сервера.", HttpStatusCode.InternalServerError);
         }
     }
@@ -527,11 +535,14 @@ class SimpleServer
         int recipeIndex = 1;
         foreach (var recipeData in recipesData)
         {
-            var translationTasks = recipeData.Keys
-                .Where(key => keysToTranslate.Contains(key) && recipeData[key] != null)
-                .Select(async key => { recipeData[key] = await _translator.TranslateValueAsync(recipeData[key], "en", "ru"); });
-
-            await Task.WhenAll(translationTasks);
+            // var translationTasks = recipeData.Keys
+            //     .Where(key => keysToTranslate.Contains(key) && recipeData[key] != null)
+            //     .Select(async key =>
+            //     {
+            //         recipeData[key] = await _translator.TranslateValueAsync(recipeData[key], "en", "ru");
+            //     });
+            //
+            // await Task.WhenAll(translationTasks);
 
             recipesResult[$"recipe_{recipeIndex++}"] = recipeData;
         }
@@ -565,43 +576,47 @@ class SimpleServer
                         if (nonEmptyList.Any())
                             translatableFields[key] = nonEmptyList;
                     }
-                    else if (value is JsonElement jsonElement) 
+                    else if (value is JsonElement jsonElement)
                     {
-                        if (jsonElement.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(jsonElement.GetString()))
+                        if (jsonElement.ValueKind == JsonValueKind.String &&
+                            !string.IsNullOrWhiteSpace(jsonElement.GetString()))
                             translatableFields[key] = jsonElement.GetString();
                         else if (jsonElement.ValueKind == JsonValueKind.Array)
                         {
                             var list = jsonElement.EnumerateArray()
-                                                .Select(e => e.GetString())
-                                                .Where(s => !string.IsNullOrWhiteSpace(s))
-                                                .ToList();
+                                .Select(e => e.GetString())
+                                .Where(s => !string.IsNullOrWhiteSpace(s))
+                                .ToList();
                             if (list.Any())
                                 translatableFields[key] = list;
                         }
                     }
                 }
             }
+
             if (translatableFields.Any())
                 dataForGemini[$"recipe_{i + 1}"] = translatableFields;
         }
 
-        string jsonPayload = System.Text.Json.JsonSerializer.Serialize(dataForGemini, new JsonSerializerOptions { WriteIndented = true });
+        string jsonPayload =
+            System.Text.Json.JsonSerializer.Serialize(dataForGemini,
+                new JsonSerializerOptions { WriteIndented = true });
 
         string prompt = $"""
-        Translate the text values for the keys {string.Join(", ", keysToTranslate.Select(k => $"'{k}'"))} within the following JSON structure from English to Russian.
-        Return the response as a JSON object with the exact same structure (including the top-level keys like "recipe_1", "recipe_2", etc.), containing the translations.
-        Do not translate the keys themselves. Ensure lists of strings remain lists of strings in the output. Also, if you see extra service characters in the text, remove them.
+                         Translate the text values for the keys {string.Join(", ", keysToTranslate.Select(k => $"'{k}'"))} within the following JSON structure from English to Russian.
+                         Return the response as a JSON object with the exact same structure (including the top-level keys like "recipe_1", "recipe_2", etc.), containing the translations.
+                         Do not translate the keys themselves. Ensure lists of strings remain lists of strings in the output. Also, if you see extra service characters in the text, remove them.
 
-        Input JSON:
-        ```json
-        {jsonPayload}
-        ```
+                         Input JSON:
+                         ```json
+                         {jsonPayload}
+                         ```
 
-        Translated JSON Output:
-        """;
+                         Translated JSON Output:
+                         """;
 
-        string? rawGeminiResponseString = null; 
-        string geminiResponseJson; 
+        string? rawGeminiResponseString = null;
+        string geminiResponseJson;
         try
         {
             var apiResultTuple = await _geminiApi.ProcessGeminiRequest(prompt, response);
@@ -623,8 +638,10 @@ class SimpleServer
         Dictionary<string, Dictionary<string, JsonElement>>? translatedData = null;
         try
         {
-            translatedData = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, Dictionary<string, JsonElement>>>(geminiResponseJson);
-            if (translatedData == null) 
+            translatedData =
+                System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, Dictionary<string, JsonElement>>>(
+                    geminiResponseJson);
+            if (translatedData == null)
                 throw new System.Text.Json.JsonException("Deserialization of translated data resulted in null.");
         }
         catch (System.Text.Json.JsonException jsonEx)
@@ -639,7 +656,8 @@ class SimpleServer
             var originalRecipe = recipesData[i];
             var processedRecipe = new Dictionary<string, object>(originalRecipe);
 
-            if (processedRecipe.TryGetValue("title", out var dishNameObj) && dishNameObj is string dishName && !string.IsNullOrWhiteSpace(dishName))
+            if (processedRecipe.TryGetValue("title", out var dishNameObj) && dishNameObj is string dishName &&
+                !string.IsNullOrWhiteSpace(dishName))
             {
                 string searchQuery = dishName + " recipe";
                 string? imageUrl = await _googleImageSearchHelper.GetFirstImageUrlAsync(searchQuery);
@@ -652,7 +670,8 @@ class SimpleServer
 
             if (translatedData.TryGetValue(recipeKey, out var translations))
                 foreach (var key in keysToTranslate)
-                    if (translations.TryGetValue(key, out var translatedValueElement) && originalRecipe.ContainsKey(key))
+                    if (translations.TryGetValue(key, out var translatedValueElement) &&
+                        originalRecipe.ContainsKey(key))
                     {
                         if (translatedValueElement.ValueKind == JsonValueKind.String)
                             processedRecipe[key] = translatedValueElement.GetString();
@@ -666,11 +685,13 @@ class SimpleServer
 
             finalRecipesResult[recipeKey] = processedRecipe;
         }
+
         _logger.Log($"Найдено и переведено {finalRecipesResult.Count} рецептов.");
         return finalRecipesResult;
     }
 
-    private Dictionary<string, Dictionary<string, object>> GenerateErrorResult(List<Dictionary<string, object>> recipesData, Exception ex)
+    private Dictionary<string, Dictionary<string, object>> GenerateErrorResult(
+        List<Dictionary<string, object>> recipesData, Exception ex)
     {
         _logger.Log($"Ошибка при обработке ответа Gemini: {ex.Message}");
         var errorResult = new Dictionary<string, Dictionary<string, object>>();
@@ -710,14 +731,14 @@ class SimpleServer
     }
 
 
-
     private async Task<string> ReadRequestBodyAsync(HttpListenerRequest request)
     {
         using var reader = new StreamReader(request.InputStream, Encoding.UTF8);
         return await reader.ReadToEndAsync();
     }
 
-    private void SendResponse(HttpListenerResponse response, string message, HttpStatusCode statusCode, string contentType = "text/plain; charset=utf-8")
+    private void SendResponse(HttpListenerResponse response, string message, HttpStatusCode statusCode,
+        string contentType = "text/plain; charset=utf-8")
     {
         if (!response.OutputStream.CanWrite)
         {
@@ -732,13 +753,14 @@ class SimpleServer
             {
                 response.StatusCode = (int)HttpStatusCode.NoContent;
                 response.Close();
-                return; 
+                return;
             }
-            var buffer = Encoding.UTF8.GetBytes(message ?? string.Empty); 
+
+            var buffer = Encoding.UTF8.GetBytes(message ?? string.Empty);
             response.StatusCode = (int)statusCode;
             response.ContentType = contentType;
             response.ContentLength64 = buffer.Length;
-            response.ContentEncoding = Encoding.UTF8; 
+            response.ContentEncoding = Encoding.UTF8;
             response.OutputStream.Write(buffer, 0, buffer.Length);
             response.Close();
         }
@@ -749,7 +771,14 @@ class SimpleServer
         catch (Exception ex)
         {
             _logger.Log($"Error sending response: {ex.Message}");
-            try { response.Close(); } catch { /* ignore */ }
+            try
+            {
+                response.Close();
+            }
+            catch
+            {
+                /* ignore */
+            }
         }
     }
 }
