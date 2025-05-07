@@ -49,7 +49,8 @@ async function createMyProducts(id) {
             Молоко : "500 гр",
             Лапша : "500 гр"
         },
-        cooked: []
+        cooked: [],
+        allergens: []
     })
     .then(() => console.log("1"));
 }

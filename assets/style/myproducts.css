@@ -219,7 +219,6 @@ main {
     margin-right: 15px;
 }
 
-/* Отображение информации */
 .product-name, .product-quantity-display {
     display: block;
     transition: opacity 0.3s ease, height 0.3s ease;
@@ -283,7 +282,7 @@ main {
     font-family: 'Montserrat', sans-serif;
     border: 1px solid #cccccc;
     border-radius: 5px;
-    padding: 4px; /* Меньше паддинг для селекта */
+    padding: 4px;
     font-size: 14px;
     box-sizing: border-box;
     width: auto;
@@ -311,9 +310,16 @@ main {
     margin: 0;
 }
 
-.edit-btn img, .delete-btn img, .save-btn img, .cancel-btn img {
+.edit-btn img, .save-btn img, .cancel-btn img {
     width: 18px;
     height: 18px;
+    opacity: 0.7;
+    display: block;
+}
+
+.delete-btn img {
+    width: 22px;
+    height: 22px;
     opacity: 0.7;
     display: block;
 }
@@ -321,19 +327,6 @@ main {
 .edit-btn:hover img, .delete-btn:hover img, .save-btn:hover img, .cancel-btn:hover img {
     opacity: 1;
 }
-
-/* --- Стили для режима просмотра (не редактирования) --- */
-/* Используем атрибут hidden в JS вместо opacity/height для надежности */
-/* .product-item:not(.edit-mode) .product-name-input,
-.product-item:not(.edit-mode) .edit-quantity-controls {
-    opacity: 0;
-    height: 0;
-    overflow: hidden;
-    pointer-events: none;
-    border: none;
-    padding: 0;
-    margin: 0;
-} */
 
 .product-item:not(.edit-mode) .save-btn {
     display: none; /* Проще скрыть кнопку сохранения */

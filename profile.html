@@ -13,9 +13,44 @@
 <body>
 <script src="/assets/code/header.js" type="module"></script>
 <site-header></site-header>
-<main>   
+<main>
+    <div class="profile-container">
+        <div class="profile-navigation">
+            <button id="showAllergensBtn" class="profile-nav-btn active">Аллергены</button>
+            <button id="showCookedRecipesBtn" class="profile-nav-btn">Приготовленные рецепты</button>
+        </div>
+
+        <div id="allergensContent" class="profile-content active">
+            <h2>Мои аллергены</h2>
+            <div class="actions">
+                <button class="action-btn" id="showAddAllergenFormBtn">Добавить аллерген</button>
+            </div>
+            <div class="add-allergen-form" hidden>
+                <h3>Добавить новый аллерген</h3>
+                <div class="form-field">
+                    <label for="newAllergenName">Название аллергена:</label>
+                    <input type="text" id="newAllergenName" placeholder="Название аллергена">
+                </div>
+                <div class="form-actions">
+                    <button class="form-btn save-new-btn" id="saveNewAllergenBtn">Сохранить</button>
+                    <button class="form-btn cancel-new-btn" id="cancelNewAllergenBtn">Отмена</button>
+                </div>
+            </div>
+            <div class="allergen-list">
+                <p><em></em></p>
+            </div>
+        </div>
+
+        <div id="cookedRecipesContent" class="profile-content">
+            <h2>Приготовленные рецепты</h2>
+            <div class="cooked-recipes-list">
+                <p><em></em></p>
+            </div>
+        </div>
+    </div>
+
     <form>
-        <button type="submit" id="logOut"><strong>Выйти</strong></button>
+        <button type="submit" id="logOut"><strong>Выйти из аккаунта</strong></button>
     </form>
 </main>
 <script src="/assets/code/header_footer.js" type="module"></script>
