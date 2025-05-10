@@ -272,17 +272,17 @@ class SimpleServer
     {
         try
         {
-            var (success, jsonData, ingredients, recipeCount, purchase, sortBy, page) =
+            var (success, jsonData, ingredients, allergens, recipeCount, purchase, sortBy, page) =
                 await ValidateRequestRecipesOrNOAsync(request, response);
             if (!success)
                 return;
 
             List<Dictionary<string, object>>? recipesData;
             if (purchase)
-                recipesData = await _dbPrompts.QueryRecipesFromDatabaseAsync(ingredients, recipeCount, sortBy, page);
+                recipesData = await _dbPrompts.QueryRecipesFromDatabaseAsync(ingredients, allergens, recipeCount, sortBy, page);
             else
                 recipesData =
-                    await _dbPrompts.QueryRecipesOnlyTheseProductsFromDatabaseAsync(ingredients, recipeCount, sortBy,
+                    await _dbPrompts.QueryRecipesOnlyTheseProductsFromDatabaseAsync(ingredients, allergens, recipeCount, sortBy,
                         page);
 
             // if (recipesData.Count == 0)
@@ -309,12 +309,13 @@ class SimpleServer
         }
     }
 
-    private async Task<(bool, JObject, List<string>, int, bool, string, int)> ValidateRequestRecipesOrNOAsync(
+    private async Task<(bool, JObject, List<string>, List<string>, int, bool, string, int)> ValidateRequestRecipesOrNOAsync(
         HttpListenerRequest request,
         HttpListenerResponse response)
     {
         var jsonData = new JObject();
         var ingredients = new List<string>();
+        var allergens = new List<string>();
         var recipeCount = 0;
         var purchase = false;
         var sortBy = "relevance";
@@ -324,7 +325,7 @@ class SimpleServer
         if (!_jsonServing.IsValidJsonContentType(request))
         {
             SendResponse(response, "Требуется Content-Type: application/json", HttpStatusCode.UnsupportedMediaType);
-            return (false, jsonData, ingredients, recipeCount, purchase, sortBy, page);
+            return (false, jsonData, ingredients, allergens, recipeCount, purchase, sortBy, page);
         }
 
         var requestBody = await ReadRequestBodyAsync(request);
@@ -333,7 +334,7 @@ class SimpleServer
         {
             _logger.Log($"Ошибка разбора JSON: {jsonErrorMessage}");
             SendResponse(response, $"Неверный формат JSON: {jsonErrorMessage}", HttpStatusCode.BadRequest);
-            return (false, jsonData, ingredients, recipeCount, purchase, sortBy, page);
+            return (false, jsonData, ingredients, allergens, recipeCount, purchase, sortBy, page);
         }
 
         if (!_jsonServing.TryGetParam(jsonData, "ingredients", out ingredients, out string ingredientsError) ||
@@ -342,49 +343,58 @@ class SimpleServer
             SendResponse(response,
                 ingredientsError,
                 HttpStatusCode.BadRequest);
-            return (false, jsonData, ingredients, recipeCount, purchase, sortBy, page);
+            return (false, jsonData, ingredients, allergens, recipeCount, purchase, sortBy, page);
+        }
+        
+        if (!_jsonServing.TryGetParam(jsonData, "allergens", out ingredients, out string allergensError) ||
+            ingredients == null || ingredients.Count == 0)
+        {
+            SendResponse(response,
+                allergensError,
+                HttpStatusCode.BadRequest);
+            return (false, jsonData, ingredients, allergens, recipeCount, purchase, sortBy, page);
         }
 
         if (!_jsonServing.TryGetParam(jsonData, "count", out recipeCount, out string countError) || recipeCount <= 0)
         {
             SendResponse(response, countError,
                 HttpStatusCode.BadRequest);
-            return (false, jsonData, ingredients, recipeCount, purchase, sortBy, page);
+            return (false, jsonData, ingredients, allergens, recipeCount, purchase, sortBy, page);
         }
 
         if (!_jsonServing.TryGetParam(jsonData, "purchase", out purchase, out string purchasetError))
         {
             SendResponse(response, purchasetError,
                 HttpStatusCode.BadRequest);
-            return (false, jsonData, ingredients, recipeCount, purchase, sortBy, page);
+            return (false, jsonData, ingredients, allergens, recipeCount, purchase, sortBy, page);
         }
         
         if (!_jsonServing.TryGetParam(jsonData, "sortBy", out sortBy, out string sortByError))
         {
             SendResponse(response, sortByError,
                 HttpStatusCode.BadRequest);
-            return (false, jsonData, ingredients, recipeCount, purchase, sortBy, page);
+            return (false, jsonData, ingredients, allergens, recipeCount, purchase, sortBy, page);
         }
         
         if (!_jsonServing.TryGetParam(jsonData, "page", out page, out string pageError))
         {
             SendResponse(response, pageError,
                 HttpStatusCode.BadRequest);
-            return (false, jsonData, ingredients, recipeCount, purchase, sortBy, page);
+            return (false, jsonData, ingredients, allergens, recipeCount, purchase, sortBy, page);
         }
 
-        return (true, jsonData, ingredients, recipeCount, purchase, sortBy, page);
+        return (true, jsonData, ingredients, allergens, recipeCount, purchase, sortBy, page);
     }
 
     private async Task ProcessPostSearchRecipeAsync(HttpListenerRequest request, HttpListenerResponse response)
     {
         try
         {
-            var (success, jsonData, ingredients, recipeCount) = await ValidateRequestAsync(request, response);
+            var (success, jsonData, ingredients, allergens, recipeCount) = await ValidateRequestAsync(request, response);
             if (!success)
                 return;
 
-            var recipesData = await _dbPrompts.QueryRecipesFromDatabaseAsync(ingredients, recipeCount);
+            var recipesData = await _dbPrompts.QueryRecipesFromDatabaseAsync(ingredients, allergens, recipeCount);
             var recipesResult = await ProcessRecipesAsync(recipesData);
 
             SendResponse(response, JsonConvert.SerializeObject(recipesResult, Formatting.Indented), HttpStatusCode.OK,
@@ -467,17 +477,18 @@ class SimpleServer
         return (true, jsonData, recipeId);
     }
 
-    private async Task<(bool, JObject, List<string>, int)> ValidateRequestAsync(HttpListenerRequest request,
+    private async Task<(bool, JObject, List<string>, List<string>, int)> ValidateRequestAsync(HttpListenerRequest request,
         HttpListenerResponse response)
     {
         JObject jsonData = null;
-        List<string> russianIngredients = null;
+        List<string> ingredients = null;
+        List<string> allergens = null;
         int recipeCount = 0;
 
         if (!_jsonServing.IsValidJsonContentType(request))
         {
             SendResponse(response, "Требуется Content-Type: application/json", HttpStatusCode.UnsupportedMediaType);
-            return (false, jsonData, russianIngredients, recipeCount);
+            return (false, jsonData, ingredients, allergens, recipeCount);
         }
 
         var requestBody = await ReadRequestBodyAsync(request);
@@ -486,26 +497,26 @@ class SimpleServer
         {
             _logger.Log($"Ошибка разбора JSON: {jsonErrorMessage}");
             SendResponse(response, $"Неверный формат JSON: {jsonErrorMessage}", HttpStatusCode.BadRequest);
-            return (false, jsonData, russianIngredients, recipeCount);
+            return (false, jsonData, ingredients, allergens, recipeCount);
         }
 
-        if (!_jsonServing.TryGetParam(jsonData, "ingredients", out russianIngredients, out string ingredientsError) ||
-            russianIngredients == null || russianIngredients.Count == 0)
+        if (!_jsonServing.TryGetParam(jsonData, "ingredients", out ingredients, out string ingredientsError) ||
+            ingredients == null || ingredients.Count == 0)
         {
             SendResponse(response,
                 ingredientsError,
                 HttpStatusCode.BadRequest);
-            return (false, jsonData, russianIngredients, recipeCount);
+            return (false, jsonData, ingredients, allergens, recipeCount);
         }
 
         if (!_jsonServing.TryGetParam(jsonData, "count", out recipeCount, out string countError) || recipeCount <= 0)
         {
             SendResponse(response, countError,
                 HttpStatusCode.BadRequest);
-            return (false, jsonData, russianIngredients, recipeCount);
+            return (false, jsonData, ingredients, allergens, recipeCount);
         }
 
-        return (true, jsonData, russianIngredients, recipeCount);
+        return (true, jsonData, ingredients, allergens, recipeCount);
     }
 
     private async Task<List<string>> TranslateIngredientsAsync(HttpListenerResponse response,
