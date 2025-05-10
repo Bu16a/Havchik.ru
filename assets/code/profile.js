@@ -60,7 +60,7 @@ async function saveAllergenDB(allergenName) {
     }
 }
 
-async function getAllergens() {
+export async function getAllergens() {
     if (!auth.currentUser) {
         console.log("User not authenticated to get allergens.");
         return [];

@@ -1,4 +1,5 @@
 import {getAllProducts} from './myproducts.js';
+import {getAllergens} from './profile.js';
 import {getAuth, onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js';
 import {app, auth} from "./checkAuth.js";
 
@@ -29,7 +30,8 @@ async function getShortRecipes(isPurchase = false, sortBy = 'relevance', page = 
         isLoading = true;
         const products = Object.keys(await getAllProducts());
         const ingredientsToSend = Array.isArray(products) && products.length > 0 ? products : [];
-
+        const allergens = await getAllergens();
+        const allergensToSend = Array.isArray(allergens) && products.length > 0 ? products : [];
         const response = await fetch(`${apiUrl}/getRecipesBuyOrNo/data`, {
             method: 'POST',
             headers: {
@@ -37,6 +39,7 @@ async function getShortRecipes(isPurchase = false, sortBy = 'relevance', page = 
             },
             body: JSON.stringify({
                 ingredients: ingredientsToSend,
+                allergens: allergensToSend,
                 count: 10,
                 purchase: isPurchase,
                 sortBy: sortBy,

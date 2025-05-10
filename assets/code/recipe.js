@@ -57,8 +57,12 @@ function printRecipe(recipeJson) {
         ? `<p>Готовится ${recipeJson.time} мин</p>`
         : 'Время готовки неизвестно';
 
+    const recipeSource = document.createElement('div');
+    recipeSource.classList.add('source');
+    recipeSource.innerHTML = `<a href="https://www.povarenok.ru/recipes/show/${recipeJson.orig_id}">Источник рецепта</a>`;
     recipeTitle.appendChild(recipeName);
     recipeTitle.appendChild(recipeTime);
+    recipeTitle.appendChild(recipeSource);
 
     // Создаём recipe-ingredients
     const recipeIngredients = document.createElement('div');
@@ -81,9 +85,9 @@ function printRecipe(recipeJson) {
             ingredientName.innerHTML = ingredient;
 
             const ingredientAmount = document.createElement('span');
-            if (recipeJson.ingredients[ingredient])
-                ingredientAmount.innerHTML = recipeJson.ingredients[ingredient];
-            ingredientName.classList.add('ingredient-amount');
+            if (ingredientsData[ingredient])
+                ingredientAmount.innerHTML = ingredientsData[ingredient];
+            ingredientAmount.classList.add('ingredient-amount');
 
             ingredientItem.appendChild(ingredientName);
             ingredientItem.appendChild(ingredientAmount);
@@ -129,7 +133,7 @@ function printRecipe(recipeJson) {
     readyButton.classList.add('ready-btn');
     readyButton.type = 'submit';
     readyButton.innerHTML = '<strong>Готово!</strong>';
-    readyButton.addEventListener('click', (event) => {saveRecipeDB(recipeJson.title)}) // TODO
+    readyButton.addEventListener('click', (event) => {saveRecipeDB(recipeJson.title)})
 
     // Создаём recipe-content
     const recipeContent = document.createElement('div');
