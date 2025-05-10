@@ -109,7 +109,7 @@ function createRecipeCards(recipesJson) {
                     console.log(`Переход на страницу рецепта: ${recipe.title}`);
                 }
 
-                // recipeCardInner.style.background = `linear-gradient(90deg, rgba(217, 217, 217, 0.8) 0%, rgba(217, 217, 217, 0.6) 50%, rgba(217, 217, 217, 0.8) 100%), url('${'placeholder.jpg'}')`;
+                recipeCardInner.style.background = `linear-gradient(90deg, rgba(230, 230, 230, 0.6) 0%, rgba(230, 230, 230, 0.6) 50%, rgba(230, 230, 230, 0.6) 100%), url('${recipe.image}')`;
                 recipeCardInner.style.backgroundSize = 'cover';
                 recipeCardInner.style.backgroundPosition = 'center';
 

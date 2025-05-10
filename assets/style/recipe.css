@@ -45,7 +45,7 @@ main {
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(180deg, rgba(217, 217, 217, 0.1) 5.89%, #F5F5F5 100%);
+    background: linear-gradient(180deg, rgba(217, 217, 217, 0.1) 50%, #F5F5F5 95%);
 }
 
 .recipe-header img {
@@ -99,7 +99,7 @@ main {
 }
 
 .recipe-item {
-    background: linear-gradient(90deg, #D9D9D9 0%, rgba(217, 217, 217, 0.4) 50%, #D9D9D9 100%);
+    background: linear-gradient(90deg, rgba(230, 230, 230, 0.8) 0%, rgba(230, 230, 230, 0.6) 50%, rgba(230, 230, 230, 0.8) 100%);
     border-radius: 8px;
     padding: 12px 20px;
     width: 100%;

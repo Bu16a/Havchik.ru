@@ -1,6 +1,7 @@
 import {auth, db} from "./checkAuth.js";
+import {getAllProducts} from './myproducts.js';
 import {onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js';
-import { doc, updateDoc, arrayUnion, getDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+import {doc, updateDoc, arrayUnion, getDoc} from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
 const apiUrl = 'http://localhost:8080';
 const url = new URL(window.location.href);
@@ -29,7 +30,7 @@ async function getRecipe() {
     }
 }
 
-function printRecipe(recipeJson) {
+async function printRecipe(recipeJson) {
     if (!recipeJson || typeof recipeJson !== 'object') {
         console.warn("Нет данных для создания рецепта.");
         return;
@@ -57,12 +58,8 @@ function printRecipe(recipeJson) {
         ? `<p>Готовится ${recipeJson.time} мин</p>`
         : 'Время готовки неизвестно';
 
-    const recipeSource = document.createElement('div');
-    recipeSource.classList.add('source');
-    recipeSource.innerHTML = `<a href="https://www.povarenok.ru/recipes/show/${recipeJson.orig_id}">Источник рецепта</a>`;
     recipeTitle.appendChild(recipeName);
     recipeTitle.appendChild(recipeTime);
-    recipeTitle.appendChild(recipeSource);
 
     // Создаём recipe-ingredients
     const recipeIngredients = document.createElement('div');
@@ -75,11 +72,25 @@ function printRecipe(recipeJson) {
     const ingredientList = document.createElement('div');
     ingredientList.classList.add('recipe-list');
     const ingredientsData = JSON.parse(recipeJson.ingredients);
+    const products = await getAllProducts();
     if (ingredientsData)
         Object.keys(ingredientsData).forEach(ingredient => {
             const ingredientItem = document.createElement('div');
             ingredientItem.classList.add('recipe-item');
+            let hasProduct = false;
+            Object.keys(products).forEach((product) => {
 
+                const productLower = product.toLowerCase();
+                const ingredientLower = ingredient.toLowerCase();
+                console.log(`${productLower} ${ingredientLower}`);
+                if (productLower.indexOf(ingredientLower.toLowerCase()) !== -1 || ingredientLower.indexOf(productLower) !== -1) {
+                    hasProduct = true;
+                    return;
+                }
+            });
+            ingredientItem.style.background = hasProduct
+                ? `linear-gradient(90deg, rgba(230, 230, 230, 0.8) 0%, rgba(230, 230, 230, 0.6) 50%, rgba(230, 230, 230, 0.8) 100%)`
+                : `linear-gradient(90deg, rgba(255, 130, 130, 0.8) 0%, rgba(255, 130, 130, 0.6) 50%, rgba(255, 130, 130, 0.8) 100%)`;
             const ingredientName = document.createElement('span');
             ingredientName.classList.add('ingredient-name');
             ingredientName.innerHTML = ingredient;
@@ -133,7 +144,16 @@ function printRecipe(recipeJson) {
     readyButton.classList.add('ready-btn');
     readyButton.type = 'submit';
     readyButton.innerHTML = '<strong>Готово!</strong>';
-    readyButton.addEventListener('click', (event) => {saveRecipeDB(recipeJson.title)})
+    readyButton.addEventListener('click', (event) => {
+        saveRecipeDB(recipeJson.title)
+    })
+
+    const recipeSource = document.createElement('div');
+    recipeSource.classList.add('source');
+    recipeSource.style.color = '#D9D9D9';
+    recipeSource.style.outline = 'none';
+    recipeSource.style.textDecoration = 'none';
+    recipeSource.innerHTML = `<a href="https://www.povarenok.ru/recipes/show/${recipeJson.orig_id}" style="color: #666; outline: none; text-decoration: none;">Источник рецепта: povarenok.ru</a>`;
 
     // Создаём recipe-content
     const recipeContent = document.createElement('div');
@@ -141,7 +161,9 @@ function printRecipe(recipeJson) {
     recipeContent.appendChild(recipeTitle);
     recipeContent.appendChild(recipeIngredients);
     recipeContent.appendChild(recipeDirections);
+    recipeContent.appendChild(recipeSource);
     recipeContent.appendChild(readyButton);
+
 
     const container = document.querySelector('.recipe-container');
     container.appendChild(recipeHeader);
@@ -151,14 +173,14 @@ function printRecipe(recipeJson) {
 async function saveRecipeDB(title) {
     const userDocRef = doc(db, "users", auth.currentUser.uid);
     await updateDoc(userDocRef, {
-        cooked : arrayUnion({name : title, id : recipeId})
+        cooked: arrayUnion({name: title, id: recipeId})
     })
 }
 
 async function getCookedRecipes() {
     const userDocRef = doc(db, "users", auth.currentUser.uid);
     const data = await getDoc(userDocRef);
-    if (data.exists()){
+    if (data.exists()) {
         return data.data().cooked; //массив, данные так достаются: cooked[0].id cooked[0].name
         //console.log(`${data.data().cooked[0].id} ${data.data().cooked[0].name}`);
     } else {
