@@ -3,7 +3,7 @@ import {getAllProducts} from './myproducts.js';
 import {onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js';
 import {doc, updateDoc, arrayUnion, getDoc} from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
-const apiUrl = 'http://localhost:8080';
+const apiUrl = 'http://158.160.94.254:8080';
 const url = new URL(window.location.href);
 const params = new URLSearchParams(url.search);
 const recipeId = Number(params.get('id'));
@@ -83,7 +83,8 @@ async function printRecipe(recipeJson) {
                 const productLower = product.toLowerCase();
                 const ingredientLower = ingredient.toLowerCase();
                 console.log(`${productLower} ${ingredientLower}`);
-                if (productLower.indexOf(ingredientLower.toLowerCase()) !== -1 || ingredientLower.indexOf(productLower) !== -1) {
+                if (productLower.indexOf(ingredientLower) !== -1 ||
+                    ingredientLower.indexOf(productLower) !== -1) {
                     hasProduct = true;
                     return;
                 }

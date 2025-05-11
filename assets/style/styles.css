@@ -89,6 +89,11 @@ header a > img {
     width: 64px;
 }
 
+.github {
+    outline: none;
+    text-decoration: none;
+}
+
 main {
     display: flex;
     flex-direction: column;

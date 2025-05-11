@@ -13,7 +13,7 @@ let page = 1;
 let isChecked = false;
 let sortBy = document.getElementsByClassName('sort-option active')[0].getAttribute('data-sort');
 const token = getCookie("firebase_token");
-export const apiUrl = 'http://localhost:8080';
+export const apiUrl = 'http://158.160.94.254:8080';
 
 function getCookie(name) {
     const cookies = document.cookie.split('; ');
