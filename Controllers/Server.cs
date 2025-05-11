@@ -43,7 +43,7 @@ class SimpleServer
         _parser = parser;
         _listener = new HttpListener();
         _listener.Prefixes.Add(_url);
-        _listener.Prefixes.Add("http://*:8080/");
+        _listener.Prefixes.Add("http://*:5252/");
         _geminiApi = geminiApi;
         _dbService = dbService;
         _translator = translator;

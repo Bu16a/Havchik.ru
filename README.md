@@ -1,14 +1,14 @@
 Итак
 
 Доступ по:
-http://localhost:8080/api/data
+http://localhost:5252/api/data
 
 ВПН не забудьте включать окда?
 
 Эндпоинт пока один(можно добавлять) - api/data
 
 Параметры:
-    - GET: curl http://localhost:8080/api/data?prompt=smth&iname=smth
+    - GET: curl http://localhost:5252/api/data?prompt=smth&iname=smth
 
     - POST: {
         "prompt": "Напиши код на C#, который парсит JSON с экранированными \"кавычками\"",
@@ -30,7 +30,7 @@ http://localhost:8080/api/data
       -d '{"ingredients":["сахар"], "count" :\
        10 }' \
 
-      http://localhost:8080/searchRecipe/data
+      http://localhost:5252/searchRecipe/data
 
 
    Где count: кол-во рецептов которое тербуется
@@ -42,7 +42,7 @@ http://localhost:8080/api/data
       -d '{"ingredients":["творожный сыр", "соль"], "count" :\
        1, "purchase" : true}' \
 
-    http://localhost:8080/getRecipesBuyOrNo/data
+    http://localhost:5252/getRecipesBuyOrNo/data
    Тут purchase - это флаг докупка/нет
 
    Запрос для получения рецепта по его id:
@@ -50,7 +50,7 @@ http://localhost:8080/api/data
       -H "Content-Type: application/json" \
       -d '{"id" : 23 }' \
 
-    http://localhost:8080/searchRecipebyid/data
+    http://localhost:5252/searchRecipebyid/data
    id - PrimaryKey в таблице
 
 
