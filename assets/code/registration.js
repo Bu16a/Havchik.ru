@@ -1,20 +1,6 @@
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js';
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js';
-import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyArIiiX0vU-_Kr_CJRLdtIs5qTHIUTvUc8",
-  authDomain: "che-te.firebaseapp.com",
-  projectId: "che-te",
-  storageBucket: "che-te.appspot.com",
-  messagingSenderId: "902131293726",
-  appId: "1:902131293726:web:4a8a3aff1cf0c9d4e1180f",
-  measurementId: "G-BXT01SDXW2"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+import {doc, setDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+import {app, auth, db} from "./checkAuth.js"
 
 function setCookie(name, value, minutesToExpire) {
     const date = new Date();
@@ -33,7 +19,7 @@ function singUpSuccess(userCredential) {
     })
     .then((idToken) => {
         setCookie("firebase_token", idToken, 60);
-        console.log("User created and token obtained:", user);
+        console.log("User created and token obtained");
         window.location.href = '/index.html';
     })
     .catch((error) => {
@@ -85,7 +71,7 @@ function signInSuccess(userCredential) {
             console.error("Ошибка получения токена:", error);
         });
     alert("Успешный вход");
-    console.log("User зашел:", user);
+    console.log("User зашел:");
 }
 
 function signInFail(error) {

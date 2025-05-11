@@ -18,10 +18,12 @@ export const db = getFirestore(app);
 
 onAuthStateChanged(auth, (user) => {
     if (user) {
-        console.log("Пользователь авторизован:", user);
+        console.log("Пользователь авторизован:");
         document.body.style.display = "block";
     } else {
         console.log("Пользователь не авторизован");
-        window.location.href = '/auth.html';
+        if (!window.location.href.includes('auth.html')) {
+            window.location.href = '/auth.html';
+        }
     }
 });

@@ -1,7 +1,5 @@
 import {getAuth, signOut, onAuthStateChanged} from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
-import {initializeApp} from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js';
 import {
-    getFirestore,
     doc,
     updateDoc,
     arrayUnion,
@@ -9,19 +7,7 @@ import {
     arrayRemove
 } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
-const firebaseConfig = {
-    apiKey: "AIzaSyArIiiX0vU-_Kr_CJRLdtIs5qTHIUTvUc8",
-    authDomain: "che-te.firebaseapp.com",
-    projectId: "che-te",
-    storageBucket: "che-te.appspot.com",
-    messagingSenderId: "902131293726",
-    appId: "1:902131293726:web:4a8a3aff1cf0c9d4e1180f",
-    measurementId: "G-BXT01SDXW2"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+import {app, auth, db} from "./checkAuth.js"
 
 const logOutButton = document.getElementById("logOut");
 const showAllergensBtn = document.getElementById('showAllergensBtn');
