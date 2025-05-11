@@ -2,7 +2,10 @@ main {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding-top: 20px;
+}
+
+em {
+    font-size: 17px;
 }
 
 .profile-container {
@@ -17,21 +20,21 @@ main {
     border-radius: 15px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
     box-sizing: border-box;
-    margin-bottom: 20px;
 }
 
 .profile-navigation {
     display: flex;
     justify-content: center;
-    gap: 10px;
+    gap: 20px;
     width: 100%;
     margin-bottom: 20px;
 }
 
 .profile-nav-btn {
     padding: 10px 20px;
-    font-size: 1rem;
+    font-size: 19px;
     font-weight: 500;
+    font-family: "Montserrat", semiBold, sans-serif;
     border: 1px solid #ccc;
     border-radius: 8px;
     background-color: #f0f0f0;
@@ -54,7 +57,7 @@ main {
     display: none;
     width: 100%;
     flex-direction: column;
-    gap: 15px;
+    gap: 10px;
 }
 
 .profile-content.active {
@@ -71,7 +74,7 @@ main {
 
 .profile-content h3 {
     text-align: center;
-    font-size: 1.25rem;
+    font-size: 19px;
     font-weight: 500;
     color: #444;
     margin: 0 0 15px 0;
@@ -82,7 +85,6 @@ main {
     justify-content: stretch;
     gap: 15px;
     width: 100%;
-    margin-bottom: 10px;
 }
 
 .action-btn {
@@ -92,8 +94,9 @@ main {
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    font-size: 15px;
+    font-size: 17px;
     font-weight: 500;
+    font-family: "Montserrat", semiBold, sans-serif;
     color: #444;
     text-align: center;
     transition: background-color 0.2s ease, box-shadow 0.2s ease;
@@ -111,7 +114,6 @@ main {
     padding: 20px;
     width: 100%;
     box-sizing: border-box;
-    margin-bottom: 15px;
 }
 
 .form-field {
@@ -122,7 +124,7 @@ main {
 }
 
 .form-field label {
-    font-size: 14px;
+    font-size: 17px;
     font-weight: 500;
     color: #555;
 }
@@ -131,7 +133,7 @@ main {
     padding: 10px 12px;
     border: 1px solid #ccc;
     border-radius: 6px;
-    font-size: 15px;
+    font-size: 17px;
     font-family: 'Montserrat', sans-serif;
     box-sizing: border-box;
     width: 100%;
@@ -156,8 +158,9 @@ main {
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    font-size: 15px;
+    font-size: 17px;
     font-weight: 500;
+    font-family: "Montserrat", semiBold, sans-serif;
     text-align: center;
     transition: background-color 0.2s ease, box-shadow 0.2s ease;
 }
@@ -184,20 +187,23 @@ main {
 
 
 .allergen-list, .cooked-recipes-list {
-    width: 100%;
-    padding: 10px;
-    background-color: #f7f7f7;
     border-radius: 8px;
     min-height: 100px;
-    display: flex;
     justify-content: center;
     align-items: center;
     text-align: center;
-    color: #777;
+    width: 100%;
+    padding: 0;
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
 #logOut {
-    font-size: 1rem;
+    font-size: 17px;
+    font-weight: 500;
+    font-family: "Montserrat", semiBold, sans-serif;
     box-sizing: border-box;
     display: flex;
     justify-content: center;
@@ -211,13 +217,11 @@ main {
     border: 1px solid #757575;
     border-radius: 0.625rem;
     cursor: pointer;
-    margin: 0 auto;
+    margin-top: 10px;
+    margin-bottom: 20px;
     color: white;
 }
 
-#logOut strong {
-    font-weight: bold;
-}
 
 #logOut:hover {
     background: #f34f4f;
@@ -228,18 +232,25 @@ main > form {
 }
 
 .profile-item-list {
-    list-style: none;
-    padding: 0;
     width: 100%;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
 .profile-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 10px;
-    border-bottom: 1px solid #eee;
-    font-size: 1rem;
+    padding: 15px 20px;
+    border-radius: 10px;
+    background: linear-gradient(90deg, rgba(230, 230, 230, 0.8) 0%, rgba(230, 230, 230, 0.6) 50%, rgba(230, 230, 230, 0.8) 100%);
+    min-height: 70px;
+    box-sizing: border-box;
+    font-size: 19px;
+    font-weight: 600;
 }
 
 .profile-item:last-child {
@@ -276,4 +287,312 @@ main > form {
 
 .delete-item-btn img:hover {
     opacity: 1;
+}
+
+@media (max-width: 768px) {
+    em {
+        font-size: 15px;
+    }
+
+    .profile-container {
+        padding: 25px 20px;
+        gap: 15px;
+        border-radius: 15px;
+    }
+
+    .profile-navigation {
+        gap: 18px;
+        margin-bottom: 18px;
+    }
+
+    .profile-nav-btn {
+        padding: 10px 18px;
+        font-size: 17px;
+    }
+
+    .profile-content h2 {
+        font-size: 22px;
+        margin-bottom: 12px;
+    }
+
+    .profile-content h3 {
+        font-size: 17px;
+        margin: 0 0 15px 0;
+    }
+
+    .actions {
+        gap: 15px;
+    }
+
+    .action-btn {
+        padding: 12px 15px;
+        font-size: 15px;
+    }
+
+    .add-allergen-form {
+        padding: 20px;
+    }
+
+    .form-field {
+        gap: 5px;
+        margin-bottom: 12px;
+    }
+
+    .form-field label {
+        font-size: 15px;
+    }
+
+    .form-field input[type="text"] {
+        padding: 10px 12px;
+        font-size: 15px;
+    }
+
+    .form-actions {
+        gap: 15px;
+        margin-top: 12px;
+    }
+
+    .form-btn {
+        padding: 10px 15px;
+        font-size: 15px;
+    }
+
+    .profile-item-list {
+        gap: 12px;
+    }
+
+    .profile-item {
+        padding: 15px 20px;
+        gap: 12px;
+        font-size: 17px;
+        min-height: 70px;
+    }
+
+    .delete-item-btn img {
+        width: 22px;
+        height: 22px;
+    }
+
+    #logOut {
+        width: clamp(200px, 50%, 300px);
+        font-size: 15px;
+        padding: 12px 18px;
+        min-height: 50px;
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+
+    /* If you have these classes, adjust them too */
+    .allergen-list, .cooked-recipes-list {
+        gap: 12px;
+        min-height: 100px;
+        font-size: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    em {
+        font-size: 13px;
+    }
+
+    .profile-container {
+        padding: 20px 15px;
+        gap: 12px;
+        border-radius: 12px;
+    }
+
+    .profile-navigation {
+        gap: 15px;
+        margin-bottom: 15px;
+    }
+
+    .profile-nav-btn {
+        padding: 9px 15px;
+        font-size: 15px;
+    }
+
+    .profile-content h2 {
+        font-size: 20px;
+        margin-bottom: 10px;
+    }
+
+    .profile-content h3 {
+        font-size: 15px;
+        margin: 0 0 12px 0;
+    }
+
+    .actions {
+        gap: 12px;
+    }
+
+    .action-btn {
+        padding: 10px 12px;
+        font-size: 13px;
+    }
+
+    .add-allergen-form {
+        padding: 18px;
+    }
+
+    .form-field {
+        gap: 4px;
+        margin-bottom: 10px;
+    }
+
+    .form-field label {
+        font-size: 13px;
+    }
+
+    .form-field input[type="text"] {
+        padding: 9px 11px;
+        font-size: 13px;
+    }
+
+    .form-actions {
+        gap: 12px;
+        margin-top: 10px;
+    }
+
+    .form-btn {
+        padding: 10px 12px;
+        font-size: 13px;
+    }
+
+    .profile-item-list {
+        gap: 10px;
+    }
+
+    .profile-item {
+        padding: 12px 15px;
+        gap: 10px;
+        font-size: 15px;
+        min-height: 60px;
+    }
+
+    .delete-item-btn img {
+        width: 20px;
+        height: 20px;
+    }
+
+    #logOut {
+        width: clamp(180px, 60%, 250px);
+        font-size: 13px;
+        padding: 10px 15px;
+        min-height: 45px;
+        margin-top: 18px;
+        margin-bottom: 18px;
+    }
+
+    /* If you have these classes, adjust them too */
+    .allergen-list, .cooked-recipes-list {
+        gap: 10px;
+        min-height: 80px;
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 376px) {
+    em {
+        font-size: 11px;
+    }
+
+    .profile-container {
+        flex-wrap: wrap;
+        padding: 15px 10px; /* Adjusted padding based on registration.css pattern */
+        gap: 10px; /* Adjusted gap */
+    }
+
+    .profile-navigation {
+        gap: 10px; /* Adjusted gap */
+        margin-bottom: 10px; /* Adjusted margin */
+    }
+
+    .profile-nav-btn {
+        padding: 8px 10px; /* Adjusted padding */
+        font-size: 13px; /* Adjusted font size */
+    }
+
+    .profile-content h2 {
+        font-size: 18px; /* Adjusted font size */
+        margin-bottom: 8px; /* Adjusted margin */
+    }
+
+    .profile-content h3 {
+        font-size: 13px; /* Adjusted font size */
+        margin: 0 0 10px 0; /* Adjusted margin */
+    }
+
+    .actions {
+        gap: 10px; /* Adjusted gap */
+        flex-direction: column; /* Stack buttons on very small screens */
+    }
+
+    .action-btn {
+        padding: 10px 12px; /* Adjusted padding */
+        font-size: 11px; /* Adjusted font size */
+        flex-grow: unset; /* Remove flex-grow when stacked */
+        width: 100%; /* Make buttons take full width */
+    }
+
+    .add-allergen-form {
+        padding: 15px; /* Adjusted padding */
+    }
+
+    .form-field {
+        gap: 4px; /* Adjusted gap */
+        margin-bottom: 8px; /* Adjusted margin */
+    }
+
+    .form-field label {
+        font-size: 11px; /* Adjusted font size */
+    }
+
+    .form-field input[type="text"] {
+        padding: 8px 10px; /* Adjusted padding */
+        font-size: 11px; /* Adjusted font size */
+    }
+
+    .form-actions {
+        gap: 10px; /* Adjusted gap */
+        margin-top: 8px; /* Adjusted margin */
+    }
+
+    .form-btn {
+        padding: 10px 12px; /* Adjusted padding */
+        font-size: 11px; /* Adjusted font size */
+        flex-grow: unset; /* Remove flex-grow when stacked */
+        width: 100%; /* Make buttons take full width */
+    }
+
+    .profile-item-list {
+        gap: 8px; /* Adjusted gap */
+    }
+
+    .profile-item {
+        padding: 10px 12px; /* Adjusted padding */
+        gap: 8px; /* Adjusted gap */
+        font-size: 13px; /* Adjusted font size */
+        min-height: 50px; /* Adjust min-height */
+    }
+
+    .delete-item-btn img {
+        width: 18px; /* Adjusted size */
+        height: 18px; /* Adjusted size */
+    }
+
+    #logOut {
+        width: clamp(150px, 80%, 200px); /* Adjusted width */
+        font-size: 11px; /* Adjusted font size */
+        padding: 8px 12px; /* Adjusted padding */
+        min-height: 40px; /* Adjusted min-height */
+        margin-top: 15px; /* Adjusted margin */
+        margin-bottom: 15px; /* Adjusted margin */
+    }
+
+    /* If you have these classes, adjust them too */
+    .allergen-list, .cooked-recipes-list {
+        gap: 8px;
+        min-height: 60px;
+        font-size: 13px;
+    }
 }

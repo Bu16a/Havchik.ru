@@ -16,25 +16,25 @@
 <main>
     <div class="profile-container">
         <div class="profile-navigation">
-            <button id="showAllergensBtn" class="profile-nav-btn active">Аллергены</button>
+            <button id="showAllergensBtn" class="profile-nav-btn active">Нежелательные продукты</button>
             <button id="showCookedRecipesBtn" class="profile-nav-btn">Приготовленные рецепты</button>
         </div>
 
         <div id="allergensContent" class="profile-content active">
-            <h2>Мои аллергены</h2>
-            <div class="actions">
-                <button class="action-btn" id="showAddAllergenFormBtn">Добавить аллерген</button>
-            </div>
+            <h2>Мои нежелательные продукты</h2>
             <div class="add-allergen-form" hidden>
-                <h3>Добавить новый аллерген</h3>
+                <h3>Добавить новый продукт</h3>
                 <div class="form-field">
-                    <label for="newAllergenName">Название аллергена:</label>
-                    <input type="text" id="newAllergenName" placeholder="Название аллергена">
+                    <label for="newAllergenName">Название продукта:</label>
+                    <input type="text" id="newAllergenName" placeholder="Название продукта">
                 </div>
                 <div class="form-actions">
                     <button class="form-btn save-new-btn" id="saveNewAllergenBtn">Сохранить</button>
                     <button class="form-btn cancel-new-btn" id="cancelNewAllergenBtn">Отмена</button>
                 </div>
+            </div>
+            <div class="actions">
+                <button class="action-btn" id="showAddAllergenFormBtn">Добавить продукт</button>
             </div>
             <div class="allergen-list">
                 <p><em></em></p>
@@ -50,7 +50,7 @@
     </div>
 
     <form>
-        <button type="submit" id="logOut"><strong>Выйти из аккаунта</strong></button>
+        <button type="submit" id="logOut">Выйти из аккаунта</button>
     </form>
 </main>
 <script src="/assets/code/header_footer.js" type="module"></script>

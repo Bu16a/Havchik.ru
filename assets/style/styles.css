@@ -14,7 +14,7 @@ main > div {
 
 h1 {
     font-family: "Montserrat", semiBold, serif;
-    font-size: 2em;
+    font-size: 28px;
 }
 
 * {
@@ -73,7 +73,7 @@ header a > img {
 
 .pages {
     display: flex;
-    gap: 30px;
+    gap: 40px;
     margin-left: auto;
 }
 
@@ -97,19 +97,166 @@ header a > img {
 main {
     display: flex;
     flex-direction: column;
-    margin: 1em auto;
+    margin: 2em auto;
     gap: 1em;
+    width: 100%; /* Добавим ширину для лучшей адаптивности */
+    max-width: 1200px; /* Ограничим максимальную ширину */
+    padding: 0 20px; /* Добавим горизонтальный padding */
+    box-sizing: border-box;
 }
 
-/*@media (max-width: 768px) {*/
-/*    header {*/
-/*        flex-direction: column;*/
-/*        align-items: stretch;*/
-/*    }*/
 
-/*    header div {*/
-/*        width: 100%;*/
-/*        height: 60px;*/
-/*    }*/
-/*}*/
+/* --- Стили для мобильных устройств (экраны до 768px) --- */
+@media (max-width: 768px) {
+    header {
+        margin: 0 1.5rem 1.5rem 1.5rem; /* Уменьшенные отступы */
+        padding: 0.5em 40px;        /* Уменьшенный внутренний отступ */
+        border-radius: 0 0 25px 25px; /* Слегка уменьшенный радиус скругления */
+    }
 
+    header .logo {
+        min-width: 50px; /* Уменьшенный минимальный размер логотипа */
+        width: 50px;     /* Уменьшенная ширина логотипа */
+        height: 50px;    /* Уменьшенная высота логотипа */
+    }
+
+    header .pages {
+        gap: 20px; /* Уменьшенный промежуток между иконками */
+        margin-left: auto;
+    }
+
+    header a {
+        padding: 6px 6px 0 6px; /* Уменьшенные внутренние отступы */
+        height: auto;
+        font-size: 12px; /* Уменьшенный размер шрифта */
+        min-width: 60px; /* Минимальная ширина для каждой иконки с текстом */
+    }
+
+    header a > img {
+        height: 26px;       /* Уменьшенный размер иконок */
+        margin-bottom: 5px; /* Уменьшенный отступ под иконкой */
+    }
+
+    main {
+        margin: 1.5em auto; /* Уменьшенный отступ для основного контента */
+        gap: 1em;       /* Промежуток между элементами в main */
+        padding: 0 15px; /* Уменьшаем горизонтальный padding */
+    }
+
+    h1 {
+        font-size: 1.8em; /* Немного уменьшенный размер для главного заголовка */
+    }
+
+    footer {
+        margin: 1.5rem 1rem 1rem 1rem; /* Уменьшенные отступы */
+        padding: 20px;              /* Уменьшенный внутренний отступ */
+        font-size: 16px;            /* Уменьшенный размер шрифта */
+    }
+}
+
+/* --- Стили для мобильных устройств (экраны до 480px) --- */
+@media (max-width: 480px) {
+    header {
+        margin: 0 1rem 1rem 1rem;
+        padding: 0.5em 20px;
+        border-radius: 0 0 20px 20px;
+    }
+
+    header .logo {
+        min-width: 40px;
+        width: 40px;
+        height: 40px;
+    }
+
+    header .pages {
+        gap: 15px; /* Еще уменьшаем промежуток */
+        margin-left: auto;
+    }
+
+    header a {
+        padding: 4px 4px 0 4px;
+        font-size: 11px; /* Уменьшаем размер шрифта */
+        min-width: 55px;
+    }
+
+    header a > img {
+        height: 20px; /* Уменьшаем размер иконок */
+        margin-bottom: 3px;
+    }
+
+    main {
+        margin: 1em auto; /* Уменьшенный отступ */
+        gap: 0.75em;       /* Уменьшенный промежуток */
+        padding: 0 10px; /* Уменьшаем горизонтальный padding */
+    }
+
+    h1 {
+        font-size: 1.6em; /* Уменьшенный размер для главного заголовка */
+    }
+
+    footer {
+        margin: 1rem 0.75rem 0.75rem 0.75rem; /* Уменьшенные отступы */
+        padding: 15px;              /* Уменьшенный внутренний отступ */
+        font-size: 14px;            /* Уменьшенный размер шрифта */
+    }
+}
+
+/* --- Стили для очень узких экранов (до 376px) --- */
+@media (max-width: 376px) {
+    header {
+        margin: 0 0.5rem 0.5rem 0.5rem;
+        padding: 0.4em 10px;
+        border-radius: 0 0 18px 18px;
+    }
+
+    header .logo {
+        min-width: 35px;
+        width: 35px;
+        height: 35px;
+    }
+
+    header .pages {
+        gap: 8px; /* Самый маленький промежуток */
+        margin-left: auto;
+    }
+
+    header a {
+        padding: 3px 3px 0 3px;
+        font-size: 10px; /* Как в оригинальном styles.css для 376px */
+        min-width: 50px;
+    }
+
+    header a > img {
+        height: 18px; /* Еще уменьшаем размер иконок */
+        margin-bottom: 2px;
+    }
+
+    main {
+        margin: 0.75em auto; /* Минимальный отступ */
+        gap: 0.6em;       /* Минимальный промежуток */
+        padding: 0 8px; /* Минимальный горизонтальный padding */
+    }
+
+    h1 {
+        font-size: 1.5em; /* Как в оригинальном styles.css для 376px */
+    }
+
+    footer {
+        margin: 0.75rem 0.5rem 0.5rem 0.5rem;
+        padding: 12px;
+        font-size: 12px; /* Немного меньше, чем 13px в styles.css, для большей компактности */
+    }
+}
+
+/* Дополнительные стили для очень маленьких и коротких экранов (например, iPhone SE) */
+@media (max-width: 376px) and (max-height: 670px) {
+    main {
+        padding-top: 0.5em; /* Уменьшить верхний padding у main */
+        padding-bottom: 0.5em; /* Уменьшить нижний padding у main */
+    }
+
+    footer {
+        padding: 10px; /* Еще немного уменьшить padding футера */
+        margin-top: 0.5rem;
+    }
+}
