@@ -338,7 +338,7 @@ class SimpleServer
         }
 
         if (!_jsonServing.TryGetParam(jsonData, "ingredients", out ingredients, out string ingredientsError) ||
-            ingredients == null || ingredients.Count == 0)
+            ingredients == null)
         {
             SendResponse(response,
                 ingredientsError,
@@ -347,7 +347,7 @@ class SimpleServer
         }
         
         if (!_jsonServing.TryGetParam(jsonData, "allergens", out ingredients, out string allergensError) ||
-            ingredients == null || ingredients.Count == 0)
+            ingredients == null)
         {
             SendResponse(response,
                 allergensError,
