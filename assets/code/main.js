@@ -13,7 +13,7 @@ let page = 1;
 let isChecked = false;
 let sortBy = document.getElementsByClassName('sort-option active')[0].getAttribute('data-sort');
 const token = getCookie("firebase_token");
-export const apiUrl = 'http://158.160.94.254:5252';
+export const apiUrl = 'http://localhost:5252';
 
 function getCookie(name) {
     const cookies = document.cookie.split('; ');
@@ -61,7 +61,10 @@ async function getShortRecipes(isPurchase = false, sortBy = 'relevance', page = 
 
 
 function createRecipeCards(recipesJson) {
-    if (!recipesJson || typeof recipesJson !== 'object') {
+    if (!recipesJson || typeof recipesJson !== 'object' || Object.keys(recipesJson).length === 0) {
+        console.log(recipesJson);
+        const recipeCardsContainer = document.querySelectorAll('.recipe-cards')[0];
+        recipeCardsContainer.innerHTML = '<p>Рецептов не найдено :(<br>Добавьте побольше продуктов и попробуйте ещё раз</p>';
         console.warn("Нет данных для создания карточек рецептов.");
         return;
     }
@@ -154,13 +157,10 @@ options.forEach(option => {
         sortIcon.classList.remove('rotated');
 
         const recipes = await getShortRecipes(isChecked, sortBy);
-        if (recipes) {
-            createRecipeCards(recipes);
-        } else {
-            const recipeCardsContainer = document.querySelectorAll('.recipe-cards')[0];
-            recipeCardsContainer.innerHTML = '<p>Рецептов не найдено :(<br>Добавьте побольше продуктов и попробуйте ещё раз</p>';
+        if (!recipes) {
             console.log("Не удалось получить рецепты после изменения сортировки.");
         }
+        createRecipeCards(recipes);
     });
 });
 
@@ -180,11 +180,8 @@ document.getElementById('add-products').addEventListener('change', async (e) => 
     }
 
     const recipes = await getShortRecipes(isChecked, sortBy);
-    if (recipes) {
-        createRecipeCards(recipes);
-    } else {
-        const recipeCardsContainer = document.querySelectorAll('.recipe-cards')[0];
-        recipeCardsContainer.innerHTML = '<p>Рецептов не найдено :(<br>Добавьте побольше продуктов и попробуйте ещё раз</p>';
+    createRecipeCards(recipes);
+    if (!recipes) {
         console.log("Не удалось получить рецепты после изменения чекбокса.");
     }
 });
@@ -192,16 +189,14 @@ document.getElementById('add-products').addEventListener('change', async (e) => 
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         const recipes = await getShortRecipes();
-        if (recipes) {
-            const recipeCardsContainer = document.querySelectorAll('.recipe-cards')[0];
-            if (recipeCardsContainer) {
-                recipeCardsContainer.innerHTML = '';
-                page = 1;
-            }
-            createRecipeCards(recipes);
-        } else {
-            const recipeCardsContainer = document.querySelectorAll('.recipe-cards')[0];
-            recipeCardsContainer.innerHTML = '<p>Рецептов не найдено :(<br>Добавьте побольше продуктов и попробуйте ещё раз</p>';
+
+        const recipeCardsContainer = document.querySelectorAll('.recipe-cards')[0];
+        if (recipeCardsContainer) {
+            recipeCardsContainer.innerHTML = '';
+            page = 1;
+        }
+        createRecipeCards(recipes);
+        if (!recipes) {
             console.log("Не удалось получить рецепты после успешной авторизации.");
         }
     } else {
@@ -217,11 +212,8 @@ window.addEventListener('scroll', async () => {
     const {scrollTop, scrollHeight, clientHeight} = document.documentElement;
     if (scrollTop + clientHeight >= scrollHeight - 100 && !isLoading) {
         const recipes = await getShortRecipes(isChecked, sortBy, ++page);
-        if (recipes) {
-            createRecipeCards(recipes);
-        } else {
-            const recipeCardsContainer = document.querySelectorAll('.recipe-cards')[0];
-            recipeCardsContainer.innerHTML = '<p>Рецептов не найдено :(<br>Добавьте побольше продуктов и попробуйте ещё раз</p>';
+        createRecipeCards(recipes);
+        if (!recipes) {
             console.log("Не удалось получить рецепты после изменения сортировки.");
         }
     }
