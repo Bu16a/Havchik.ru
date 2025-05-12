@@ -3,7 +3,7 @@ import {getAllProducts} from './myproducts.js';
 import {onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js';
 import {doc, updateDoc, arrayUnion, getDoc} from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
-const apiUrl = 'http://localhost:5252';
+const apiUrl = 'http://158.160.94.254:5252';
 const url = new URL(window.location.href);
 const params = new URLSearchParams(url.search);
 const recipeId = Number(params.get('id'));
