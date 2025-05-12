@@ -31,7 +31,12 @@ async function getRecipe() {
 }
 
 async function printRecipe(recipeJson) {
-    if (!recipeJson || typeof recipeJson !== 'object') {
+    if (!recipeJson || typeof recipeJson !== 'object' || Object.keys(recipeJson).length === 0) {
+        const container = document.querySelector('.recipe-container');
+        const recipeContent = document.createElement('div');
+        recipeContent.classList.add('recipe-content');
+        recipeContent.innerHTML = `Такого рецепта нет 0_0. Перейдите на главную и выберите рецепт там`
+        container.appendChild(recipeContent);
         console.warn("Нет данных для создания рецепта.");
         return;
     }
@@ -58,6 +63,31 @@ async function printRecipe(recipeJson) {
         ? `<p>Готовится ${recipeJson.time} мин</p>`
         : 'Время готовки неизвестно';
 
+    const recipeNutrition = document.createElement('div');
+    recipeNutrition.classList.add('recipe-ingredients');
+    if (recipeJson.energy)
+        recipeNutrition.innerHTML = `
+        <h1 class="section-title">Пищевая ценность</h1>
+        <div class="recipe-ingredients" style="gap: 1em;">
+            <div class="recipe-item">
+                <div class="ingredient-name">Калории</div>
+                <div>${recipeJson.energy[0] || '-'} кКал</div>
+            </div>
+            <div class="recipe-item">
+                <div class="ingredient-name">Белки</div>
+                <div>${recipeJson.energy[1] || '-'} г</div>
+            </div>
+            <div class="recipe-item">
+                <div class="ingredient-name">Жиры</div>
+                <div>${recipeJson.energy[2] || '-'} г</div>
+            </div>
+            <div class="recipe-item">
+                <div class="ingredient-name">Углеводы</div>
+                <div>${recipeJson.energy[3] || '-'} г</div>
+            </div>
+            <div style="margin-top: 8px; color: #777;">Пищевая ценность на 100 г блюда</div>
+        </div>
+        `;
     recipeTitle.appendChild(recipeName);
     recipeTitle.appendChild(recipeTime);
 
@@ -82,7 +112,6 @@ async function printRecipe(recipeJson) {
 
                 const productLower = product.toLowerCase();
                 const ingredientLower = ingredient.toLowerCase();
-                console.log(`${productLower} ${ingredientLower}`);
                 if (productLower.indexOf(ingredientLower) !== -1 ||
                     ingredientLower.indexOf(productLower) !== -1) {
                     hasProduct = true;
@@ -161,6 +190,8 @@ async function printRecipe(recipeJson) {
     const recipeContent = document.createElement('div');
     recipeContent.classList.add('recipe-content');
     recipeContent.appendChild(recipeTitle);
+    if (recipeJson.energy)
+        recipeContent.appendChild(recipeNutrition);
     recipeContent.appendChild(recipeIngredients);
     recipeContent.appendChild(recipeDirections);
     recipeContent.appendChild(recipeSource);
@@ -194,15 +225,11 @@ onAuthStateChanged(auth, async (user) => {
     if (user) {
         const recipe = await getRecipe();
         console.log(recipe);
-        if (recipe) {
-            const recipeContainer = document.querySelectorAll('.recipe-container')[0];
-            if (recipeContainer) {
-                recipeContainer.innerHTML = '';
-            }
-            printRecipe(recipe);
-        } else {
-            console.log("Не удалось получить рецепт после успешной авторизации.");
+        const recipeContainer = document.querySelectorAll('.recipe-container')[0];
+        if (recipeContainer) {
+            recipeContainer.innerHTML = '';
         }
+        printRecipe(recipe);
     } else {
         console.log('Пользователь не авторизован');
         const recipeCardsContainer = document.querySelectorAll('.recipe-container')[0];
