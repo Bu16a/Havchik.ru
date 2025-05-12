@@ -147,6 +147,7 @@ async function printRecipe(recipeJson) {
     readyButton.innerHTML = '<strong>Готово!</strong>';
     readyButton.addEventListener('click', (event) => {
         saveRecipeDB(recipeJson.title)
+        alert('Поздравляем, вы приготовили блюдо! Оно отобразится в разделе "Приготовленные рецепты"')
     })
 
     const recipeSource = document.createElement('div');
