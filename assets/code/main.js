@@ -212,10 +212,11 @@ window.addEventListener('scroll', async () => {
     const {scrollTop, scrollHeight, clientHeight} = document.documentElement;
     if (scrollTop + clientHeight >= scrollHeight - 100 && !isLoading) {
         const recipes = await getShortRecipes(isChecked, sortBy, ++page);
-        if (recipes)
+        console.log(recipes);
+        if (Object.keys(recipes).length > 0)
             createRecipeCards(recipes);
         else
-            console.log("Не удалось получить рецепты после изменения сортировки.");
+            console.log("Не удалось получить рецепты после скролла");
     }
 });
 
