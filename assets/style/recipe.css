@@ -81,6 +81,10 @@ main {
     width: 100%;
 }
 
+.recipe-title .time p {
+    font-size: 17px; /* Adjust font size for time */
+}
+
 .recipe-content {
     display: flex;
     flex-direction: column;
@@ -118,25 +122,28 @@ main {
 
 .step-desc {
     text-align: left;
+    font-size: 19px;
 }
 
 .tutorial-step {
     font-weight: 650;
     padding: 5px 15px 15px 0;
-    font-size: large;
+    font-size: 19px;
 }
 
 .ingredient-name {
     font-weight: 650;
-    font-size: large;
+    font-size: 19px;
 }
 
 .ingredient-amount {
+    font-size: 17px;
     color: #666;
 }
 
 .ready-btn {
-    font-size: 1rem;
+    font-size: 19px;
+    font-family: "Montserrat", semiBold, sans-serif;
     box-sizing: border-box;
     width: 11.3125rem;
     height: 3.375rem;
@@ -150,4 +157,276 @@ main {
 
 .ready-btn:hover {
     background-color: #59d85d;
+}
+.source {
+    font-size: 17px;
+}
+
+/* Styles for screens with a maximum width of 768px (e.g., tablets and smaller desktops) */
+@media (max-width: 768px) {
+    main {
+        padding: 20px 15px; /* Adjust padding */
+        min-height: calc(100vh - 100px); /* Example adjustment considering header/footer */
+    }
+
+    .recipe-container {
+        width: 100%; /* Make width responsive */
+        border-radius: 12px; /* Adjust border-radius */
+        box-shadow: 0 3px 12px rgba(0,0,0,0.1); /* Adjust box-shadow */
+    }
+
+    .recipe-header {
+        align-items: center;
+    }
+
+    .recipe-header::before {
+        background: linear-gradient(180deg, rgba(217, 217, 217, 0.1) 30%, #F5F5F5 90%);
+    }
+
+    .recipe-title {
+        gap: 0.8em; /* Adjust gap */
+        padding: 1em; /* Add some padding to the title block */
+    }
+
+    .recipe-title h1 {
+        font-size: 26px; /* Adjust recipe title font size */
+    }
+
+    .recipe-title .time p {
+        font-size: 15px; /* Adjust font size for time */
+    }
+
+
+    .recipe-content {
+        gap: 2.5em; /* Reduce gap between main sections */
+        padding: 1.5em; /* Adjust padding */
+    }
+
+    .section-title {
+        font-size: 26px; /* Adjust section title font size */
+        margin-bottom: 1em; /* Add some margin below titles */
+    }
+
+
+    .recipe-ingredients,
+    .recipe-directions {
+        gap: 1.5em; /* Reduce gap between lists and titles */
+    }
+
+    .recipe-list {
+        gap: 0.8em; /* Reduce gap between list items */
+    }
+
+    .recipe-item {
+        padding: 10px 15px; /* Adjust padding */
+        border-radius: 8px; /* Adjust border-radius */
+        box-shadow: 0 1px 4px rgba(0,0,0,0.08); /* Adjust box-shadow */
+    }
+
+    .ingredient-name {
+        font-size: 17px; /* Adjust font size */
+    }
+
+    .ingredient-amount {
+        font-size: 15px; /* Adjust font size */
+    }
+
+    .tutorial-step {
+        font-size: 17px; /* Adjust font size */
+        padding: 5px 10px 10px 0; /* Adjust padding */
+    }
+
+    .step-desc {
+        font-size: 17px; /* Adjust font size */
+    }
+
+
+    .ready-btn {
+        width: 10rem; /* Adjust width */
+        height: 3rem; /* Adjust height */
+        font-size: 17px; /* Adjust font size */
+        padding: 0.8rem; /* Adjust padding */
+        border-radius: 0.5rem; /* Adjust border-radius */
+        margin-top: 1.5em; /* Adjust margin */
+    }
+
+    .source {
+        font-size: 15px; /* Adjust font size */
+        margin-top: 1.5em; /* Adjust margin */
+    }
+}
+
+/* Styles for screens with a maximum width of 480px (e.g., larger smartphones) */
+@media (max-width: 480px) {
+    main {
+        padding: 15px 10px; /* Further reduce padding */
+        min-height: calc(100vh - 80px); /* Example adjustment */
+    }
+    .recipe-container {
+        border-radius: 10px; /* Further adjust border-radius */
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .recipe-header::before {
+        background: linear-gradient(180deg, rgba(217, 217, 217, 0.1) 20%, #F5F5F5 85%);
+    }
+
+    .recipe-title {
+        gap: 0.6em; /* Further reduce gap */
+        padding: 0.8em; /* Further reduce padding */
+    }
+
+    .recipe-title h1 {
+        font-size: 24px; /* Further adjust recipe title font size */
+    }
+
+    .recipe-title .time p {
+        font-size: 13px; /* Further adjust font size */
+    }
+
+
+    .recipe-content {
+        gap: 2em; /* Further reduce gap */
+        padding: 1.2em; /* Further reduce padding */
+    }
+
+    .section-title {
+        font-size: 24px; /* Further adjust section title font size */
+        margin-bottom: 0.8em;
+    }
+
+
+    .recipe-ingredients,
+    .recipe-directions {
+        gap: 1.2em; /* Further reduce gap */
+    }
+
+    .recipe-list {
+        gap: 0.6em; /* Further reduce gap */
+    }
+
+    .recipe-item {
+        padding: 8px 12px; /* Further adjust padding */
+        border-radius: 6px; /* Further adjust border-radius */
+        box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+
+    .ingredient-name {
+        font-size: 15px; /* Further adjust font size */
+    }
+
+    .ingredient-amount {
+        font-size: 13px; /* Further adjust font size */
+    }
+
+    .tutorial-step {
+        font-size: 15px; /* Further adjust font size */
+        padding: 4px 8px 8px 0; /* Further adjust padding */
+    }
+
+    .step-desc {
+        font-size: 15px; /* Further adjust font size */
+    }
+
+    .ready-btn {
+        width: 9rem; /* Further adjust width */
+        height: 2.8rem; /* Further adjust height */
+        font-size: 15px; /* Further adjust font size */
+        padding: 0.7rem; /* Further adjust padding */
+        border-radius: 0.4rem; /* Further adjust border-radius */
+        margin-top: 1.2em;
+    }
+
+    .source {
+        font-size: 13px; /* Further adjust font size */
+        margin-top: 1.2em;
+    }
+}
+
+/* Styles for screens with a maximum width of 376px (e.g., smaller smartphones) */
+@media (max-width: 376px) {
+    main {
+        padding: 10px 8px; /* Further reduce padding */
+        min-height: calc(100vh - 70px); /* Example adjustment */
+    }
+    .recipe-container {
+        border-radius: 8px; /* Further adjust border-radius */
+        box-shadow: 0 1px 8px rgba(0,0,0,0.1);
+    }
+
+    .recipe-header::before {
+        background: linear-gradient(180deg, rgba(217, 217, 217, 0.1) 15%, #F5F5F5 80%);
+    }
+
+    .recipe-title {
+        gap: 0.5em; /* Further reduce gap */
+        padding: 0.6em; /* Further reduce padding */
+    }
+
+    .recipe-title h1 {
+        font-size: 22px; /* Further adjust recipe title font size */
+    }
+
+    .recipe-title .time p {
+        font-size: 11px; /* Further adjust font size */
+    }
+
+    .recipe-content {
+        gap: 1.5em; /* Further reduce gap */
+        padding: 1em; /* Further reduce padding */
+    }
+
+    .section-title {
+        font-size: 22px; /* Further adjust section title font size */
+        margin-bottom: 0.6em;
+    }
+
+    .recipe-ingredients,
+    .recipe-directions {
+        gap: 1em; /* Further reduce gap */
+    }
+
+    .recipe-list {
+        gap: 0.5em; /* Further reduce gap */
+    }
+
+    .recipe-item {
+        padding: 6px 10px; /* Further adjust padding */
+        border-radius: 5px; /* Further adjust border-radius */
+        box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+        /* Consider stacking ingredient name and amount if needed */
+        align-items: flex-start; /* Align stacked items to the start */
+        gap: 3px; /* Add a small gap between stacked items */
+    }
+
+    .ingredient-name {
+        font-size: 13px; /* Further adjust font size */
+    }
+
+    .ingredient-amount {
+        font-size: 11px; /* Further adjust font size */
+    }
+
+    .tutorial-step {
+        font-size: 13px; /* Further adjust font size */
+        padding: 3px 6px 6px 0; /* Further adjust padding */
+    }
+
+    .step-desc {
+        font-size: 13px; /* Further adjust font size */
+    }
+
+    .ready-btn {
+        width: 8rem; /* Further adjust width */
+        height: 2.5rem; /* Further adjust height */
+        font-size: 13px; /* Further adjust font size */
+        padding: 0.6rem; /* Further adjust padding */
+        border-radius: 0.3rem; /* Further adjust border-radius */
+        margin-top: 1em;
+    }
+
+    .source {
+        font-size: 11px; /* Further adjust font size */
+        margin-top: 1em;
+    }
 }

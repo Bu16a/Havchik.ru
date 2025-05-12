@@ -212,6 +212,7 @@ main {
     gap: 4px;
     flex-grow: 1;
     margin-right: 15px;
+    min-width: 0;
 }
 
 .product-name, .product-quantity-display {
@@ -226,11 +227,11 @@ main {
     font-size: 19px;
     font-weight: 600;
 
-    white-space: nowrap;       /* Prevent text from wrapping to the next line */
-    overflow: hidden;          /* Hide the overflowing text */
-    text-overflow: ellipsis;   /* Display ellipsis (...) for truncated text */
-    max-width: 100%;           /* Ensure it respects the parent's width */
-    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block; /* Убедитесь, что это блочный или inline-block элемент */
+    max-width: 100%; /* Убедитесь, что ширина ограничена родительским контейнером */
 }
 
 .product-quantity-display {
@@ -280,6 +281,7 @@ main {
 .product-unit-select {
     font-family: 'Montserrat', sans-serif;
     border: 1px solid #cccccc;
+    background: white;
     border-radius: 5px;
     padding: 4px 8px;
     font-size: 17px;
@@ -340,7 +342,7 @@ main {
 
 /* --- Стили для режима редактирования --- */
 .product-item.edit-mode {
-    background-color: #FFFACD; /* Подсветка */
+    background-color: #cafac5; /* Подсветка */
 }
 
 /* Скрываем обычные span'ы в режиме редактирования */
