@@ -38,74 +38,95 @@ namespace HavalNeGovno.Controllers
 
 
         public async Task<List<Dictionary<string, object>>> QueryRecipesFromDatabaseAsync(
-            List<string> ingredients, List<string> allergens, int recipeCount, string sortBy = "relevance", int page = 1)
+            List<string> ingredients, List<string> allergens, int recipeCount, string sortBy = "relevance",
+            int page = 1)
         {
-            var query =
-                """
-                WITH
-                    search_product_terms AS (
-                        SELECT DISTINCT LOWER(p_term) AS term
-                        FROM unnest(@ingredients) AS t(p_term)
-                        WHERE p_term IS NOT NULL AND p_term <> ''
-                    ),
-                    allergen_terms AS (
-                        SELECT DISTINCT LOWER(a_term) AS term
-                        FROM unnest(@allergens) AS t(a_term)
-                        WHERE a_term IS NOT NULL AND a_term <> ''
-                    )
-                SELECT
-                    r.id,
-                    r.title,
-                    r.time,
-                    r.energy,
-                    r.image,
-                    r.views,
-                    counts.matched_ingredients_count,
-                    counts.new_ingredients_count
-                FROM
-                    recipes r
-                        CROSS JOIN LATERAL (
-                        SELECT
-                            COUNT(recipe_ing) FILTER (
-                                WHERE EXISTS (
-                                    SELECT 1
-                                    FROM search_product_terms spt
-                                    WHERE recipe_ing LIKE '%' || spt.term || '%'
-                                )
-                                ) AS matched_ingredients_count,
-                
-                            COUNT(recipe_ing) FILTER (
-                                WHERE NOT EXISTS (
-                                    SELECT 1
-                                    FROM search_product_terms spt
-                                    WHERE recipe_ing LIKE '%' || spt.term || '%'
-                                )
-                                ) AS new_ingredients_count
-                        FROM
-                            unnest(r.ingredients_unique) AS recipe_ing
-                        ) AS counts
-                WHERE
-                    NOT EXISTS (
-                        SELECT 1
-                        FROM unnest(r.ingredients_unique) AS recipe_ing
-                        WHERE EXISTS (
-                            SELECT 1 FROM allergen_terms at_
-                            WHERE recipe_ing LIKE '%' || at_.term || '%'
-                        )
-                    )
-                """;
+            var query = ingredients == null || ingredients.Count == 0
+                ? """
+                  WITH allergen_terms AS (
+                          SELECT DISTINCT LOWER(a_term) AS term
+                          FROM unnest(@allergens) AS t(a_term)
+                          WHERE a_term IS NOT NULL AND a_term <> ''
+                      )
+                  SELECT id, title, time, energy, image, views
+                  FROM recipes
+                  WHERE NOT EXISTS (
+                          SELECT 1
+                          FROM unnest(ingredients_unique) AS recipe_ing
+                          WHERE EXISTS (
+                              SELECT 1 FROM allergen_terms at_
+                              WHERE recipe_ing LIKE '%' || at_.term || '%'
+                          )
+                  )
+                  """
+                : """
+                  WITH
+                      search_product_terms AS (
+                          SELECT DISTINCT LOWER(p_term) AS term
+                          FROM unnest(@ingredients) AS t(p_term)
+                          WHERE p_term IS NOT NULL AND p_term <> ''
+                      ),
+                      allergen_terms AS (
+                          SELECT DISTINCT LOWER(a_term) AS term
+                          FROM unnest(@allergens) AS t(a_term)
+                          WHERE a_term IS NOT NULL AND a_term <> ''
+                      )
+                  SELECT
+                      r.id,
+                      r.title,
+                      r.time,
+                      r.energy,
+                      r.image,
+                      r.views,
+                      counts.matched_ingredients_count,
+                      counts.new_ingredients_count
+                  FROM
+                      recipes r
+                          CROSS JOIN LATERAL (
+                          SELECT
+                              COUNT(recipe_ing) FILTER (
+                                  WHERE EXISTS (
+                                      SELECT 1
+                                      FROM search_product_terms spt
+                                      WHERE recipe_ing LIKE '%' || spt.term || '%'
+                                  )
+                                  ) AS matched_ingredients_count,
+                  
+                              COUNT(recipe_ing) FILTER (
+                                  WHERE NOT EXISTS (
+                                      SELECT 1
+                                      FROM search_product_terms spt
+                                      WHERE recipe_ing LIKE '%' || spt.term || '%'
+                                  )
+                                  ) AS new_ingredients_count
+                          FROM
+                              unnest(r.ingredients_unique) AS recipe_ing
+                          ) AS counts
+                  WHERE
+                      NOT EXISTS (
+                          SELECT 1
+                          FROM unnest(r.ingredients_unique) AS recipe_ing
+                          WHERE EXISTS (
+                              SELECT 1 FROM allergen_terms at_
+                              WHERE recipe_ing LIKE '%' || at_.term || '%'
+                          )
+                      )
+                  """;
             switch (sortBy)
             {
                 case "relevance":
-                    query += """
-                             
-                             ORDER BY counts.matched_ingredients_count DESC, counts.new_ingredients_count, views DESC
-                             limit @limit offset @offset;
-                             """;
+
+                    query += ingredients == null || ingredients.Count == 0
+                        ? """
+                          ORDER BY views DESC limit @limit offset @offset;
+                          """
+                        : """
+                          ORDER BY counts.matched_ingredients_count DESC, counts.new_ingredients_count, views DESC limit @limit offset @offset;
+                          """;
                     break;
                 case "time":
                     query += """
-                             
+
                              ORDER BY time ASC, views DESC
                              limit @limit offset @offset;
                              """;
@@ -153,7 +174,7 @@ namespace HavalNeGovno.Controllers
                         )
                     )
                 """;
-            
+
             switch (sortBy)
             {
                 case "relevance":
@@ -175,7 +196,8 @@ namespace HavalNeGovno.Controllers
             return await ReturnAndQuery(ingredients, allergens, recipeCount, page, query);
         }
 
-        private async Task<List<Dictionary<string, object>>> ReturnAndQuery(List<string> ingredients, List<string> allergens,
+        private async Task<List<Dictionary<string, object>>> ReturnAndQuery(List<string> ingredients,
+            List<string> allergens,
             int recipeCount, int page, string query)
         {
             var parameters = new Dictionary<string, (object value, NpgsqlDbType dbType)>
