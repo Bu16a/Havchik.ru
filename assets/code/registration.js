@@ -30,11 +30,7 @@ function singUpSuccess(userCredential) {
 async function createMyProducts(id) {
     const userDocRef = doc(db, "users", id); // users/{uid}
     await setDoc(userDocRef, {
-        products: {
-            Помидор : "3 шт",
-            Молоко : "500 гр",
-            Лапша : "500 гр"
-        },
+        products: {},
         cooked: [],
         allergens: []
     })
