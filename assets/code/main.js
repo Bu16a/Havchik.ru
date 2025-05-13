@@ -31,12 +31,17 @@ function getCookie(name) {
 
 async function getShortRecipes(isPurchase, sortBy, page = 1) {
     try {
-        console.log(isPurchase, sortBy, page);
         isLoading = true;
         const products = Object.keys(await getAllProducts());
         const ingredientsToSend = Array.isArray(products) && products.length > 0 ? products : [];
+        const allergensToSend = [];
         const allergens = await getAllergens();
-        const allergensToSend = Array.isArray(allergens) && products.length > 0 ? products : [];
+        allergens.forEach((product) => {
+            allergensToSend.push(product.name);
+        });
+
+        console.log(ingredientsToSend, allergensToSend, isPurchase, sortBy, page);
+
         const response = await fetch(`${apiUrl}/getRecipesBuyOrNo/data`, {
             method: 'POST',
             headers: {
@@ -51,6 +56,8 @@ async function getShortRecipes(isPurchase, sortBy, page = 1) {
                 page: page
             })
         });
+
+        console.log(response);
 
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
