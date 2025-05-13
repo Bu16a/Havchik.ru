@@ -346,8 +346,8 @@ class SimpleServer
             return (false, jsonData, ingredients, allergens, recipeCount, purchase, sortBy, page);
         }
         
-        if (!_jsonServing.TryGetParam(jsonData, "allergens", out ingredients, out string allergensError) ||
-            ingredients == null)
+        if (!_jsonServing.TryGetParam(jsonData, "allergens", out allergens, out string allergensError) ||
+            allergens == null)
         {
             SendResponse(response,
                 allergensError,
