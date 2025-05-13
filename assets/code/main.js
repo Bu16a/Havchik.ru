@@ -10,10 +10,15 @@ const options = document.querySelectorAll('.sort-option');
 const sortIcon = document.getElementById('sortIcon');
 let isLoading = false;
 let page = 1;
-let isChecked = false;
+let isChecked = document.getElementById('add-products').checked;
 let sortBy = document.getElementsByClassName('sort-option active')[0].getAttribute('data-sort');
 const token = getCookie("firebase_token");
 export const apiUrl = 'http://158.160.94.254:5252';
+
+window.addEventListener("pageshow", function (event) {
+    isChecked = document.getElementById('add-products').checked;
+});
+
 
 function getCookie(name) {
     const cookies = document.cookie.split('; ');
@@ -24,7 +29,7 @@ function getCookie(name) {
     return null;
 }
 
-async function getShortRecipes(isPurchase = false, sortBy = 'relevance', page = 1) {
+async function getShortRecipes(isPurchase, sortBy, page = 1) {
     try {
         console.log(isPurchase, sortBy, page);
         isLoading = true;
@@ -188,7 +193,7 @@ document.getElementById('add-products').addEventListener('change', async (e) => 
 
 onAuthStateChanged(auth, async (user) => {
     if (user) {
-        const recipes = await getShortRecipes();
+        const recipes = await getShortRecipes(isChecked, sortBy);
 
         const recipeCardsContainer = document.querySelectorAll('.recipe-cards')[0];
         if (recipeCardsContainer) {
