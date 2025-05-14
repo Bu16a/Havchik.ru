@@ -2,6 +2,12 @@ import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } f
 import {doc, setDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 import {app, auth, db} from "./checkAuth.js"
 
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', async () => {
+        await navigator.serviceWorker.register('/assets/code/service-worker.js');
+    });
+}
+
 function setCookie(name, value, minutesToExpire) {
     const date = new Date();
     date.setTime(date.getTime() + (minutesToExpire * 60 * 1000));
@@ -14,12 +20,10 @@ function singUpSuccess(userCredential) {
     const user = userCredential.user;
     createMyProducts(user.uid)
     .then(() => {
-        console.log("Документ создан");
         return user.getIdToken();
     })
     .then((idToken) => {
         setCookie("firebase_token", idToken, 60);
-        console.log("User created and token obtained");
         window.location.href = '/index.html';
     })
     .catch((error) => {
@@ -33,8 +37,7 @@ async function createMyProducts(id) {
         products: {},
         cooked: [],
         allergens: []
-    })
-    .then(() => console.log("1"));
+    });
 }
 
 function signUpFaile(error) {
@@ -67,7 +70,6 @@ function signInSuccess(userCredential) {
             console.error("Ошибка получения токена:", error);
         });
     alert("Успешный вход");
-    console.log("User зашел:");
 }
 
 function signInFail(error) {

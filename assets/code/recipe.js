@@ -8,6 +8,12 @@ const url = new URL(window.location.href);
 const params = new URLSearchParams(url.search);
 const recipeId = Number(params.get('id'));
 
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', async () => {
+        await navigator.serviceWorker.register('/assets/code/service-worker.js');
+    });
+}
+
 function saveRecipeToCache(key, data) {
     sessionStorage.setItem(key, JSON.stringify(data));
 }
@@ -297,14 +303,12 @@ onAuthStateChanged(auth, async (user) => {
         const recipeContainer = document.querySelectorAll('.recipe-container')[0];
         showRecipeSkeleton();
         const recipe = await getRecipe();
-        console.log(recipe);
 
         if (recipeContainer) {
             recipeContainer.innerHTML = '';
         }
         await printRecipe(recipe);
     } else {
-        console.log('Пользователь не авторизован');
         const recipeCardsContainer = document.querySelectorAll('.recipe-container')[0];
         if (recipeCardsContainer) {
             recipeCardsContainer.innerHTML = '';

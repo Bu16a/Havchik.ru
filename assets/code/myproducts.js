@@ -3,6 +3,11 @@ import { doc, deleteField, updateDoc, setDoc, getDoc, arrayUnion } from "https:/
 import {db, auth} from "./checkAuth.js";
 import {onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js';
 
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', async () => {
+        await navigator.serviceWorker.register('/assets/code/service-worker.js');
+    });
+}
 
 function createProductItemHTML(id, name, quantity, unit) {
     const escapedName = name.replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -143,7 +148,6 @@ async function getAllProducts() {
     if (data.exists()){
         return data.data().products;
     }
-    console.log('Даты из фаербейса нет');
 }
 
 export { getAllProducts };
@@ -231,9 +235,8 @@ document.addEventListener('DOMContentLoaded', () => {
             showProducts();
             addProductFormContainer.hidden = true;
             showAddFormBtn.hidden = false;
-            
+
         } else {
-            console.log('Пользователь не авторизован');
             const recipeCardsContainer = document.querySelectorAll('.recipe-container')[0];
             if (recipeCardsContainer) {
                 recipeCardsContainer.innerHTML = '';

@@ -22,6 +22,13 @@ const addAllergenForm = document.querySelector('.add-allergen-form');
 const newAllergenNameInput = document.getElementById('newAllergenName');
 const saveNewAllergenBtn = document.getElementById('saveNewAllergenBtn');
 const cancelNewAllergenBtn = document.getElementById('cancelNewAllergenBtn');
+
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', async () => {
+        await navigator.serviceWorker.register('/assets/code/service-worker.js');
+    });
+}
+
 function generateAllergenId() {
     return Date.now().toString(36) + Math.random().toString(36).substring(2);
 }
@@ -38,7 +45,6 @@ async function saveAllergenDB(allergenName) {
         await updateDoc(userDocRef, {
             allergens: arrayUnion({name: allergenName, id: allergenId})
         });
-        console.log("Allergen saved:", allergenName);
         await loadUserAllergens(); // Refresh the list
     } catch (error) {
         console.error("Error saving allergen:", error);
@@ -48,7 +54,6 @@ async function saveAllergenDB(allergenName) {
 
 export async function getAllergens() {
     if (!auth.currentUser) {
-        console.log("User not authenticated to get allergens.");
         return [];
     }
     const userDocRef = doc(db, "users", auth.currentUser.uid);
@@ -57,7 +62,6 @@ export async function getAllergens() {
         if (docSnap.exists() && docSnap.data().allergens) {
             return docSnap.data().allergens;
         } else {
-            console.log("No allergens found for this user or user document doesn't exist.");
             return [];
         }
     } catch (error) {
@@ -77,7 +81,6 @@ async function removeAllergenDB(allergen) {
         await updateDoc(userDocRef, {
             allergens: arrayRemove(allergen)
         });
-        console.log("Allergen removed:", allergen.name);
         await loadUserAllergens();
     } catch (error) {
         console.error("Error removing allergen:", error);
@@ -123,7 +126,6 @@ async function loadUserAllergens() {
 // --- Cooked Recipes Functions ---
 async function getCookedRecipes() {
     if (!auth.currentUser) {
-        console.log("User not authenticated to get cooked recipes.");
         return [];
     }
     const userDocRef = doc(db, "users", auth.currentUser.uid);
@@ -132,7 +134,6 @@ async function getCookedRecipes() {
         if (docSnap.exists() && docSnap.data().cooked) {
             return docSnap.data().cooked; // Array of {name: string, id: number}
         } else {
-            console.log("No cooked recipes found for this user or user document doesn't exist.");
             return [];
         }
     } catch (error) {
@@ -178,7 +179,6 @@ if (logOutButton) {
     logOutButton.addEventListener('click', (e) => {
         e.preventDefault();
         signOut(auth).then(() => {
-            console.log("Пользователь вышел из системы");
             window.location.href = '/auth.html';
         }).catch((error) => {
             console.error("Ошибка выхода:", error);
@@ -239,14 +239,12 @@ if (saveNewAllergenBtn) {
 
 onAuthStateChanged(auth, async (user) => {
     if (user) {
-        console.log("User is signed in, loading profile data...");
         if (allergensContent) allergensContent.classList.add('active');
         if (cookedRecipesContent) cookedRecipesContent.classList.remove('active');
         if (showAllergensBtn) showAllergensBtn.classList.add('active');
         if (showCookedRecipesBtn) showCookedRecipesBtn.classList.remove('active');
         await loadUserAllergens();
     } else {
-        console.log("User is signed out.");
         if (allergenListDiv) allergenListDiv.innerHTML = '<p><em>Пожалуйста, войдите в систему для просмотра аллергенов.</em></p>';
         if (cookedRecipesListDiv) cookedRecipesListDiv.innerHTML = '<p><em>Пожалуйста, войдите в систему для просмотра приготовленных рецептов.</em></p>';
     }

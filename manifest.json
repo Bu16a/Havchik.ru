@@ -1,0 +1,26 @@
+{
+  "name": "Что есть — то есть",
+  "short_name": "ЧеТе",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#f5f5f5",
+  "theme_color": "#f5f5f5",
+  "description": "Сервис для планирования питания на основе имеющихся у пользователя продуктов",
+  "icons": [
+    {
+      "src": "assets/svg/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/svg/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/svg/logo.png",
+      "sizes": "1024x1024",
+      "type": "image/png"
+    }
+  ]
+}

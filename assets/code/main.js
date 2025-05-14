@@ -1,7 +1,7 @@
 import {getAllProducts} from './myproducts.js';
 import {getAllergens} from './profile.js';
-import {getAuth, onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js';
-import {app, auth} from "./checkAuth.js";
+import {onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js';
+import {auth} from "./checkAuth.js";
 
 const sortButton = document.getElementById('sortButton');
 const sortMenu = document.getElementById('sortMenu');
@@ -17,6 +17,12 @@ let isChecked = document.getElementById('add-products').checked;
 let sortBy = document.getElementsByClassName('sort-option active')[0].getAttribute('data-sort');
 const token = getCookie("firebase_token");
 export const apiUrl = 'http://158.160.94.254:5252';
+
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', async () => {
+        await navigator.serviceWorker.register('/assets/code/service-worker.js');
+    });
+}
 
 function saveRecipesToCache(key, data) {
     sessionStorage.setItem(key, JSON.stringify(data));
@@ -92,7 +98,6 @@ async function getShortRecipes(isPurchase, sortBy, page = 1) {
         const cacheKey = getCacheKey(isPurchase, sortBy, page, ingredientsToSend, allergensToSend);
         const cachedData = getRecipesFromCache(cacheKey);
         if (cachedData) {
-            console.log("Использую кэшированные рецепты");
             return cachedData;
         }
 
@@ -131,7 +136,6 @@ async function getShortRecipes(isPurchase, sortBy, page = 1) {
 function createRecipeCards(recipesJson) {
     if (!recipesJson || typeof recipesJson !== 'object') return;
     if (Object.keys(recipesJson).length === 0) {
-        console.log(recipesJson);
         const recipeCardsContainer = document.querySelectorAll('.recipe-cards')[0];
         recipeCardsContainer.innerHTML = '<p>Рецептов не найдено :(<br>Добавьте побольше продуктов и попробуйте ещё раз</p>';
         console.warn("Нет данных для создания карточек рецептов.");
@@ -178,7 +182,6 @@ function createRecipeCards(recipesJson) {
                 recipeCardContainer.className = 'recipe-card-container';
                 recipeCardContainer.onclick = function () {
                     location.href = `recipe.html?id=${recipe.id}`;
-                    console.log(`Переход на страницу рецепта: ${recipe.title}`);
                 }
 
                 recipeCardInner.style.background = `linear-gradient(90deg, rgba(230, 230, 230, 0.6) 0%, rgba(230, 230, 230, 0.6) 50%, rgba(230, 230, 230, 0.6) 100%), url('${recipe.image}')`;
@@ -237,9 +240,6 @@ options.forEach(option => {
 
         isEnd = false;
         const recipes = await getShortRecipes(isChecked, sortBy);
-        if (!recipes) {
-            console.log("Не удалось получить рецепты после изменения сортировки.");
-        }
         recipeCardsContainer.innerHTML = '';
         createRecipeCards(recipes);
     });
@@ -263,9 +263,6 @@ document.getElementById('add-products').addEventListener('change', async (e) => 
     const recipes = await getShortRecipes(isChecked, sortBy);
     recipeCardsContainer.innerHTML = '';
     createRecipeCards(recipes);
-    if (!recipes) {
-        console.log("Не удалось получить рецепты после изменения чекбокса.");
-    }
 });
 
 onAuthStateChanged(auth, async (user) => {
@@ -280,11 +277,7 @@ onAuthStateChanged(auth, async (user) => {
         isEnd = false;
         recipeCardsContainer.innerHTML = '';
         createRecipeCards(recipes);
-        if (!recipes) {
-            console.log("Не удалось получить рецепты после успешной авторизации.");
-        }
     } else {
-        console.log('Пользователь не авторизован');
         const recipeCardsContainer = document.querySelectorAll('.recipe-cards')[0];
         if (recipeCardsContainer) {
             recipeCardsContainer.innerHTML = '';
@@ -302,11 +295,8 @@ window.addEventListener('scroll', async () => {
             isEnd = true;
             return;
         }
-        console.log(recipes);
         if (Object.keys(recipes).length > 0)
             createRecipeCards(recipes);
-        else
-            console.log("Не удалось получить рецепты после скролла");
     }
 });
 
