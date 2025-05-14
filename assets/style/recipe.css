@@ -162,6 +162,54 @@ main {
     font-size: 17px;
 }
 
+.skeleton {
+    background: linear-gradient(90deg, #e0e0e0 25%, #e9e9e9 50%, #e0e0e0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 2.5s infinite;
+    border-radius: 6px;
+    min-height: 20px;
+}
+
+.recipe-image.skeleton {
+    width: 100%;
+    height: 200px;
+}
+
+.recipe-title.skeleton {
+    width: 60%;
+    height: 32px;
+    margin: 10px 0;
+    align-self: center;
+}
+
+.time.skeleton {
+    width: 40%;
+    height: 20px;
+    margin-bottom: 10px;
+    align-self: center;
+}
+
+.skeleton-block {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.recipe-item.skeleton {
+    width: 100%;
+    height: 40px;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
 /* Styles for screens with a maximum width of 768px (e.g., tablets and smaller desktops) */
 @media (max-width: 768px) {
     main {

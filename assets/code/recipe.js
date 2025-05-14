@@ -219,6 +219,61 @@ async function printRecipe(recipeJson) {
     container.appendChild(recipeContent);
 }
 
+function showRecipeSkeleton() {
+    const container = document.querySelector('.recipe-container');
+    container.innerHTML = '';
+
+    // Скелетон заголовка и изображения
+    const recipeHeader = document.createElement('div');
+    recipeHeader.classList.add('recipe-header');
+
+    const imageSkeleton = document.createElement('div');
+    imageSkeleton.classList.add('skeleton', 'recipe-image');
+    recipeHeader.appendChild(imageSkeleton);
+
+    // Скелетон основного контента
+    const recipeContent = document.createElement('div');
+    recipeContent.classList.add('recipe-content');
+
+    const titleSkeleton = document.createElement('div');
+    titleSkeleton.classList.add('skeleton', 'recipe-title');
+    recipeContent.appendChild(titleSkeleton);
+
+    const timeSkeleton = document.createElement('div');
+    timeSkeleton.classList.add('skeleton', 'time');
+    recipeContent.appendChild(timeSkeleton);
+
+    const energySkeleton = document.createElement('div');
+    energySkeleton.classList.add('skeleton-block');
+    for (let i = 0; i < 4; i++) {
+        const item = document.createElement('div');
+        item.classList.add('skeleton', 'recipe-item');
+        energySkeleton.appendChild(item);
+    }
+    recipeContent.appendChild(energySkeleton);
+
+    const ingredientsSkeleton = document.createElement('div');
+    ingredientsSkeleton.classList.add('skeleton-block');
+    for (let i = 0; i < 5; i++) {
+        const item = document.createElement('div');
+        item.classList.add('skeleton', 'recipe-item');
+        ingredientsSkeleton.appendChild(item);
+    }
+    recipeContent.appendChild(ingredientsSkeleton);
+
+    const directionsSkeleton = document.createElement('div');
+    directionsSkeleton.classList.add('skeleton-block');
+    for (let i = 0; i < 3; i++) {
+        const item = document.createElement('div');
+        item.classList.add('skeleton', 'recipe-item');
+        directionsSkeleton.appendChild(item);
+    }
+    recipeContent.appendChild(directionsSkeleton);
+
+    container.appendChild(recipeHeader);
+    container.appendChild(recipeContent);
+}
+
 async function saveRecipeDB(title) {
     const userDocRef = doc(db, "users", auth.currentUser.uid);
     await updateDoc(userDocRef, {
@@ -239,13 +294,15 @@ async function getCookedRecipes() {
 
 onAuthStateChanged(auth, async (user) => {
     if (user) {
+        const recipeContainer = document.querySelectorAll('.recipe-container')[0];
+        showRecipeSkeleton();
         const recipe = await getRecipe();
         console.log(recipe);
-        const recipeContainer = document.querySelectorAll('.recipe-container')[0];
+
         if (recipeContainer) {
             recipeContainer.innerHTML = '';
         }
-        printRecipe(recipe);
+        await printRecipe(recipe);
     } else {
         console.log('Пользователь не авторизован');
         const recipeCardsContainer = document.querySelectorAll('.recipe-container')[0];
