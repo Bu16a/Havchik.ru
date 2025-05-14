@@ -8,7 +8,21 @@ const url = new URL(window.location.href);
 const params = new URLSearchParams(url.search);
 const recipeId = Number(params.get('id'));
 
+function saveRecipeToCache(key, data) {
+    sessionStorage.setItem(key, JSON.stringify(data));
+}
+
+function getRecipeFromCache(key) {
+    const raw = sessionStorage.getItem(key);
+    return raw ? JSON.parse(raw) : null;
+}
+
 async function getRecipe() {
+    const cachedData = getRecipeFromCache(recipeId);
+    if (cachedData) {
+        return cachedData;
+    }
+
     try {
         const response = await fetch(`${apiUrl}/searchRecipebyid/data`, {
             method: 'POST',
@@ -22,7 +36,9 @@ async function getRecipe() {
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
-        return await response.json();
+        const recipe = await response.json();
+        saveRecipeToCache(recipeId, recipe);
+        return recipe;
 
     } catch (error) {
         console.error(error);
