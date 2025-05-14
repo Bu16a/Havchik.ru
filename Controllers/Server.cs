@@ -428,6 +428,13 @@ class SimpleServer
                 SendResponse(response, "Рецепт не найден.", HttpStatusCode.NotFound);
                 return;
             }
+            
+            if (recipesData.Count == 1 && recipesData[0]["image"] == null)
+            {
+                var searchQuery = $"{recipesData[0]["title"]} recipe";
+                var imageUrl = await _googleImageSearchHelper.GetFirstImageUrlAsync(searchQuery);
+                recipesData[0]["image"] = imageUrl;
+            }
 
             var recipe = recipesData.First();
             SendResponse(response, JsonConvert.SerializeObject(recipe, Formatting.Indented),
@@ -540,21 +547,15 @@ class SimpleServer
         List<Dictionary<string, object>> recipesData)
     {
         var recipesResult = new Dictionary<string, Dictionary<string, object>>();
-        var keysToTranslate = new HashSet<string>();
-        // var keysToTranslate = new HashSet<string> { "title", "ingredients", "directions", "source", "ner_ingredients" };
-
-        int recipeIndex = 1;
+        var recipeIndex = 1;
         foreach (var recipeData in recipesData)
         {
-            // var translationTasks = recipeData.Keys
-            //     .Where(key => keysToTranslate.Contains(key) && recipeData[key] != null)
-            //     .Select(async key =>
-            //     {
-            //         recipeData[key] = await _translator.TranslateValueAsync(recipeData[key], "en", "ru");
-            //     });
-            //
-            // await Task.WhenAll(translationTasks);
-
+            if (recipeData["image"] == null)
+            {
+                var searchQuery = $"{recipeData["title"]} recipe";
+                var imageUrl = await _googleImageSearchHelper.GetFirstImageUrlAsync(searchQuery);
+                recipeData["image"] = imageUrl;
+            }
             recipesResult[$"recipe_{recipeIndex++}"] = recipeData;
         }
 
@@ -566,10 +567,7 @@ class SimpleServer
         List<Dictionary<string, object>> recipesData, HttpListenerResponse response)
     {
         var recipesResult = new Dictionary<string, Dictionary<string, object>>();
-        // var keysToTranslate = new HashSet<string>();
         var keysToTranslate = new HashSet<string> { "title", "ingredients", "directions", "source", "ner_ingredients" };
-        // var apiResult = await _geminiApi.ProcessGeminiRequest($"Переведи данный текст в том же формате в котором он тебе поступил {recipesResult}", response);
-
         var dataForGemini = new Dictionary<string, Dictionary<string, object>>();
         for (int i = 0; i < recipesData.Count; i++)
         {
