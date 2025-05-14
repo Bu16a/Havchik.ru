@@ -10,13 +10,52 @@ const options = document.querySelectorAll('.sort-option');
 const sortIcon = document.getElementById('sortIcon');
 let isLoading = false;
 let page = 1;
+let lastFetchController = null;
 let isChecked = document.getElementById('add-products').checked;
 let sortBy = document.getElementsByClassName('sort-option active')[0].getAttribute('data-sort');
 const token = getCookie("firebase_token");
 export const apiUrl = 'http://158.160.94.254:5252';
 
-window.addEventListener("pageshow", function (event) {
+function saveRecipesToCache(key, data) {
+    sessionStorage.setItem(key, JSON.stringify(data));
+}
+
+function getRecipesFromCache(key) {
+    const raw = sessionStorage.getItem(key);
+    return raw ? JSON.parse(raw) : null;
+}
+
+function getCacheKey(isPurchase, sortBy, page, ingredients, allergens) {
+    const ingredientsHash = ingredients.sort().join(',');
+    const allergensHash = allergens.sort().join(',');
+    return `recipes_${isPurchase}_${sortBy}_${page}_${ingredientsHash}_${allergensHash}`;
+}
+
+window.addEventListener("pageshow", async function (event) {
     isChecked = document.getElementById('add-products').checked;
+    if (event.persisted) {
+        const products = Object.keys(await getAllProducts());
+        const ingredientsToSend = Array.isArray(products) && products.length > 0 ? products : [];
+        const allergensToSend = [];
+        const allergens = await getAllergens();
+        allergens.forEach((product) => {
+            allergensToSend.push(product.name);
+        });
+
+        const cacheKey = getCacheKey(isChecked, sortBy, 1, ingredientsToSend, allergensToSend);
+        const cached = getRecipesFromCache(cacheKey);
+
+        if (cached) {
+            const recipeCardsContainer = document.querySelectorAll('.recipe-cards')[0];
+            recipeCardsContainer.innerHTML = '';
+            createRecipeCards(cached);
+        } else {
+            const recipes = await getShortRecipes(isChecked, sortBy);
+            const recipeCardsContainer = document.querySelectorAll('.recipe-cards')[0];
+            recipeCardsContainer.innerHTML = '';
+            createRecipeCards(recipes);
+        }
+    }
 });
 
 
@@ -30,6 +69,12 @@ function getCookie(name) {
 }
 
 async function getShortRecipes(isPurchase, sortBy, page = 1) {
+    if (lastFetchController) {
+        lastFetchController.abort();
+    }
+    lastFetchController = new AbortController();
+    const { signal } = lastFetchController;
+
     try {
         isLoading = true;
         const products = Object.keys(await getAllProducts());
@@ -40,7 +85,12 @@ async function getShortRecipes(isPurchase, sortBy, page = 1) {
             allergensToSend.push(product.name);
         });
 
-        console.log(ingredientsToSend, allergensToSend, isPurchase, sortBy, page);
+        const cacheKey = getCacheKey(isPurchase, sortBy, page, ingredientsToSend, allergensToSend);
+        const cachedData = getRecipesFromCache(cacheKey);
+        if (cachedData) {
+            console.log("Использую кэшированные рецепты");
+            return cachedData;
+        }
 
         const response = await fetch(`${apiUrl}/getRecipesBuyOrNo/data`, {
             method: 'POST',
@@ -54,15 +104,17 @@ async function getShortRecipes(isPurchase, sortBy, page = 1) {
                 purchase: isPurchase,
                 sortBy: sortBy,
                 page: page
-            })
+            }),
+            signal
         });
-
-        console.log(response);
 
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
-        return await response.json();
+
+        const result = await response.json();
+        saveRecipesToCache(cacheKey, result);
+        return result;
 
     } catch (error) {
         return null;
@@ -73,7 +125,8 @@ async function getShortRecipes(isPurchase, sortBy, page = 1) {
 
 
 function createRecipeCards(recipesJson) {
-    if (!recipesJson || typeof recipesJson !== 'object' || Object.keys(recipesJson).length === 0) {
+    if (!recipesJson || typeof recipesJson !== 'object') return;
+    if (Object.keys(recipesJson).length === 0) {
         console.log(recipesJson);
         const recipeCardsContainer = document.querySelectorAll('.recipe-cards')[0];
         recipeCardsContainer.innerHTML = '<p>Рецептов не найдено :(<br>Добавьте побольше продуктов и попробуйте ещё раз</p>';
