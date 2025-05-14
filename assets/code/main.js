@@ -8,6 +8,8 @@ const sortMenu = document.getElementById('sortMenu');
 const sortLabel = document.getElementById('sortLabel');
 const options = document.querySelectorAll('.sort-option');
 const sortIcon = document.getElementById('sortIcon');
+const loader = document.getElementById('loader');
+let isEnd = false;
 let isLoading = false;
 let page = 1;
 let lastFetchController = null;
@@ -33,6 +35,7 @@ function getCacheKey(isPurchase, sortBy, page, ingredients, allergens) {
 
 window.addEventListener("pageshow", async function (event) {
     isChecked = document.getElementById('add-products').checked;
+    isEnd = false;
     if (event.persisted) {
         const products = Object.keys(await getAllProducts());
         const ingredientsToSend = Array.isArray(products) && products.length > 0 ? products : [];
@@ -50,6 +53,7 @@ window.addEventListener("pageshow", async function (event) {
             recipeCardsContainer.innerHTML = '';
             createRecipeCards(cached);
         } else {
+            showSkeletons();
             const recipes = await getShortRecipes(isChecked, sortBy);
             const recipeCardsContainer = document.querySelectorAll('.recipe-cards')[0];
             recipeCardsContainer.innerHTML = '';
@@ -193,6 +197,16 @@ function createRecipeCards(recipesJson) {
     });
 }
 
+function showSkeletons(count = 5) {
+    const container = document.querySelector('.recipe-cards');
+    container.innerHTML = '';
+    for (let i = 0; i < count; i++) {
+        const skeleton = document.createElement('div');
+        skeleton.classList.add('skeleton-card');
+        container.appendChild(skeleton);
+    }
+}
+
 
 sortButton.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -215,16 +229,18 @@ options.forEach(option => {
         const recipeCardsContainer = document.querySelectorAll('.recipe-cards')[0];
         if (recipeCardsContainer) {
             page = 1;
-            recipeCardsContainer.innerHTML = '';
+            showSkeletons();
         }
 
         sortMenu.classList.remove('open');
         sortIcon.classList.remove('rotated');
 
+        isEnd = false;
         const recipes = await getShortRecipes(isChecked, sortBy);
         if (!recipes) {
             console.log("Не удалось получить рецепты после изменения сортировки.");
         }
+        recipeCardsContainer.innerHTML = '';
         createRecipeCards(recipes);
     });
 });
@@ -241,10 +257,11 @@ document.getElementById('add-products').addEventListener('change', async (e) => 
     const recipeCardsContainer = document.querySelectorAll('.recipe-cards')[0];
     if (recipeCardsContainer) {
         page = 1;
-        recipeCardsContainer.innerHTML = '';
+        showSkeletons();
     }
-
+    isEnd = false;
     const recipes = await getShortRecipes(isChecked, sortBy);
+    recipeCardsContainer.innerHTML = '';
     createRecipeCards(recipes);
     if (!recipes) {
         console.log("Не удалось получить рецепты после изменения чекбокса.");
@@ -253,13 +270,15 @@ document.getElementById('add-products').addEventListener('change', async (e) => 
 
 onAuthStateChanged(auth, async (user) => {
     if (user) {
+        showSkeletons();
         const recipes = await getShortRecipes(isChecked, sortBy);
 
         const recipeCardsContainer = document.querySelectorAll('.recipe-cards')[0];
         if (recipeCardsContainer) {
-            recipeCardsContainer.innerHTML = '';
             page = 1;
         }
+        isEnd = false;
+        recipeCardsContainer.innerHTML = '';
         createRecipeCards(recipes);
         if (!recipes) {
             console.log("Не удалось получить рецепты после успешной авторизации.");
@@ -275,8 +294,14 @@ onAuthStateChanged(auth, async (user) => {
 
 window.addEventListener('scroll', async () => {
     const {scrollTop, scrollHeight, clientHeight} = document.documentElement;
-    if (scrollTop + clientHeight >= scrollHeight - 100 && !isLoading) {
+    if (scrollTop + clientHeight >= scrollHeight - 100 && !isLoading && !isEnd) {
+        loader.style.display = 'flex';
         const recipes = await getShortRecipes(isChecked, sortBy, ++page);
+        loader.style.display = 'none';
+        if (!recipes || Object.keys(recipes).length === 0) {
+            isEnd = true;
+            return;
+        }
         console.log(recipes);
         if (Object.keys(recipes).length > 0)
             createRecipeCards(recipes);
