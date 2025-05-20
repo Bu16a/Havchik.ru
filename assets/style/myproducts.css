@@ -31,7 +31,7 @@ main {
     margin-bottom: 12px;
 }
 
-/* --- Стили формы добавления продукта --- */
+
 .add-product-form {
     background-color: #f9f9f9;
     border: 1px solid #eee;
@@ -55,7 +55,7 @@ main {
 
 .form-field {
     display: flex;
-    flex-direction: column; /* Метка над полем */
+    flex-direction: column;
     gap: 5px;
 }
 
@@ -74,7 +74,7 @@ main {
     font-size: 17px;
     font-family: 'Montserrat', sans-serif;
     box-sizing: border-box;
-    width: 100%; /* Занимают всю ширину */
+    width: 100%;
 }
 
 .form-field input:focus,
@@ -86,37 +86,37 @@ main {
 
 
 .quantity-field {
-    flex-direction: row; /* Поля количества и единиц в строку */
-    align-items: center; /* Выравниваем по центру */
+    flex-direction: row;
+    align-items: center;
     gap: 12px;
 }
 
 .quantity-field label {
-    flex-shrink: 0; /* Чтобы метка не сжималась */
-    margin-bottom: 0; /* Убираем нижний отступ у метки */
+    flex-shrink: 0;
+    margin-bottom: 0;
 }
 
 
 .quantity-field input[type="number"] {
-    width: 60%; /* Задаем ширину полю числа */
-    flex-grow: 1; /* Позволяем расти */
+    width: 60%;
+    flex-grow: 1;
 }
 
 .quantity-field select {
-    width: auto; /* Автоширина для селекта */
-    flex-grow: 0; /* Не растягиваем селект */
-    min-width: 70px; /* Минимальная ширина */
+    width: auto;
+    flex-grow: 0;
+    min-width: 70px;
 }
 
 .form-actions {
     display: flex;
-    justify-content: space-around; /* Кнопки по краям */
+    justify-content: space-around;
     gap: 15px;
-    margin-top: 10px; /* Отступ сверху */
+    margin-top: 10px;
 }
 
 .form-btn {
-    flex-grow: 1; /* Кнопки растягиваются */
+    flex-grow: 1;
     padding: 10px 15px;
     border: none;
     border-radius: 8px;
@@ -129,7 +129,7 @@ main {
 }
 
 .save-new-btn {
-    background-color: #4CAF50; /* Зеленый */
+    background-color: #4CAF50;
     color: white;
 }
 
@@ -184,7 +184,6 @@ main {
 }
 
 
-/* --- Стили списка продуктов (адаптированы) --- */
 .product-list {
     width: 100%;
     padding: 0;
@@ -230,8 +229,8 @@ main {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    display: block; /* Убедитесь, что это блочный или inline-block элемент */
-    max-width: 100%; /* Убедитесь, что ширина ограничена родительским контейнером */
+    display: block;
+    max-width: 100%;
 }
 
 .product-quantity-display {
@@ -239,19 +238,19 @@ main {
     color: #777777;
 }
 
-/* Поля для редактирования */
+
 .product-name-input {
     display: block;
     font-family: 'Montserrat', sans-serif;
     border: 1px solid #cccccc;
     border-radius: 5px;
     padding: 4px 8px;
-    font-size: 17px; /* Крупнее для имени */
+    font-size: 17px;
     font-weight: 600;
     box-sizing: border-box;
     width: 100%;
     transition: opacity 0.3s ease, height 0.3s ease;
-    opacity: 1; /* По умолчанию видимы, будут скрываться */
+    opacity: 1;
     height: auto;
     overflow: visible;
 }
@@ -262,7 +261,7 @@ main {
     align-items: center;
     width: 100%;
     transition: opacity 0.3s ease, height 0.3s ease;
-    opacity: 1; /* По умолчанию видимы, будут скрываться */
+    opacity: 1;
     height: auto;
     overflow: visible;
 }
@@ -274,7 +273,7 @@ main {
     padding: 4px 8px;
     font-size: 17px;
     box-sizing: border-box;
-    width: 60%; /* Ширина поля числа */
+    width: 60%;
     flex-grow: 1;
 }
 
@@ -304,7 +303,7 @@ main {
     border: none;
     cursor: pointer;
     line-height: 0;
-    transition: opacity 0.3s ease, width 0.3s ease, margin 0.3s ease; /* Добавляем width и margin */
+    transition: opacity 0.3s ease, width 0.3s ease, margin 0.3s ease;
     opacity: 1;
     width: auto;
     margin: 0;
@@ -329,32 +328,32 @@ main {
 }
 
 .product-item:not(.edit-mode) .save-btn {
-    display: none; /* Проще скрыть кнопку сохранения */
+    display: none;
 }
 
 .product-item:not(.edit-mode) .cancel-btn {
-    display: none; /* Проще скрыть кнопку сохранения */
+    display: none;
 }
 
 .product-item:not(.edit-mode) .edit-btn {
-    display: inline-block; /* Показываем кнопку редактирования */
+    display: inline-block;
 }
 
-/* --- Стили для режима редактирования --- */
+
 .product-item.edit-mode {
-    background-color: #cafac5; /* Подсветка */
+    background-color: #cafac5;
 }
 
-/* Скрываем обычные span'ы в режиме редактирования */
+
 .product-item.edit-mode .product-name,
 .product-item.edit-mode .product-quantity-display {
     display: none;
 }
 
-/* Показываем поля ввода в режиме редактирования */
+
 .product-item.edit-mode .product-name-input,
 .product-item.edit-mode .edit-quantity-controls {
-    display: flex; /* или block для input имени */
+    display: flex;
 }
 
 .product-item.edit-mode .product-name-input {
@@ -409,22 +408,23 @@ main {
 .edit-quantity-controls[hidden] {
     display: none;
 }
-/* Styles for screens with a maximum width of 768px (e.g., tablets and smaller desktops) */
+
 @media (max-width: 768px) {
     main {
-        min-height: calc(100vh - 135px); /* Adjust min-height */
+        min-height: calc(100vh - 135px);
     }
+
     .fridge-container {
-        padding: 25px 20px; /* Adjusted padding */
-        gap: 12px; /* Adjusted gap */
+        padding: 25px 20px;
+        gap: 12px;
     }
 
     .fridge-header h1 {
-        font-size: 26px; /* Adjusted header font size */
+        font-size: 26px;
         margin-bottom: 12px;
     }
 
-    /* --- Стили формы добавления продукта --- */
+
     .add-product-form {
         padding: 20px;
     }
@@ -504,7 +504,7 @@ main {
         font-size: 15px;
     }
 
-    /* Настройки для режима редактирования элемента списка */
+
     .product-item.edit-mode .product-name-input {
         font-size: 15px;
         padding: 4px 8px;
@@ -546,28 +546,29 @@ main {
     }
 }
 
-/* Styles for screens with a maximum width of 480px (e.g., larger smartphones) */
+
 @media (max-width: 480px) {
     main {
-        min-height: calc(100vh - 130px); /* Adjust min-height */
+        min-height: calc(100vh - 130px);
     }
+
     .fridge-container {
-        padding: 20px 15px; /* Adjusted padding */
-        gap: 10px; /* Adjusted gap */
+        padding: 20px 15px;
+        gap: 10px;
     }
 
     .fridge-header h1 {
-        font-size: 24px; /* Adjusted header font size */
+        font-size: 24px;
         margin-bottom: 10px;
     }
 
-    /* --- Стили формы добавления продукта --- */
+
     .add-product-form {
-        padding: 16px; /* Adjusted padding */
+        padding: 16px;
     }
 
     .add-product-form h2 {
-        font-size: 15px; /* Adjusted form header font size */
+        font-size: 15px;
     }
 
     .form-field {
@@ -596,7 +597,7 @@ main {
 
     .quantity-field select {
         width: auto;
-        min-width: 60px; /* Slightly reduced min-width */
+        min-width: 60px;
     }
 
     .form-actions {
@@ -620,7 +621,7 @@ main {
         font-size: 13px;
     }
 
-    /* --- Стили списка продуктов --- */
+
     .product-list {
         gap: 10px;
     }
@@ -644,7 +645,7 @@ main {
         font-size: 13px;
     }
 
-    /* Настройки для режима редактирования элемента списка */
+
     .product-item.edit-mode .product-name-input {
         font-size: 13px;
         padding: 4px 7px;
@@ -657,13 +658,13 @@ main {
     .product-quantity-input {
         font-size: 13px;
         padding: 4px 7px;
-        width: 60%; /* Adjusted width */
+        width: 60%;
     }
 
     .product-unit-select {
         font-size: 13px;
         padding: 4px 7px;
-        min-width: 55px; /* Slightly reduced min-width */
+        min-width: 55px;
     }
 
     .product-actions {
@@ -686,14 +687,14 @@ main {
     }
 }
 
-/* Existing styles for very narrow screens (up to 376px) */
+
 @media (max-width: 376px) {
     main {
-        min-height: calc(100vh - 120px); /* Example adjustment */
+        min-height: calc(100vh - 120px);
     }
 
     .fridge-container {
-        padding: 10px; /* Еще уменьшаем отступы */
+        padding: 10px;
         gap: 6px;
     }
 
@@ -702,13 +703,13 @@ main {
         margin-bottom: 6px;
     }
 
-    /* --- Стили формы добавления продукта --- */
+
     .add-product-form {
-        padding: 14px; /* Уменьшаем padding формы */
+        padding: 14px;
     }
 
     .add-product-form h2 {
-        font-size: 13px; /* Adjusted form header font size */
+        font-size: 13px;
         margin-bottom: 6px;
     }
 
@@ -717,28 +718,28 @@ main {
     }
 
     .form-field label {
-        font-size: 11px; /* Adjusted label font size */
+        font-size: 11px;
     }
 
     .form-field input[type="text"],
     .form-field input[type="number"],
     .form-field select {
-        padding: 6px 8px; /* Adjusted input padding */
-        font-size: 11px; /* Adjusted input font size */
+        padding: 6px 8px;
+        font-size: 11px;
     }
 
-    /* Настройки для поля количества */
+
     .quantity-field {
         gap: 5px;
     }
 
     .quantity-field input[type="number"] {
-        width: 100%; /* Make number input take full width */
+        width: 100%;
     }
 
     .quantity-field select {
-        width: 100%; /* Make select take full width */
-        min-width: unset; /* Remove min-width */
+        width: 100%;
+        min-width: unset;
     }
 
     .form-actions {
@@ -747,87 +748,87 @@ main {
     }
 
     .form-btn {
-        padding: 8px 10px; /* Adjusted padding */
-        font-size: 11px; /* Adjusted font size */
-        width: 100%; /* Make buttons take full width */
+        padding: 8px 10px;
+        font-size: 11px;
+        width: 100%;
     }
 
-    /* --- Стили кнопок действий (добавить продукт) --- */
+
     .actions {
         gap: 6px;
-        margin-bottom: 8px; /* Adjusted margin */
+        margin-bottom: 8px;
     }
 
     .action-btn {
-        padding: 8px 10px; /* Adjusted padding */
-        font-size: 11px; /* Adjusted font size */
-        width: 100%; /* Make button take full width */
+        padding: 8px 10px;
+        font-size: 11px;
+        width: 100%;
     }
 
-    /* --- Стили списка продуктов --- */
+
     .product-list {
         gap: 8px;
     }
 
     .product-item {
-        padding: 10px 12px; /* Adjusted padding */
-        gap: 8px; /* Adjusted gap */
+        padding: 10px 12px;
+        gap: 8px;
     }
 
     .product-info {
-        margin-right: 0; /* Remove right margin when stacked */
-        width: 100%; /* Ensure product info takes full width */
+        margin-right: 0;
+        width: 100%;
     }
 
     .product-name {
-        font-size: 13px; /* Adjusted font size */
+        font-size: 13px;
     }
 
     .product-quantity-display {
-        font-size: 11px; /* Adjusted font size */
+        font-size: 11px;
     }
 
     .product-item.edit-mode .product-name-input {
-        font-size: 11px; /* Adjusted font size */
-        padding: 5px 6px; /* Adjusted padding */
+        font-size: 11px;
+        padding: 5px 6px;
     }
 
     .product-item.edit-mode .edit-quantity-controls {
-        gap: 6px; /* Adjusted gap */
+        gap: 6px;
         flex-wrap: wrap;
     }
 
     .product-quantity-input {
-        font-size: 11px; /* Adjusted font size */
+        font-size: 11px;
         width: 40%;
-        padding: 5px 6px; /* Adjusted padding */
+        padding: 5px 6px;
     }
 
     .product-unit-select {
-        font-size: 11px; /* Adjusted font size */
-        padding: 5px 6px; /* Adjusted padding */
+        font-size: 11px;
+        padding: 5px 6px;
         min-width: 50px;
     }
 
     .product-actions {
-        gap: 8px; /* Adjusted gap */
+        gap: 8px;
         width: 20%;
-        justify-content: flex-end; /* Align action buttons to the end */
+        justify-content: flex-end;
     }
 
     .edit-btn img, .save-btn img, .cancel-btn img {
-        width: 16px; /* Adjusted icon size */
-        height: 16px; /* Adjusted icon size */
+        width: 16px;
+        height: 16px;
     }
 
     .delete-btn img {
-        width: 18px; /* Adjusted icon size */
-        height: 18px; /* Adjusted icon size */
+        width: 18px;
+        height: 18px;
     }
 
     .clear-btn {
-        font-size: 11px; /* Adjusted font size */
-        margin-top: 14px; /* Adjusted margin */
+        font-size: 11px;
+        margin-top: 14px;
     }
 }
 

@@ -15,12 +15,13 @@
     margin: 0;
 }
 
-/* Докуп продуктов */
+
 .add-products-checkbox {
     position: relative;
     background: #fff;
     border-radius: 10px;
 }
+
 .add-products-checkbox label {
     display: flex;
     align-items: center;
@@ -49,7 +50,7 @@
     margin: 0;
 }
 
-/* Галочка */
+
 .add-products-checkmark {
     position: absolute;
     left: 24px;
@@ -64,7 +65,7 @@
     opacity: 1;
 }
 
-/* Сортировка */
+
 .sort-wrapper {
     position: relative;
     width: fit-content;
@@ -251,9 +252,9 @@
     }
 
     .generation-properties > div {
-        margin: 0; /* Reset margin */
-        display: flex; /* Ensure child divs are flex containers */
-        justify-content: center; /* Center content within child divs */
+        margin: 0;
+        display: flex;
+        justify-content: center;
     }
 
     .add-products-checkbox {
@@ -261,298 +262,300 @@
     }
 
     .add-products-checkbox label {
-        font-size: 17px; /* Adjust font size */
-        padding: 12px 15px; /* Adjust padding */
-        height: auto; /* Auto height */
+        font-size: 17px;
+        padding: 12px 15px;
+        height: auto;
     }
 
     #add-products {
-        width: 28px; /* Adjust size */
-        height: 28px; /* Adjust size */
+        width: 28px;
+        height: 28px;
     }
 
     .add-products-checkmark {
-        left: 22px; /* Adjust position */
-        width: 14px; /* Adjust size */
-        height: 14px; /* Adjust size */
+        left: 22px;
+        width: 14px;
+        height: 14px;
     }
 
-    /* Сортировка */
+
     .sort-wrapper {
-        width: auto; /* Adjust width */
+        width: auto;
     }
 
     .sort-button {
-        font-size: 17px; /* Adjust font size */
-        padding: 12px 15px; /* Adjust padding */
-        height: auto; /* Auto height */
-        width: auto; /* Adjust width */
+        font-size: 17px;
+        padding: 12px 15px;
+        height: auto;
+        width: auto;
     }
 
     .sort-icon {
-        width: 28px; /* Adjust size */
-        height: 28px; /* Adjust size */
+        width: 28px;
+        height: 28px;
     }
 
     .sort-icon img {
-        width: 18px; /* Adjust size */
-        height: 18px; /* Adjust size */
+        width: 18px;
+        height: 18px;
     }
 
     #sortLabel {
-        font-size: 17px; /* Match button font size */
+        font-size: 17px;
     }
 
     .sort-menu {
-        top: 55px; /* Adjust position below button */
-        width: 100%; /* Make menu take full width of wrapper */
-        max-width: 200px; /* Limit max width */
-        left: 50%; /* Center the menu */
-        transform: translateX(-50%); /* Center the menu */
+        top: 55px;
+        width: 100%;
+        max-width: 200px;
+        left: 50%;
+        transform: translateX(-50%);
     }
 
     .sort-option {
-        padding: 10px 12px; /* Adjust padding */
-        font-size: 15px; /* Adjust font size */
+        padding: 10px 12px;
+        font-size: 15px;
     }
 
 
     .recipes {
-        width: 100%; /* Make width responsive */
-        padding: 1.5em; /* Adjust padding */
-        gap: 0.8em; /* Adjust gap */
-        border-radius: 15px; /* Adjust border-radius */
+        width: 100%;
+        padding: 1.5em;
+        gap: 0.8em;
+        border-radius: 15px;
     }
 
     .container-title h1 {
-        font-size: 26px; /* Adjust title font size */
+        font-size: 26px;
     }
 
     .recipe-cards {
-        padding: 0.8em; /* Adjust padding */
-        gap: 0.8em; /* Adjust gap */
+        padding: 0.8em;
+        gap: 0.8em;
     }
 
     .recipe-card {
-        padding: 0.8em 1em; /* Adjust padding */
-        gap: 0.8em; /* Add space between stacked elements */
+        padding: 0.8em 1em;
+        gap: 0.8em;
     }
 
     .recipe-image {
-        position: static; /* Remove absolute positioning */
-        width: 100%; /* Make image take full width */
-        height: 150px; /* Set a fixed height or use aspect ratio */
-        border-radius: 10px; /* Adjust border-radius */
+        position: static;
+        width: 100%;
+        height: 150px;
+        border-radius: 10px;
     }
 
     .recipe-text {
-        gap: 0.5em; /* Adjust gap */
+        gap: 0.5em;
     }
 
     .recipe-text h2 {
-        font-size: 17px; /* Adjust font size */
+        font-size: 17px;
     }
 
     .recipe-text p {
-        font-size: 15px; /* Adjust font size */
+        font-size: 15px;
     }
 }
 
-/* Styles for screens with a maximum width of 480px (e.g., larger smartphones) */
+
 @media (max-width: 480px) {
     main {
-        padding: 0 10px; /* Further reduce horizontal padding */
+        padding: 0 10px;
     }
+
     .generation-properties {
-        gap: 12px; /* Further reduce gap */
+        gap: 12px;
         border-radius: 12px;
     }
 
     .add-products-checkbox label {
-        font-size: 15px; /* Further reduce font size */
-        padding: 10px 12px; /* Further reduce padding */
+        font-size: 15px;
+        padding: 10px 12px;
     }
 
     #add-products {
-        width: 22px; /* Further reduce size */
-        height: 22px; /* Further reduce size */
+        width: 22px;
+        height: 22px;
     }
 
     .add-products-checkmark {
-        left: 17px; /* Adjust position */
-        width: 11px; /* Adjust size */
-        height: 11px; /* Adjust size */
+        left: 17px;
+        width: 11px;
+        height: 11px;
     }
 
-    /* Сортировка */
+
     .sort-button {
-        font-size: 15px; /* Further reduce font size */
-        padding: 10px 12px; /* Further reduce padding */
+        font-size: 15px;
+        padding: 10px 12px;
     }
 
     .sort-icon {
-        width: 22px; /* Further reduce size */
-        height: 22px; /* Further reduce size */
+        width: 22px;
+        height: 22px;
     }
 
     .sort-icon img {
-        width: 12px; /* Further reduce size */
-        height: 12px; /* Further reduce size */
+        width: 12px;
+        height: 12px;
     }
 
     #sortLabel {
-        font-size: 15px; /* Match button font size */
+        font-size: 15px;
     }
 
     .sort-menu {
-        top: 50px; /* Adjust position */
-        max-width: 180px; /* Further limit max width */
+        top: 50px;
+        max-width: 180px;
     }
 
     .sort-option {
-        padding: 8px 10px; /* Further reduce padding */
-        font-size: 13px; /* Further reduce font size */
+        padding: 8px 10px;
+        font-size: 13px;
     }
 
 
     .recipes {
-        width: 100%; /* Make width responsive */
-        padding: 1em; /* Further reduce padding */
-        gap: 0.6em; /* Further reduce gap */
+        width: 100%;
+        padding: 1em;
+        gap: 0.6em;
         border-radius: 12px;
     }
 
     .container-title h1 {
-        font-size: 24px; /* Adjust title font size */
+        font-size: 24px;
     }
 
 
     .recipe-cards {
-        padding: 0.6em; /* Further reduce padding */
-        gap: 0.6em; /* Further reduce gap */
+        padding: 0.6em;
+        gap: 0.6em;
     }
 
     .recipe-card {
-        padding: 0.6em 0.8em; /* Further reduce padding */
-        gap: 0.6em; /* Further reduce gap */
+        padding: 0.6em 0.8em;
+        gap: 0.6em;
     }
 
     .recipe-image {
-        height: 120px; /* Adjust height */
-        border-radius: 8px; /* Adjust border-radius */
+        height: 120px;
+        border-radius: 8px;
         margin-bottom: 0.4em;
     }
 
     .recipe-text {
-        gap: 0.4em; /* Further reduce gap */
+        gap: 0.4em;
     }
 
     .recipe-text h2 {
-        font-size: 15px; /* Further reduce font size */
+        font-size: 15px;
     }
 
     .recipe-text p {
-        font-size: 13px; /* Further reduce font size */
+        font-size: 13px;
     }
 }
 
-/* Styles for screens with a maximum width of 376px (e.g., smaller smartphones) */
+
 @media (max-width: 376px) {
     main {
-        padding: 0 8px; /* Further reduce horizontal padding */
-        min-height: calc(100vh - 80px); /* Example adjustment */
+        padding: 0 8px;
+        min-height: calc(100vh - 80px);
     }
+
     .generation-properties {
-        gap: 10px; /* Further reduce gap */
+        gap: 10px;
         border-radius: 10px;
     }
 
-    /* Докуп продуктов */
+
     .add-products-checkbox label {
-        font-size: 13px; /* Further reduce font size */
-        padding: 8px 10px; /* Further reduce padding */
+        font-size: 13px;
+        padding: 8px 10px;
         gap: 6px;
     }
 
     #add-products {
-        width: 18px; /* Further reduce size */
-        height: 18px; /* Further reduce size */
+        width: 18px;
+        height: 18px;
     }
 
     .add-products-checkmark {
-        left: 14px; /* Adjust position */
-        width: 9px; /* Adjust size */
-        height: 9px; /* Adjust size */
+        left: 14px;
+        width: 9px;
+        height: 9px;
     }
 
-    /* Сортировка */
+
     .sort-button {
-        font-size: 13px; /* Further reduce font size */
-        padding: 8px 10px; /* Further reduce padding */
+        font-size: 13px;
+        padding: 8px 10px;
         gap: 6px;
     }
 
     .sort-icon {
-        width: 18px; /* Further reduce size */
-        height: 18px; /* Further reduce size */
+        width: 18px;
+        height: 18px;
     }
 
     .sort-icon img {
-        width: 10px; /* Further reduce size */
-        height: 10px; /* Further reduce size */
+        width: 10px;
+        height: 10px;
     }
 
     #sortLabel {
-        font-size: 13px; /* Match button font size */
+        font-size: 13px;
     }
 
     .sort-menu {
-        top: 45px; /* Adjust position */
-        max-width: 160px; /* Further limit max width */
+        top: 45px;
+        max-width: 160px;
     }
 
     .sort-option {
-        padding: 6px 8px; /* Further reduce padding */
-        font-size: 11px; /* Further reduce font size */
+        padding: 6px 8px;
+        font-size: 11px;
     }
 
 
     .recipes {
-        padding: 0.8em; /* Further reduce padding */
-        gap: 0.5em; /* Further reduce gap */
+        padding: 0.8em;
+        gap: 0.5em;
         border-radius: 10px;
     }
 
     .container-title h1 {
-        font-size: 22px; /* Adjust title font size */
+        font-size: 22px;
     }
 
 
     .recipe-cards {
-        padding: 0.5em; /* Further reduce padding */
-        gap: 0.5em; /* Further reduce gap */
+        padding: 0.5em;
+        gap: 0.5em;
     }
 
     .recipe-card {
-        padding: 0.5em 0.6em; /* Further reduce padding */
-        gap: 0.5em; /* Further reduce gap */
+        padding: 0.5em 0.6em;
+        gap: 0.5em;
     }
 
     .recipe-image {
-        height: 100px; /* Adjust height */
-        border-radius: 6px; /* Adjust border-radius */
+        height: 100px;
+        border-radius: 6px;
         margin-bottom: 0.3em;
     }
 
     .recipe-text {
-        gap: 0.3em; /* Further reduce gap */
+        gap: 0.3em;
     }
 
     .recipe-text h2 {
-        font-size: 13px; /* Further reduce font size */
+        font-size: 13px;
     }
 
     .recipe-text p {
-        font-size: 11px; /* Further reduce font size */
+        font-size: 11px;
     }
 }

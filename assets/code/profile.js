@@ -36,7 +36,7 @@ function generateAllergenId() {
 async function saveAllergenDB(allergenName) {
     if (!auth.currentUser) {
         console.error("User not authenticated to save allergen.");
-        alert("Пожалуйста, войдите в систему, чтобы сохранить аллерген.");
+        alert("Пожалуйста, войдите в систему, чтобы сохранить продукт.");
         return;
     }
     const userDocRef = doc(db, "users", auth.currentUser.uid);
@@ -48,7 +48,7 @@ async function saveAllergenDB(allergenName) {
         await loadUserAllergens(); // Refresh the list
     } catch (error) {
         console.error("Error saving allergen:", error);
-        alert("Ошибка при сохранении аллергена.");
+        alert("Ошибка при сохранении продукта.");
     }
 }
 
@@ -73,7 +73,7 @@ export async function getAllergens() {
 async function removeAllergenDB(allergen) {
     if (!auth.currentUser) {
         console.error("User not authenticated to remove allergen.");
-        alert("Пожалуйста, войдите в систему, чтобы удалить аллерген.");
+        alert("Пожалуйста, войдите в систему, чтобы удалить продукт.");
         return;
     }
     const userDocRef = doc(db, "users", auth.currentUser.uid);
@@ -84,7 +84,7 @@ async function removeAllergenDB(allergen) {
         await loadUserAllergens();
     } catch (error) {
         console.error("Error removing allergen:", error);
-        alert("Ошибка при удалении аллергена.");
+        alert("Ошибка при удалении продукта.");
     }
 }
 
@@ -93,7 +93,7 @@ function displayAllergens(allergens) {
     allergenListDiv.innerHTML = '';
 
     if (!allergens || allergens.length === 0) {
-        allergenListDiv.innerHTML = '<p><em>У вас пока нет добавленных аллергенов.</em></p>';
+        allergenListDiv.innerHTML = '<p><em>У вас пока нет добавленных продуктов.</em></p>';
         return;
     }
 
@@ -232,7 +232,7 @@ if (saveNewAllergenBtn) {
             if (showAddAllergenFormBtn) showAddAllergenFormBtn.hidden = false;
             if (newAllergenNameInput) newAllergenNameInput.value = '';
         } else {
-            alert("Название аллергена не может быть пустым.");
+            alert("Название продукта не может быть пустым.");
         }
     });
 }
@@ -245,7 +245,7 @@ onAuthStateChanged(auth, async (user) => {
         if (showCookedRecipesBtn) showCookedRecipesBtn.classList.remove('active');
         await loadUserAllergens();
     } else {
-        if (allergenListDiv) allergenListDiv.innerHTML = '<p><em>Пожалуйста, войдите в систему для просмотра аллергенов.</em></p>';
+        if (allergenListDiv) allergenListDiv.innerHTML = '<p><em>Пожалуйста, войдите в систему для просмотра продуктов.</em></p>';
         if (cookedRecipesListDiv) cookedRecipesListDiv.innerHTML = '<p><em>Пожалуйста, войдите в систему для просмотра приготовленных рецептов.</em></p>';
     }
 });

@@ -1,6 +1,7 @@
 body {
     display: block;
 }
+
 main {
     display: flex;
     flex-wrap: wrap;
@@ -134,23 +135,24 @@ main {
     }
 
     .auth-form h1 {
-        font-size: 22px; /* было 32px */
+        font-size: 22px;
     }
 
     .form-group label {
-        font-size: 17px; /* было 17px */
+        font-size: 17px;
     }
 
     .form-group input {
-        font-size: 17px; /* было 16px */
+        font-size: 17px;
         padding: 0.75rem 1rem;
     }
 
     .submit-btn {
-        font-size: 17px; /* было 16px */
+        font-size: 17px;
         width: 14rem;
         height: 3rem;
     }
+
     #signInBtt, #signUpBtt {
         font-size: 17px;
     }
@@ -182,6 +184,7 @@ main {
         width: 12rem;
         height: 2.75rem;
     }
+
     #signInBtt, #signUpBtt {
         font-size: 15px;
     }
@@ -213,6 +216,7 @@ main {
         width: 10rem;
         height: 2.5rem;
     }
+
     #signInBtt, #signUpBtt {
         font-size: 13px;
     }

@@ -382,7 +382,7 @@ main > form {
         margin-bottom: 20px;
     }
 
-    /* If you have these classes, adjust them too */
+
     .allergen-list, .cooked-recipes-list {
         gap: 12px;
         min-height: 100px;
@@ -483,7 +483,7 @@ main > form {
         margin-bottom: 18px;
     }
 
-    /* If you have these classes, adjust them too */
+
     .allergen-list, .cooked-recipes-list {
         gap: 10px;
         min-height: 80px;
@@ -498,98 +498,98 @@ main > form {
 
     .profile-container {
         flex-wrap: wrap;
-        padding: 15px 10px; /* Adjusted padding based on registration.css pattern */
-        gap: 10px; /* Adjusted gap */
+        padding: 15px 10px;
+        gap: 10px;
     }
 
     .profile-navigation {
-        gap: 10px; /* Adjusted gap */
-        margin-bottom: 10px; /* Adjusted margin */
+        gap: 10px;
+        margin-bottom: 10px;
     }
 
     .profile-nav-btn {
-        padding: 8px 10px; /* Adjusted padding */
-        font-size: 13px; /* Adjusted font size */
+        padding: 8px 10px;
+        font-size: 13px;
     }
 
     .profile-content h2 {
-        font-size: 18px; /* Adjusted font size */
-        margin-bottom: 8px; /* Adjusted margin */
+        font-size: 18px;
+        margin-bottom: 8px;
     }
 
     .profile-content h3 {
-        font-size: 13px; /* Adjusted font size */
-        margin: 0 0 10px 0; /* Adjusted margin */
+        font-size: 13px;
+        margin: 0 0 10px 0;
     }
 
     .actions {
-        gap: 10px; /* Adjusted gap */
-        flex-direction: column; /* Stack buttons on very small screens */
+        gap: 10px;
+        flex-direction: column;
     }
 
     .action-btn {
-        padding: 10px 12px; /* Adjusted padding */
-        font-size: 11px; /* Adjusted font size */
-        flex-grow: unset; /* Remove flex-grow when stacked */
-        width: 100%; /* Make buttons take full width */
+        padding: 10px 12px;
+        font-size: 11px;
+        flex-grow: unset;
+        width: 100%;
     }
 
     .add-allergen-form {
-        padding: 15px; /* Adjusted padding */
+        padding: 15px;
     }
 
     .form-field {
-        gap: 4px; /* Adjusted gap */
-        margin-bottom: 8px; /* Adjusted margin */
+        gap: 4px;
+        margin-bottom: 8px;
     }
 
     .form-field label {
-        font-size: 11px; /* Adjusted font size */
+        font-size: 11px;
     }
 
     .form-field input[type="text"] {
-        padding: 8px 10px; /* Adjusted padding */
-        font-size: 11px; /* Adjusted font size */
+        padding: 8px 10px;
+        font-size: 11px;
     }
 
     .form-actions {
-        gap: 10px; /* Adjusted gap */
-        margin-top: 8px; /* Adjusted margin */
+        gap: 10px;
+        margin-top: 8px;
     }
 
     .form-btn {
-        padding: 10px 12px; /* Adjusted padding */
-        font-size: 11px; /* Adjusted font size */
-        flex-grow: unset; /* Remove flex-grow when stacked */
-        width: 100%; /* Make buttons take full width */
+        padding: 10px 12px;
+        font-size: 11px;
+        flex-grow: unset;
+        width: 100%;
     }
 
     .profile-item-list {
-        gap: 8px; /* Adjusted gap */
+        gap: 8px;
     }
 
     .profile-item {
-        padding: 10px 12px; /* Adjusted padding */
-        gap: 8px; /* Adjusted gap */
-        font-size: 13px; /* Adjusted font size */
-        min-height: 50px; /* Adjust min-height */
+        padding: 10px 12px;
+        gap: 8px;
+        font-size: 13px;
+        min-height: 50px;
     }
 
     .delete-item-btn img {
-        width: 18px; /* Adjusted size */
-        height: 18px; /* Adjusted size */
+        width: 18px;
+        height: 18px;
     }
 
     #logOut {
-        width: clamp(150px, 80%, 200px); /* Adjusted width */
-        font-size: 11px; /* Adjusted font size */
-        padding: 8px 12px; /* Adjusted padding */
-        min-height: 40px; /* Adjusted min-height */
-        margin-top: 15px; /* Adjusted margin */
-        margin-bottom: 15px; /* Adjusted margin */
+        width: clamp(150px, 80%, 200px);
+        font-size: 11px;
+        padding: 8px 12px;
+        min-height: 40px;
+        margin-top: 15px;
+        margin-bottom: 15px;
     }
 
-    /* If you have these classes, adjust them too */
+
     .allergen-list, .cooked-recipes-list {
         gap: 8px;
         min-height: 60px;
