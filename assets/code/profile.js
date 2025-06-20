@@ -40,12 +40,12 @@ async function saveAllergenDB(allergenName) {
         return;
     }
     const userDocRef = doc(db, "users", auth.currentUser.uid);
-    const allergenId = generateAllergenId(); // Generate an ID for the allergen
+    const allergenId = generateAllergenId();
     try {
         await updateDoc(userDocRef, {
             allergens: arrayUnion({name: allergenName, id: allergenId})
         });
-        await loadUserAllergens(); // Refresh the list
+        await loadUserAllergens();
     } catch (error) {
         console.error("Error saving allergen:", error);
         alert("Ошибка при сохранении продукта.");
@@ -98,10 +98,10 @@ function displayAllergens(allergens) {
     }
 
     const ul = document.createElement('ul');
-    ul.classList.add('profile-item-list'); // Add a class for styling if needed
+    ul.classList.add('profile-item-list');
     allergens.forEach(allergen => {
         const li = document.createElement('li');
-        li.classList.add('profile-item'); // Add a class for styling
+        li.classList.add('profile-item');
         li.textContent = allergen.name;
 
         const deleteBtn = document.createElement('button');
@@ -109,7 +109,7 @@ function displayAllergens(allergens) {
         img.src = "assets/svg/trash.svg";
         img.alt = "Удалить";
         deleteBtn.appendChild(img);
-        deleteBtn.classList.add('delete-item-btn'); // Add a class for styling
+        deleteBtn.classList.add('delete-item-btn');
         deleteBtn.onclick = () => removeAllergenDB(allergen);
 
         li.appendChild(deleteBtn);
@@ -123,7 +123,6 @@ async function loadUserAllergens() {
     displayAllergens(allergens);
 }
 
-// --- Cooked Recipes Functions ---
 async function getCookedRecipes() {
     if (!auth.currentUser) {
         return [];
@@ -132,7 +131,7 @@ async function getCookedRecipes() {
     try {
         const docSnap = await getDoc(userDocRef);
         if (docSnap.exists() && docSnap.data().cooked) {
-            return docSnap.data().cooked; // Array of {name: string, id: number}
+            return docSnap.data().cooked;
         } else {
             return [];
         }
@@ -192,7 +191,7 @@ if (showAllergensBtn) {
         cookedRecipesContent.classList.remove('active');
         showAllergensBtn.classList.add('active');
         showCookedRecipesBtn.classList.remove('active');
-        await loadUserAllergens(); // Load allergens when tab is clicked
+        await loadUserAllergens();
     });
 }
 
@@ -202,7 +201,7 @@ if (showCookedRecipesBtn) {
         allergensContent.classList.remove('active');
         showCookedRecipesBtn.classList.add('active');
         showAllergensBtn.classList.remove('active');
-        await loadUserCookedRecipes(); // Load recipes when tab is clicked
+        await loadUserCookedRecipes();
     });
 }
 

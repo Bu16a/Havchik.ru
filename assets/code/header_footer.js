@@ -28,5 +28,5 @@ class SiteFooter extends HTMLElement {
     }
 }
 
-customElements.define('site-header', SiteHeader);
-customElements.define('site-footer', SiteFooter);
+customElements.define("site-header", SiteHeader);
+customElements.define("site-footer", SiteFooter);

@@ -31,7 +31,6 @@ main {
     margin-bottom: 12px;
 }
 
-
 .add-product-form {
     background-color: #f9f9f9;
     border: 1px solid #eee;
@@ -84,7 +83,6 @@ main {
     box-shadow: 0 0 0 2px rgba(100, 100, 200, 0.2);
 }
 
-
 .quantity-field {
     flex-direction: row;
     align-items: center;
@@ -95,7 +93,6 @@ main {
     flex-shrink: 0;
     margin-bottom: 0;
 }
-
 
 .quantity-field input[type="number"] {
     width: 60%;
@@ -183,7 +180,6 @@ main {
     box-shadow: none;
 }
 
-
 .product-list {
     width: 100%;
     padding: 0;
@@ -225,7 +221,6 @@ main {
 .product-name {
     font-size: 19px;
     font-weight: 600;
-
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -237,7 +232,6 @@ main {
     font-size: 17px;
     color: #777777;
 }
-
 
 .product-name-input {
     display: block;
@@ -290,7 +284,6 @@ main {
     flex-grow: 0;
 }
 
-
 .product-actions {
     display: flex;
     align-items: center;
@@ -339,17 +332,14 @@ main {
     display: inline-block;
 }
 
-
 .product-item.edit-mode {
     background-color: #cafac5;
 }
-
 
 .product-item.edit-mode .product-name,
 .product-item.edit-mode .product-quantity-display {
     display: none;
 }
-
 
 .product-item.edit-mode .product-name-input,
 .product-item.edit-mode .edit-quantity-controls {
@@ -423,7 +413,6 @@ main {
         font-size: 26px;
         margin-bottom: 12px;
     }
-
 
     .add-product-form {
         padding: 20px;
@@ -504,7 +493,6 @@ main {
         font-size: 15px;
     }
 
-
     .product-item.edit-mode .product-name-input {
         font-size: 15px;
         padding: 4px 8px;
@@ -561,7 +549,6 @@ main {
         font-size: 24px;
         margin-bottom: 10px;
     }
-
 
     .add-product-form {
         padding: 16px;
@@ -621,7 +608,6 @@ main {
         font-size: 13px;
     }
 
-
     .product-list {
         gap: 10px;
     }
@@ -644,7 +630,6 @@ main {
     .product-quantity-display {
         font-size: 13px;
     }
-
 
     .product-item.edit-mode .product-name-input {
         font-size: 13px;
@@ -703,7 +688,6 @@ main {
         margin-bottom: 6px;
     }
 
-
     .add-product-form {
         padding: 14px;
     }
@@ -727,7 +711,6 @@ main {
         padding: 6px 8px;
         font-size: 11px;
     }
-
 
     .quantity-field {
         gap: 5px;
@@ -753,7 +736,6 @@ main {
         width: 100%;
     }
 
-
     .actions {
         gap: 6px;
         margin-bottom: 8px;
@@ -764,7 +746,6 @@ main {
         font-size: 11px;
         width: 100%;
     }
-
 
     .product-list {
         gap: 8px;

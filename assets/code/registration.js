@@ -1,16 +1,25 @@
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js';
-import {doc, setDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
-import {app, auth, db} from "./checkAuth.js"
+import {
+    getAuth,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+} from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+import {
+    doc,
+    setDoc,
+} from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+import { app, auth, db } from "./checkAuth.js";
 
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', async () => {
-        await navigator.serviceWorker.register('/assets/code/service-worker.js');
+if ("serviceWorker" in navigator) {
+    window.addEventListener("load", async () => {
+        await navigator.serviceWorker.register(
+            "/assets/code/service-worker.js",
+        );
     });
 }
 
 function setCookie(name, value, minutesToExpire) {
     const date = new Date();
-    date.setTime(date.getTime() + (minutesToExpire * 60 * 1000));
+    date.setTime(date.getTime() + minutesToExpire * 60 * 1000);
     const expires = "expires=" + date.toUTCString();
     document.cookie = `${name}=${value}; ${expires}; path=/; Secure; SameSite=Lax`;
 }
@@ -19,38 +28,41 @@ function singUpSuccess(userCredential) {
     alert("Регистрация успешна!");
     const user = userCredential.user;
     createMyProducts(user.uid)
-    .then(() => {
-        return user.getIdToken();
-    })
-    .then((idToken) => {
-        setCookie("firebase_token", idToken, 60);
-        window.location.href = '/index.html';
-    })
-    .catch((error) => {
-        console.error("Ошибка при получения токена или создания документа:", error);
-    });
+        .then(() => {
+            return user.getIdToken();
+        })
+        .then((idToken) => {
+            setCookie("firebase_token", idToken, 60);
+            window.location.href = "/index.html";
+        })
+        .catch((error) => {
+            console.error(
+                "Ошибка при получения токена или создания документа:",
+                error,
+            );
+        });
 }
 
 async function createMyProducts(id) {
-    const userDocRef = doc(db, "users", id); // users/{uid}
+    const userDocRef = doc(db, "users", id);
     await setDoc(userDocRef, {
         products: {},
         cooked: [],
-        allergens: []
+        allergens: [],
     });
 }
 
 function signUpFaile(error) {
     console.error("Ошибка регистрации:", error.code, error.message);
     let errorMessage = "Ошибка регистрации: ";
-    switch(error.code) {
-        case 'auth/email-already-in-use':
+    switch (error.code) {
+        case "auth/email-already-in-use":
             errorMessage += "Этот email уже зарегистрирован";
             break;
-        case 'auth/invalid-email':
+        case "auth/invalid-email":
             errorMessage += "Некорректный email";
             break;
-        case 'auth/weak-password':
+        case "auth/weak-password":
             errorMessage += "Пароль должен содержать минимум 6 символов";
             break;
         default:
@@ -64,7 +76,7 @@ function signInSuccess(userCredential) {
     user.getIdToken()
         .then((idToken) => {
             setCookie("firebase_token", idToken, 60);
-            window.location.href = '/index.html';
+            window.location.href = "/index.html";
         })
         .catch((error) => {
             console.error("Ошибка получения токена:", error);
@@ -75,62 +87,70 @@ function signInSuccess(userCredential) {
 function signInFail(error) {
     console.error("Ошибка входа:", error.code, error.message);
     let errorMessage = "Ошибка входа: ";
-    switch(error.code) {
-        case 'auth/user-not-found':
+    switch (error.code) {
+        case "auth/user-not-found":
             errorMessage += "Пользователь не найден";
             break;
-        case 'auth/invalid-email':
+        case "auth/invalid-email":
             errorMessage += "Некорректный email";
             break;
-        case 'auth/wrong-password':
+        case "auth/wrong-password":
             errorMessage += "Пароль неверный";
             break;
-        case 'auth/invalid-login-credentials':
+        case "auth/invalid-login-credentials":
             errorMessage += "Неверный пароль или почта";
-            break
+            break;
         default:
             errorMessage += error.message;
     }
     alert(errorMessage);
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    const signUpForm = document.querySelector('.sign-up-container .auth-form form');
-    const signInForm = document.querySelector('.sign-in-container .auth-form form');
+document.addEventListener("DOMContentLoaded", function () {
+    const signUpForm = document.querySelector(
+        ".sign-up-container .auth-form form",
+    );
+    const signInForm = document.querySelector(
+        ".sign-in-container .auth-form form",
+    );
 
-    document.getElementById("signUpBtt").addEventListener('click', function(e) {
-        const signUp = document.querySelector(".sign-up-container");
-        const signIn = document.querySelector(".sign-in-container");
-        signUp.style.display = "flex";
-        signIn.style.display = "none";
-    })
-    
-    document.getElementById("signInBtt").addEventListener('click', function(e) {
-        const signUp = document.querySelector(".sign-up-container");
-        const signIn = document.querySelector(".sign-in-container");
-        signIn.style.display = "flex";
-        signUp.style.display = "none";
-    })
-    
+    document
+        .getElementById("signUpBtt")
+        .addEventListener("click", function (e) {
+            const signUp = document.querySelector(".sign-up-container");
+            const signIn = document.querySelector(".sign-in-container");
+            signUp.style.display = "flex";
+            signIn.style.display = "none";
+        });
+
+    document
+        .getElementById("signInBtt")
+        .addEventListener("click", function (e) {
+            const signUp = document.querySelector(".sign-up-container");
+            const signIn = document.querySelector(".sign-in-container");
+            signIn.style.display = "flex";
+            signUp.style.display = "none";
+        });
+
     if (signUpForm) {
-        signUpForm.addEventListener('submit', function(e) {
+        signUpForm.addEventListener("submit", function (e) {
             e.preventDefault();
-            const email = document.getElementById('email1').value;
-            const password = document.getElementById('password1').value;
+            const email = document.getElementById("email1").value;
+            const password = document.getElementById("password1").value;
             createUserWithEmailAndPassword(auth, email, password)
-            .then(singUpSuccess)
-            .catch(signUpFaile);
+                .then(singUpSuccess)
+                .catch(signUpFaile);
         });
     }
 
     if (signInForm) {
-        signInForm.addEventListener('submit', function(e) {
+        signInForm.addEventListener("submit", function (e) {
             e.preventDefault();
-            const email = document.getElementById('email2').value;
-            const password = document.getElementById('password2').value;
+            const email = document.getElementById("email2").value;
+            const password = document.getElementById("password2").value;
             signInWithEmailAndPassword(auth, email, password)
-            .then(signInSuccess)
-            .catch(signInFail);
+                .then(signInSuccess)
+                .catch(signInFail);
         });
     }
 });

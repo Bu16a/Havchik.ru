@@ -1,6 +1,9 @@
-import {initializeApp} from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js';
-import {getAuth, onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js';
-import {getFirestore} from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+import {
+    getAuth,
+    onAuthStateChanged,
+} from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyArIiiX0vU-_Kr_CJRLdtIs5qTHIUTvUc8",
@@ -9,7 +12,7 @@ const firebaseConfig = {
     storageBucket: "che-te.appspot.com",
     messagingSenderId: "902131293726",
     appId: "1:902131293726:web:4a8a3aff1cf0c9d4e1180f",
-    measurementId: "G-BXT01SDXW2"
+    measurementId: "G-BXT01SDXW2",
 };
 
 export const app = initializeApp(firebaseConfig);
@@ -20,8 +23,8 @@ onAuthStateChanged(auth, (user) => {
     if (user) {
         document.body.style.display = "block";
     } else {
-        if (!window.location.href.includes('auth.html')) {
-            window.location.href = '/auth.html';
+        if (!window.location.href.includes("auth.html")) {
+            window.location.href = "/auth.html";
         }
     }
 });

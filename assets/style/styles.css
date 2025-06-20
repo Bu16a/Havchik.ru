@@ -68,7 +68,6 @@ header a > img {
     min-width: 64px;
     width: 64px;
     background: white url("../svg/logo.png");
-
     background-size: cover;
 }
 
@@ -79,13 +78,11 @@ header a > img {
 }
 
 .products {
-
     min-width: 100px;
     width: 100px;
 }
 
 .profile {
-
     min-width: 64px;
     width: 64px;
 }
@@ -256,7 +253,6 @@ main {
     }
 }
 
-
 @media (max-width: 376px) {
     header {
         margin: 0 0.5rem 0.5rem 0.5rem;
@@ -302,7 +298,6 @@ main {
         font-size: 12px;
     }
 }
-
 
 @media (max-width: 376px) and (max-height: 670px) {
     main {
